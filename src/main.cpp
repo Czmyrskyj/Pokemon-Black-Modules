@@ -4,12 +4,13 @@ constexpr int wnd_w{1920};
 constexpr int wnd_h{1080};
 
 int main(){
+	SetTraceLogLevel(LOG_WARNING);
 	InitWindow(wnd_w, wnd_h, "Pokemon Black Modules");
 	SetTargetFPS(60);
 	while (!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(BLACK);
-
+		
 		EndDrawing();
 	}
 	CloseWindow();
