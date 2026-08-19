@@ -3,7 +3,6 @@
 #include "common.hpp"
 #include "types.hpp"
 #include "abilities.hpp"
-#include "hidden_abilities.hpp"
 
 enum POKEDEX{
 	MISSINGNO,
@@ -658,7 +657,7 @@ enum POKEDEX{
 	GENESECT,
 };
 
-struct entry_t{
+struct pokemon_t{
 	u8 base_hp;
 	u8 base_attack;
 	u8 base_defense;
@@ -672,4 +671,8 @@ struct entry_t{
 	ABILITY ability1;
 	ABILITY ability2;
 	ABILITY hidden_ability;
+};
+
+struct legendary_t{
+	pokemon_t pokemon;
 };
