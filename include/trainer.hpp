@@ -8,8 +8,16 @@ using party_t = std::array<pokemon_t, 6>;
 
 class trainer_t{
 	std::string name;
+	std::string prefix;
 	party_t party;
 	public:
+	trainer_t(std::string n, std::string p) : name(std::move(n)), prefix(std::move(p)) {}
+	std::string_view get_name() const{
+		return name;
+	}
+	std::string_view get_prefix() const{
+		return prefix;
+	}
 };
 
 struct gym_leader_t{

@@ -2,7 +2,7 @@
 #include "common.hpp"
 
 #warning "Validate names"
-constexpr usz count = 649;
+constexpr usz count = 650;
 constexpr std::array<std::string_view, count> names{
 	"Missingno",
 		"Bulbasaur",

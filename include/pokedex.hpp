@@ -658,6 +658,7 @@ enum POKEDEX{
 };
 
 struct pokemon_t{
+	POKEDEX id;
 	u8 base_hp;
 	u8 base_attack;
 	u8 base_defense;

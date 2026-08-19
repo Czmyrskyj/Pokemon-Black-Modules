@@ -14,6 +14,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(raylib)
 add_executable(${Project_Name} 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/battle.cpp
 )
 add_compile_options(
 	-Wall
