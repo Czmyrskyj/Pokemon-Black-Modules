@@ -21,19 +21,25 @@ int main(){
 		CloseWindow();
 		return -1;
 	}
-	auto contents = assets.get("418.png");
+	auto contents = assets.get(std::format("{}.png", std::to_string(POKEDEX::RESHIRAM)));
 	auto img = LoadImageFromMemory(".png", contents.data(), contents.size());
 	auto t = LoadTextureFromImage(img);
 	UnloadImage(img);
+	usz timer = 0;
 	usz frame = 0;
 	while (!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(BLACK);
-		frame++;
+		timer++;
+		if (timer > 3){
+			frame++;
+			timer = 0;
+		}
 		if (frame * 153 > t.width){
 			frame = 0;
 		}
-		DrawTexturePro(t, {frame * 153.0f, 0, 153, 89}, {100, 100, 153, 89}, {0, 0}, 0, WHITE);
+		DrawTexturePro(t, {frame * 153.0f, 0, 153, 89}, {100, 100, 153 * 2.0, 89 * 2.0}, {0, 0}, 0, WHITE);
+		DrawTexturePro(t, {frame * 153.0f, 89.0f, 153, 89}, {250, 100, 153 * 2.0, 89 * 2.0}, {0, 0}, 0, WHITE);
 		EndDrawing();
 	}
 	UnloadTexture(t);
