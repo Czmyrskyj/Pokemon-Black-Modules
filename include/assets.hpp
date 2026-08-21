@@ -14,12 +14,14 @@ struct asset_entry_t{
 	usz offset;
 };
 
+
 class assets_t{
 	std::unordered_map<std::string, asset_entry_t> asset_registry;
 
 	std::unordered_map<std::string, Texture2D> texture_cache;
 	std::unordered_map<std::string, Sound> sound_cache;
 	std::unordered_map<std::string, Music> music_cache;
+	std::unordered_map<std::string, Font> font_cache;
 
 	std::unordered_map<std::string, std::vector<u8>> music_buffer;
 
@@ -32,7 +34,8 @@ class assets_t{
 
 	Texture2D get_tx(std::string_view);
 	Sound get_sfx(std::string_view);
+	Sound get_cry(u16 id);
 	Music get_mus(std::string_view);
-
+	Font get_font(std::string_view);
 	void unload_assets();
 };

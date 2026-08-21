@@ -1,6 +1,7 @@
 #include "assets.hpp"
 #include <fstream>
 #include <filesystem>
+#include "pokedex.hpp"
 
 namespace fs = std::filesystem;
 const fs::path assets_pakg{"assets.PAKG"};
@@ -77,6 +78,10 @@ Sound assets_t::get_sfx(std::string_view name) {
 	return sound_cache[key];
 }
 
+Sound assets_t::get_cry(u16 id) {
+	return get_sfx(std::format("{}.wav", id));
+}
+
 Music assets_t::get_mus(std::string_view name) {
 	std::string key(name);
 	if (!music_cache.contains(key)){
@@ -89,6 +94,18 @@ Music assets_t::get_mus(std::string_view name) {
 	return music_cache[key];
 }
 
+
+Font assets_t::get_font(std::string_view name) {
+	std::string key(name);
+	if (!font_cache.contains(key)){
+		auto contents = read_bytes(key);
+		if (contents.empty()) return Font{};
+		Font font = LoadFontFromMemory(".otf", contents.data(), contents.size(), 32, nullptr, 0);
+		font_cache[key] = font;
+	}
+	return font_cache[key];
+}
+
 void assets_t::unload_assets(){
 	for (auto& [name, tx] : texture_cache){
 		UnloadTexture(tx);
@@ -99,7 +116,11 @@ void assets_t::unload_assets(){
 	for (auto& [name, mus] : music_cache){
 		UnloadMusicStream(mus);
 	}
+	for (auto& [name, font] : font_cache){
+		UnloadFont(font);
+	}
 	texture_cache.clear();
 	sound_cache.clear();
 	music_cache.clear();
+	font_cache.clear();
 }
