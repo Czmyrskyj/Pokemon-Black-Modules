@@ -3,14 +3,17 @@
 #include "trainer.hpp"
 #include "assets.hpp"
 #include "states.hpp"
+#include "random.hpp"
+#include <algorithm>
 #include <print>
 
 constexpr int wnd_w{1920};
 constexpr int wnd_h{1080};
 
-constexpr float alpha_delta{300.0f};
+constexpr float alpha_delta{250.0f};
 
 STATE state = STATE::TITLE;
+bool set_state_meta = false;
 void switch_state(STATE new_state, unsigned char& alpha, float delta = alpha_delta){
 	float current_alpha = static_cast<float>(alpha);
 	if (state != new_state){
@@ -18,6 +21,7 @@ void switch_state(STATE new_state, unsigned char& alpha, float delta = alpha_del
 		if (alpha >= 255.0f){
 			current_alpha = 255;
 			state = new_state;
+			set_state_meta = false;
 		}
 	}
 	alpha = static_cast<unsigned char>(current_alpha);
@@ -25,7 +29,11 @@ void switch_state(STATE new_state, unsigned char& alpha, float delta = alpha_del
 
 void resume_state_alpha(unsigned char& alpha){
 	float current_alpha = static_cast<float>(alpha);
-	if (current_alpha > 0.0f) current_alpha -= alpha_delta*GetFrameTime();
+	if (current_alpha > 0.0f && !set_state_meta){
+		current_alpha -= alpha_delta*GetFrameTime();
+	} else {
+		current_alpha = 0.0f;
+	}
 	alpha = static_cast<unsigned char>(current_alpha);
 }
 
@@ -34,6 +42,26 @@ void play_music(const Music& mus){
 		PlayMusicStream(mus);
 	}
 	UpdateMusicStream(mus);
+}
+
+i8 control_selection(u8& opt, u8 min, u8 max, const Sound& sel, const Sound& dec){
+	if (IsKeyPressed(KEY_DOWN)){
+		opt++;
+		if (opt >= max) opt = 0;
+		PlaySound(sel);
+	} else if (IsKeyPressed(KEY_UP)){
+		if (opt > 0){
+			opt--;
+		} else {
+			opt = max - 1;
+		}
+		PlaySound(sel);
+	}
+	if (IsKeyPressed(KEY_ENTER)){
+		PlaySound(dec);
+		return opt;
+	}
+	return -1;
 }
 
 void draw_title_screen(assets_t& assets, bool pressed){
@@ -62,6 +90,11 @@ void draw_title_screen(assets_t& assets, bool pressed){
 	}
 }
 
+std::vector<std::string_view> menu_options{
+	"NEW GAME",
+	"CONNECT VIA WIFI"
+};
+
 int main(){
 	SetTraceLogLevel(LOG_WARNING);
 	InitWindow(wnd_w, wnd_h, "Pokemon Black Modules");
@@ -78,12 +111,11 @@ int main(){
 	}
 
 	Music current_music{};
-	bool set_state_meta = false;
-
 	unsigned char black_rect_alpha = 0;
 	bool halt_music = false;
-	
 	bool title_pressed_enter = false;
+	u8 menu_index = rnd::get_val<int>(1, 17);
+	u8 selected_option = 0;
 
 	while (!WindowShouldClose()){
 		if (!halt_music){
@@ -100,7 +132,7 @@ int main(){
 					}
 				}
 				draw_title_screen(assets, halt_music);
-				if (IsKeyPressed(KEY_ENTER)){
+				if (IsKeyPressed(KEY_ENTER) && !title_pressed_enter){
 					title_pressed_enter = true;
 					StopMusicStream(current_music);
 					PlaySound(assets.get_cry(POKEDEX::RESHIRAM));
@@ -112,6 +144,25 @@ int main(){
 				break;
 			case STATE::MAIN_MENU:
 				{
+					if (!set_state_meta && black_rect_alpha <= 0.0f){
+						set_state_meta = true;
+					}
+					resume_state_alpha(black_rect_alpha);
+					auto mntx = assets.get_tx("menu10.png");
+					
+					DrawTexturePro(mntx, {0, 0, static_cast<float>(mntx.width), static_cast<float>(mntx.height)}, {0, 0, wnd_w, 1537}, {0, 0}, 0.0f, {150, 150, 150, 255});
+					u8 selected_button_c = static_cast<u8>(60 + std::sin(GetTime() * 3) * 50);
+					Sound sel_sfx = assets.get_sfx("SEQ_SE_SELECT1.wav");
+					Sound dec_sfx = assets.get_sfx("SEQ_SE_DECIDE1.wav");
+					i8 opt = control_selection(selected_option, 0, menu_options.size(), sel_sfx, dec_sfx);
+
+
+					for (usz i = 0; i < menu_options.size(); i++){
+						auto button = selected_option == i ? assets.get_tx("button-selected.png") : assets.get_tx("button.png");
+						Color c = (selected_option == i) ? Color{static_cast<u8>(255 - selected_button_c), static_cast<u8>(255 - selected_button_c), static_cast<u8>(255 - selected_button_c), 220} : Color{255, 255, 255, 200};
+						DrawTextureEx(button, {300, 300 + i * 100.0f}, 0.0f, 4.0f, c);
+						DrawTextEx(assets.get_font("main.otf"), menu_options[i].data(), {350, 330 + i * 100.0f}, 50.0f, 0.0f, WHITE);
+					}
 				}
 				break;
 			case STATE::JUNIPER_INTRODUCTION:
