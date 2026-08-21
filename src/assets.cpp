@@ -9,36 +9,26 @@ std::expected<void, std::string_view> assets_t::load_assets(){
 	if (!fs::exists(assets_pakg)){
 		return std::unexpected("assets.PAKG is absent");
 	}
-	std::ifstream in(assets_pakg, std::ios::binary | std::ios::ate);
+	std::ifstream in(assets_pakg, std::ios::binary);
 	if (!in.is_open()){
 		return std::unexpected("failed to open assets.PAKG");
 	}
-	std::streamsize file_size = in.tellg();
-	if (file_size == std::streamsize(-1)){
-		return std::unexpected("failed to determine assets.PAKG size");
-	}
-	in.seekg(0, std::ios::beg);
-	memory_pool.resize(file_size);
-	in.read(reinterpret_cast<char*>(memory_pool.data()), memory_pool.size());
-	in.close();
-	usz cursor = 0;
-	usz assets_count = *reinterpret_cast<const u32*>(&memory_pool[cursor]);
-	cursor += sizeof(u32);
-	asset_registry.resize(assets_count);
+	u32 assets_count;
+	in.read(reinterpret_cast<char*>(&assets_count), sizeof(u32));
+	asset_registry.clear();
+	asset_registry.reserve(assets_count);
 	for (usz i = 0; i < assets_count; i++){
-		u32 path_len = *reinterpret_cast<const u32*>(&memory_pool[cursor]);
-		cursor += sizeof(u32);
-		std::string path(reinterpret_cast<const char*>(&memory_pool[cursor]), path_len);
-		cursor += path_len;
-		u32 size = *reinterpret_cast<const u32*>(&memory_pool[cursor]);
-		cursor += sizeof(u32);
-		u32 offset = *reinterpret_cast<const u32*>(&memory_pool[cursor]);
-		cursor += sizeof(u32);
-		if (offset + size > memory_pool.size()){
-			return std::unexpected("asset offset out of bounds");
-		}
-		const u8* raw_data_ptr = &memory_pool[offset];
-		asset_registry[i] = {
+		u32 path_len = 0;
+		in.read(reinterpret_cast<char*>(&path_len), sizeof(u32));
+		std::string path(path_len, '\0');
+		in.read(path.data(), path_len);
+
+		u32 size;
+		u32 offset;
+		in.read(reinterpret_cast<char*>(&size), sizeof(u32));
+		in.read(reinterpret_cast<char*>(&offset), sizeof(u32));
+
+		asset_registry[path] = {
 			.name = path,
 			.size = size,
 			.offset = offset,
@@ -47,11 +37,69 @@ std::expected<void, std::string_view> assets_t::load_assets(){
 	return {};
 }
 
-std::span<const u8> assets_t::get(std::string_view name) const{
-	for (const auto& asset : asset_registry){
-		if (name == asset.name){
-			return std::span<const u8>(memory_pool.data() + asset.offset, asset.size);
-		}
+std::vector<u8> assets_t::read_bytes(std::string_view name) const{
+	auto it = asset_registry.find(std::string(name));
+	if (it == asset_registry.end()) return {};
+
+	std::ifstream in(assets_pakg, std::ios::binary);
+	if (!in.is_open()){
+		return {};
 	}
-	return {};
+	in.seekg(it->second.offset, std::ios::beg);
+	std::vector<u8> buffer(it->second.size);
+	in.read(reinterpret_cast<char*>(buffer.data()), it->second.size);
+	return buffer;
+}
+
+Texture2D assets_t::get_tx(std::string_view name) {
+	std::string key(name);
+	if (!texture_cache.contains(key)){
+		auto contents = read_bytes(key);
+		if (contents.empty()) return Texture2D{};
+		Image img = LoadImageFromMemory(".png", contents.data(), contents.size());
+		Texture2D texture = LoadTextureFromImage(img);
+		UnloadImage(img);
+		texture_cache[key] = texture;
+	}
+	return texture_cache[key];
+}
+
+Sound assets_t::get_sfx(std::string_view name) {
+	std::string key(name);
+	if (!sound_cache.contains(key)){
+		auto contents = read_bytes(key);
+		if (contents.empty()) return Sound{};
+		Wave wave = LoadWaveFromMemory(".wav", contents.data(), contents.size());
+		Sound sound = LoadSoundFromWave(wave);
+		UnloadWave(wave);
+		sound_cache[key] = sound;
+	}
+	return sound_cache[key];
+}
+
+Music assets_t::get_mus(std::string_view name) {
+	std::string key(name);
+	if (!music_cache.contains(key)){
+		music_buffer[key] = read_bytes(key);
+		const auto& contents = music_buffer[key];
+		if (contents.empty()) return Music{};
+		Music music = LoadMusicStreamFromMemory(".mp3", contents.data(), contents.size());
+		music_cache[key] = music;
+	}
+	return music_cache[key];
+}
+
+void assets_t::unload_assets(){
+	for (auto& [name, tx] : texture_cache){
+		UnloadTexture(tx);
+	}
+	for (auto& [name, sfx] : sound_cache){
+		UnloadSound(sfx);
+	}
+	for (auto& [name, mus] : music_cache){
+		UnloadMusicStream(mus);
+	}
+	texture_cache.clear();
+	sound_cache.clear();
+	music_cache.clear();
 }

@@ -14,10 +14,25 @@ struct asset_entry_t{
 	usz offset;
 };
 
-struct assets_t{
-	std::vector<u8> memory_pool;
-	std::vector<asset_entry_t> asset_registry;
+class assets_t{
+	std::unordered_map<std::string, asset_entry_t> asset_registry;
+
+	std::unordered_map<std::string, Texture2D> texture_cache;
+	std::unordered_map<std::string, Sound> sound_cache;
+	std::unordered_map<std::string, Music> music_cache;
+
+	std::unordered_map<std::string, std::vector<u8>> music_buffer;
+
 	public:
+	~assets_t(){
+		unload_assets();
+	}
 	std::expected<void, std::string_view> load_assets();
-	std::span<const u8> get(std::string_view name) const;
+	std::vector<u8> read_bytes(std::string_view name) const;
+
+	Texture2D get_tx(std::string_view);
+	Sound get_sfx(std::string_view);
+	Music get_mus(std::string_view);
+
+	void unload_assets();
 };
