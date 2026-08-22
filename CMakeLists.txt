@@ -16,6 +16,7 @@ add_executable(${Project_Name}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/battle.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/trainer.cpp
 )
 add_compile_options(
 	-Wall

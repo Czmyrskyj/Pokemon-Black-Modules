@@ -47,7 +47,7 @@ void play_music(const Music& mus){
 i8 control_selection(u8& opt, u8 min, u8 max, const Sound& sel, const Sound& dec, bool horizontal = false){
 	if (IsKeyPressed(!horizontal ? KEY_DOWN : KEY_RIGHT)){
 		opt++;
-		if (opt >= max) opt = 0;
+		if (opt > max) opt = 0;
 		PlaySound(sel);
 	} else if (IsKeyPressed(!horizontal ? KEY_UP : KEY_LEFT)){
 		if (opt > 0){
@@ -95,6 +95,8 @@ std::vector<std::string_view> menu_options{
 	"CONNECT VIA WIFI"
 };
 
+static constexpr std::string_view name_entry_chars{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., "};
+
 int main(){
 	SetTraceLogLevel(LOG_WARNING);
 	InitWindow(wnd_w, wnd_h, "Pokemon Black Modules");
@@ -120,13 +122,16 @@ int main(){
 		u8 menu_index = rnd::get_val<int>(1, 17);
 		u8 selected_option = 0;
 		i8 switch_state_in_main_menu = -1;
-		float options_screen_x = 0.0f;
+		float screen_x = 0.0f;
 		u16 current_txt_index = 0;
 		float txt_seq_timer = 0.0f;
 		u8 char_frame_count = 0;
 		u8 char_frame_count_timer = 0;
 
 		trainer_t player{"nodata", ""};
+		u8 selected_char = 0;
+		u8 char_cursor_blinker = 0;
+		std::string entered_name = "";
 
 		while (!WindowShouldClose()){
 			if (!halt_music){
@@ -169,7 +174,7 @@ int main(){
 						Sound dec_sfx = assets.get_sfx("SEQ_SE_DECIDE1.wav");
 						i8 opt;
 						if (black_rect_alpha == 0){
-							opt = control_selection(selected_option, 0, menu_options.size(), sel_sfx, dec_sfx);
+							opt = control_selection(selected_option, 0, menu_options.size() - 1, sel_sfx, dec_sfx);
 							if (opt != -1 && switch_state_in_main_menu == -1){
 								switch_state_in_main_menu = opt;
 							}
@@ -212,7 +217,15 @@ int main(){
 					break;
 				case STATE::BOY_OR_GIRL:
 					{
-						constexpr std::array<int, 4> arr = {0, 1, 0, 2};
+						if (!set_state_meta && black_rect_alpha > 0.0f){
+							resume_state_alpha(black_rect_alpha);
+							current_music = assets.get_mus("Abandoned Lot of Dreams.mp3");
+							halt_music = false;
+						}
+						if (!set_state_meta && black_rect_alpha <= 0.0f){
+							set_state_meta = true;
+						}
+						constexpr std::array<int, 4> frame_order = {0, 1, 0, 2};
 						char_frame_count_timer++;
 						usz char_frame;
 						if (char_frame_count_timer >= 10){
@@ -220,71 +233,180 @@ int main(){
 							char_frame_count_timer = 0;
 						}
 						char_frame_count %= 4;
-						char_frame = arr[char_frame_count];
-						if (!set_state_meta && black_rect_alpha > 0.0f){
-							resume_state_alpha(black_rect_alpha);
-						}
-						if (!set_state_meta && black_rect_alpha <= 0.0f){
-							current_music = assets.get_mus("Abandoned Lot of Dreams.mp3");
-							halt_music = false;
-							set_state_meta = true;
-						}
+						char_frame = frame_order[char_frame_count];
 						auto bg_strip = assets.get_tx("options-screen-strip.png");
-						options_screen_x -= 1.0f;
-						if (options_screen_x < -bg_strip.width * 6.0f) options_screen_x = 0.0f;
+						screen_x -= 1.0f;
+						if (screen_x < -bg_strip.width * 6.0f) screen_x = 0.0f;
 						float alpha = std::sinf(GetTime()) * 40;
 						for (usz i = 0; i < 20; i++){
-							DrawTextureEx(bg_strip, {0 + i * bg_strip.width * 6.0f + options_screen_x, 0}, 0, 6.0f + (alpha * 0.03f), Color{255, 255, 255, static_cast<u8>(200 - alpha)});
+							DrawTextureEx(bg_strip, {0 + i * bg_strip.width * 6.0f + screen_x, 0}, 0, 6.0f + (alpha * 0.03f), Color{255, 255, 255, static_cast<u8>(200 - alpha)});
 						}
-						draw_text_seq(assets, "Before we can start, tell me about yourself.\nAre you a boy, or a girl?", 10, 100, 50, current_txt_index, txt_seq_timer, WHITE, 1);
 						i8 opt;
 						Sound sel_sfx = assets.get_sfx("SEQ_SE_SELECT1.wav");
 						Sound dec_sfx = assets.get_sfx("SEQ_SE_DECIDE1.wav");
-						if (player.get_sex() == SEX::NONE){
-							opt = control_selection(selected_option, 0, menu_options.size(), sel_sfx, dec_sfx, true);
-						}
-						auto hilbert = assets.get_tx("hilbert.png");
-						auto hilda = assets.get_tx("hilda.png");
+						if (draw_text_seq(assets, "Before we can start, tell me about yourself.\nAre you a boy, or a girl?", 10, 100, 50, current_txt_index, txt_seq_timer, WHITE, 1)){
 
-						Rectangle hilbert_src = {
-							selected_option == 0 && player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
-							0,
-							32,
-							static_cast<float>(hilbert.height)
+							if (player.get_sex() == SEX::NONE){
+								opt = control_selection(selected_option, 0, 1, sel_sfx, dec_sfx, true);
+							}
 
-						};
-						Rectangle hilda_src = {
-							selected_option == 1 && player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
-							0,
-							32,
-							static_cast<float>(hilda.height)
+							auto hilbert = assets.get_tx("hilbert.png");
+							auto hilda = assets.get_tx("hilda.png");
 
-						};
-						Rectangle hilbert_dest = {
-							350,
-							500,
-							selected_option == 0 ? 256.0f : 192.0f,
-							selected_option == 0 ? 216.0f : 162.0f,
-						};
-						Rectangle hilda_dest = {
-							1250,
-							500,
-							selected_option == 1 ? 256.0f : 192.0f,
-							selected_option == 1 ? 216.0f : 162.0f,
-						};
+							Rectangle hilbert_src = {
+								selected_option == 0 && player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
+								0,
+								32,
+								static_cast<float>(hilbert.height)
 
-						DrawTexturePro(hilbert, hilbert_src, hilbert_dest, {0, 0}, 0, selected_option == 0 ? WHITE : Color{200, 200, 200, 100});
-						DrawTexturePro(hilda, hilda_src, hilda_dest, {0, 0}, 0, selected_option == 1 ? WHITE : Color{200, 200, 200, 100});
+							};
+							Rectangle hilda_src = {
+								selected_option == 1 && player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
+								0,
+								32,
+								static_cast<float>(hilda.height)
 
-						if (opt != -1){
-							player.set_sex(static_cast<SEX>(opt));
-							switch_state(STATE::WHATS_YOUR_NAME, black_rect_alpha);
+							};
+							Rectangle hilbert_dest = {
+								350,
+								500,
+								selected_option == 0 ? 256.0f : 192.0f,
+								selected_option == 0 ? 216.0f : 162.0f,
+							};
+							Rectangle hilda_dest = {
+								1250,
+								500,
+								selected_option == 1 ? 256.0f : 192.0f,
+								selected_option == 1 ? 216.0f : 162.0f,
+							};
+
+							DrawTexturePro(hilbert, hilbert_src, hilbert_dest, {0, 0}, 0, selected_option == 0 ? WHITE : Color{200, 200, 200, 100});
+							DrawTexturePro(hilda, hilda_src, hilda_dest, {0, 0}, 0, selected_option == 1 ? WHITE : Color{200, 200, 200, 100});
+
+							if (opt != -1 && player.get_sex() == SEX::NONE){
+								player.set_sex(static_cast<SEX>(opt));
+							} else if (player.get_sex() != SEX::NONE){
+								switch_state(STATE::WHATS_YOUR_NAME, black_rect_alpha);
+							}
 						}
 					}
 					break;
 				case STATE::WHATS_YOUR_NAME:
 					{
+						if (!set_state_meta && black_rect_alpha > 0.0f){
+							resume_state_alpha(black_rect_alpha);
+							current_txt_index = 0;
+							txt_seq_timer = 0;
+						}
+						Sound sel_sfx = assets.get_sfx("SEQ_SE_SELECT1.wav");
+						Sound dec_sfx = assets.get_sfx("SEQ_SE_DECIDE1.wav");
+						Sound can_sfx = assets.get_sfx("SEQ_SE_CANCEL3.wav");
+						Sound bep_sfx = assets.get_sfx("SEQ_SE_BEEP.wav");
+						Sound dec2_sfx = assets.get_sfx("SEQ_SE_DECIDE2.wav");
 
+						if (!set_state_meta && black_rect_alpha <= 0.0f){
+							set_state_meta = true;
+						}
+						if (player.get_name() == "nodata" && (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_RIGHT))){
+							char_cursor_blinker = 0;
+							PlaySound(sel_sfx);
+						}
+						if (IsKeyPressed(KEY_Z)){
+							if (selected_char < 70){
+								if (entered_name.size() < 7){
+									entered_name += name_entry_chars[selected_char];
+									PlaySound(dec_sfx);
+								} else {
+									PlaySound(bep_sfx);
+								}
+							} else {
+								if (selected_char == 70){
+									if (entered_name.size() < 7){
+										entered_name += ' ';
+										PlaySound(dec_sfx);
+									} else {
+										PlaySound(bep_sfx);
+									}
+								} else if (selected_char == 74 && (!entered_name.empty() && entered_name != "nodata" && player.get_name() == "nodata")){
+									player.set_name(entered_name);
+									PlaySound(dec2_sfx);
+								}
+							}
+						}
+
+						if (player.get_name() != "nodata"){
+							switch_state(STATE::JUNIPER_INTRODUCTION, black_rect_alpha, 100);
+						}
+
+						if (IsKeyPressed(KEY_X)){
+							if (!entered_name.empty() && player.get_name() == "nodata"){
+								entered_name.pop_back();
+								PlaySound(can_sfx);
+							} else {
+								PlaySound(bep_sfx);
+							}
+						}
+
+						float wave_pos = std::sinf(GetTime()) * 10;
+
+						char_cursor_blinker++;
+						if (char_cursor_blinker > 40) char_cursor_blinker = 0;
+						screen_x += 1.0f;
+						if (screen_x >= 1416) screen_x = 0;
+						for (int i = -1; i < 2; i++){
+							DrawTexturePro(assets.get_tx("your-name-bg.png"), {0, 0, 257, 194}, {i * 1416.0f + screen_x, 0, 1416, 1080}, {0, 0}, 0, WHITE);
+						}
+						draw_text_seq(assets, "Your name?", 10, 1000, 50, current_txt_index, txt_seq_timer, WHITE, 1);
+						DrawTextureEx(assets.get_tx("text-entry.png"), {300, 20 + wave_pos}, 0, 5, WHITE);
+
+
+						auto char_cursor = assets.get_tx(selected_char < 70 ? "char-select.png" : "char-select-wide.png");
+						if (char_cursor_blinker < 20){
+							DrawTextureEx(char_cursor, {408.0f + ((selected_char % 13) * 80), 200.0f + ((static_cast<u8>(selected_char / 13)) * 120) + wave_pos}, 0, 5.1f, WHITE);
+						}
+						draw_text(assets, entered_name, 710, 80 + wave_pos, 80, WHITE, {50, 50, 50, 255}, 70);
+						player.draw_overworld_preview(assets, {325, 30 + wave_pos});
+						if (player.get_name() == "nodata"){
+							if (IsKeyPressed(KEY_DOWN)){
+								if (selected_char < 52){
+									if (selected_char < 52){
+										selected_char += 13;
+									} else {
+										selected_char %= 13;
+									}
+								} else {
+									selected_char = 70;
+								}
+							} else if (IsKeyPressed(KEY_UP)){
+								if (selected_char > 12){
+									selected_char -= 13;
+								} else {
+									selected_char = 52 + (selected_char % 13);
+								}
+							} else if (IsKeyPressed(KEY_LEFT)){
+								if (selected_char < 70){
+									if (selected_char > 0){
+										selected_char--;
+									} else {
+										selected_char = 64;
+									}
+								} else {
+									if (selected_char == 74) selected_char = 70;
+									else selected_char = 74;
+								}
+							} else if (IsKeyPressed(KEY_RIGHT)){
+								if (selected_char < 70){
+									if (selected_char < 64){
+										selected_char++;
+									} else {
+										selected_char = 0;
+									}
+								} else {
+									if (selected_char == 70) selected_char = 74;
+									else selected_char = 70;
+								}
+							}
+						}
 					}
 					break;
 				case STATE::JUNIPER_INTRODUCTION:

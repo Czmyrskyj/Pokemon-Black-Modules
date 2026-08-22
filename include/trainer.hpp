@@ -6,15 +6,17 @@
 
 using party_t = std::array<pokemon_t, 6>;
 
-enum class SEX{
+enum class SEX : i8{
 	NONE = -1,
 	MALE = 0,
 	FEMALE = 1,
 };
+class assets_t;
+struct Vector2;
 
 class trainer_t{
-	std::string name;
-	std::string prefix;
+	std::string name = "nodata";
+	std::string prefix = "";
 	SEX sex = SEX::NONE;
 	party_t party;
 	public:
@@ -31,6 +33,10 @@ class trainer_t{
 	SEX get_sex() const{
 		return sex;
 	}
+	void set_name(std::string n){
+		name = std::move(n);
+	}
+	void draw_overworld_preview(assets_t& assets, Vector2 pos);
 };
 
 struct gym_leader_t{
