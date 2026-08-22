@@ -6,9 +6,16 @@
 
 using party_t = std::array<pokemon_t, 6>;
 
+enum class SEX{
+	NONE = -1,
+	MALE = 0,
+	FEMALE = 1,
+};
+
 class trainer_t{
 	std::string name;
 	std::string prefix;
+	SEX sex = SEX::NONE;
 	party_t party;
 	public:
 	trainer_t(std::string n, std::string p) : name(std::move(n)), prefix(std::move(p)) {}
@@ -17,6 +24,12 @@ class trainer_t{
 	}
 	std::string_view get_prefix() const{
 		return prefix;
+	}
+	void set_sex(SEX s){
+		sex = s;
+	}
+	SEX get_sex() const{
+		return sex;
 	}
 };
 

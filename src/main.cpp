@@ -44,12 +44,12 @@ void play_music(const Music& mus){
 	UpdateMusicStream(mus);
 }
 
-i8 control_selection(u8& opt, u8 min, u8 max, const Sound& sel, const Sound& dec){
-	if (IsKeyPressed(KEY_DOWN)){
+i8 control_selection(u8& opt, u8 min, u8 max, const Sound& sel, const Sound& dec, bool horizontal = false){
+	if (IsKeyPressed(!horizontal ? KEY_DOWN : KEY_RIGHT)){
 		opt++;
 		if (opt >= max) opt = 0;
 		PlaySound(sel);
-	} else if (IsKeyPressed(KEY_UP)){
+	} else if (IsKeyPressed(!horizontal ? KEY_UP : KEY_LEFT)){
 		if (opt > 0){
 			opt--;
 		} else {
@@ -123,6 +123,11 @@ int main(){
 		float options_screen_x = 0.0f;
 		u16 current_txt_index = 0;
 		float txt_seq_timer = 0.0f;
+		u8 char_frame_count = 0;
+		u8 char_frame_count_timer = 0;
+
+		trainer_t player{"nodata", ""};
+
 		while (!WindowShouldClose()){
 			if (!halt_music){
 				play_music(current_music);
@@ -207,6 +212,15 @@ int main(){
 					break;
 				case STATE::BOY_OR_GIRL:
 					{
+						constexpr std::array<int, 4> arr = {0, 1, 0, 2};
+						char_frame_count_timer++;
+						usz char_frame;
+						if (char_frame_count_timer >= 10){
+							char_frame_count++;
+							char_frame_count_timer = 0;
+						}
+						char_frame_count %= 4;
+						char_frame = arr[char_frame_count];
 						if (!set_state_meta && black_rect_alpha > 0.0f){
 							resume_state_alpha(black_rect_alpha);
 						}
@@ -222,10 +236,50 @@ int main(){
 						for (usz i = 0; i < 20; i++){
 							DrawTextureEx(bg_strip, {0 + i * bg_strip.width * 6.0f + options_screen_x, 0}, 0, 6.0f + (alpha * 0.03f), Color{255, 255, 255, static_cast<u8>(200 - alpha)});
 						}
-						if (draw_text_seq(assets, "Before we start, tell me about yourself.", 10, 10, 50, current_txt_index, txt_seq_timer, WHITE, 1)){
-																						    
+						draw_text_seq(assets, "Before we can start, tell me about yourself.\nAre you a boy, or a girl?", 10, 100, 50, current_txt_index, txt_seq_timer, WHITE, 1);
+						i8 opt;
+						Sound sel_sfx = assets.get_sfx("SEQ_SE_SELECT1.wav");
+						Sound dec_sfx = assets.get_sfx("SEQ_SE_DECIDE1.wav");
+						if (player.get_sex() == SEX::NONE){
+							opt = control_selection(selected_option, 0, menu_options.size(), sel_sfx, dec_sfx, true);
 						}
-						
+						auto hilbert = assets.get_tx("hilbert.png");
+						auto hilda = assets.get_tx("hilda.png");
+
+						Rectangle hilbert_src = {
+							selected_option == 0 && player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
+							0,
+							32,
+							static_cast<float>(hilbert.height)
+
+						};
+						Rectangle hilda_src = {
+							selected_option == 1 && player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
+							0,
+							32,
+							static_cast<float>(hilda.height)
+
+						};
+						Rectangle hilbert_dest = {
+							350,
+							500,
+							selected_option == 0 ? 256.0f : 192.0f,
+							selected_option == 0 ? 216.0f : 162.0f,
+						};
+						Rectangle hilda_dest = {
+							1250,
+							500,
+							selected_option == 1 ? 256.0f : 192.0f,
+							selected_option == 1 ? 216.0f : 162.0f,
+						};
+
+						DrawTexturePro(hilbert, hilbert_src, hilbert_dest, {0, 0}, 0, selected_option == 0 ? WHITE : Color{200, 200, 200, 100});
+						DrawTexturePro(hilda, hilda_src, hilda_dest, {0, 0}, 0, selected_option == 1 ? WHITE : Color{200, 200, 200, 100});
+
+						if (opt != -1){
+							player.set_sex(static_cast<SEX>(opt));
+							switch_state(STATE::WHATS_YOUR_NAME, black_rect_alpha);
+						}
 					}
 					break;
 				case STATE::WHATS_YOUR_NAME:
