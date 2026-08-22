@@ -110,6 +110,8 @@ int main(){
 			CloseWindow();
 			return -1;
 		}
+		
+		SetTextureFilter(assets.get_font("font.otf").texture, TEXTURE_FILTER_POINT);
 
 		Music current_music{};
 		unsigned char black_rect_alpha = 0;
@@ -220,7 +222,10 @@ int main(){
 						for (usz i = 0; i < 20; i++){
 							DrawTextureEx(bg_strip, {0 + i * bg_strip.width * 6.0f + options_screen_x, 0}, 0, 6.0f + (alpha * 0.03f), Color{255, 255, 255, static_cast<u8>(200 - alpha)});
 						}
-						draw_text_seq(assets, "Before we start, tell me about yourself.", 10, 10, 50, current_txt_index, txt_seq_timer, WHITE);
+						if (draw_text_seq(assets, "Before we start, tell me about yourself.", 10, 10, 50, current_txt_index, txt_seq_timer, WHITE, 1)){
+																						    
+						}
+						
 					}
 					break;
 				case STATE::WHATS_YOUR_NAME:

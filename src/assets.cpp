@@ -100,7 +100,7 @@ Font assets_t::get_font(std::string_view name) {
 	if (!font_cache.contains(key)){
 		auto contents = read_bytes(key);
 		if (contents.empty()) return Font{};
-		Font font = LoadFontFromMemory(".otf", contents.data(), contents.size(), 32, nullptr, 0);
+		Font font = LoadFontFromMemory(".otf", contents.data(), contents.size(), 50, nullptr, 0);
 		font_cache[key] = font;
 	}
 	return font_cache[key];

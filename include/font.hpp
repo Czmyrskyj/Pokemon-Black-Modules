@@ -2,6 +2,7 @@
 #include "assets.hpp"
 #include <raylib.h>
 #include <string_view>
+#include <format>
 
 inline void draw_text(assets_t& assets, std::string_view str, float x, float y, unsigned size, Color tint, Color shadow_tint = {50, 50, 50, 255}){
     if (str.empty()) return;
@@ -16,7 +17,12 @@ inline void draw_text(assets_t& assets, std::string_view str, float x, float y, 
     UnloadCodepoints(codepoints);
 }
 
-inline void draw_text_seq(assets_t& assets, std::string_view str, float x, float y, unsigned size, u16& current_index, float& seq_timer, Color tint, Color shadow_tint = {100, 100, 100, 255}, float speed = 0.05f){
+inline bool draw_text_seq(assets_t& assets, std::string_view str, float x, float y, unsigned size, u16& current_index, float& seq_timer, Color tint, usz txtbox_id = 0, Color shadow_tint = {100, 100, 100, 255}, float speed = 0.05f){
+	Texture2D txtbox;
+	if (txtbox_id != 0){
+		txtbox = assets.get_tx(std::format("txtbox{}.png", txtbox_id));
+		DrawTexture(txtbox, x - 10, y - 10, {255, 255, 255, tint.a});
+	}
 	if (current_index < str.size()){
 		seq_timer += GetFrameTime();
 		if (seq_timer >= speed){
@@ -26,4 +32,5 @@ inline void draw_text_seq(assets_t& assets, std::string_view str, float x, float
 	}
 	std::string_view buffer = str.substr(0, current_index);
 	draw_text(assets, buffer, x, y, size, tint, shadow_tint);
+	return current_index == str.size();
 }
