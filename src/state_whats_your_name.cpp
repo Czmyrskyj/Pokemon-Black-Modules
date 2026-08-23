@@ -12,7 +12,7 @@ namespace WhatsYourName{
 	static std::string entered_name = "";
 	static float screen_x = 0.0f;
 	static constexpr std::string_view name_entry_chars{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., "};
-
+	static float music_volume = 1.0f;
 	void update(st_ctx_t& ctx){
 		if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
 			ctx.resume_state_alpha(ctx.transition_alpha);
@@ -54,7 +54,10 @@ namespace WhatsYourName{
 		}
 
 		if (ctx.player.get_name() != "nodata"){
-			ctx.switch_state(STATE::JUNIPER_LIST, ctx.transition_alpha, 100);
+			ctx.switch_state(STATE::JUNIPER_LETTER, ctx.transition_alpha, 100);
+			if (music_volume > 0.0f){
+				music_volume -= GetFrameTime()*0.5f;
+			}
 		}
 
 		if (IsKeyPressed(KEY_X)){
@@ -114,6 +117,9 @@ namespace WhatsYourName{
 				}
 			}
 		}
+
+		SetMusicVolume(ctx.current_music, music_volume);
+
 	}
 
 	void render(st_ctx_t& ctx){

@@ -13,7 +13,7 @@
 #include "state_wifi_connection.hpp"
 #include "state_boy_or_girl.hpp"
 #include "state_whats_your_name.hpp"
-#include "state_juniper_list.hpp"
+#include "state_juniper_letter.hpp"
 
 #include <print>
 
@@ -64,7 +64,7 @@ int main(){
 				case STATE::WIFI_CONNECTION: WIFIConnection::update(ctx); break;
 				case STATE::BOY_OR_GIRL: BoyOrGirl::update(ctx); break;
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::update(ctx); break;
-				case STATE::JUNIPER_LIST: JuniperList::update(ctx); break;
+				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx); break;
 
 			}
 
@@ -77,7 +77,7 @@ int main(){
 				case STATE::WIFI_CONNECTION: WIFIConnection::render(ctx); break;
 				case STATE::BOY_OR_GIRL: BoyOrGirl::render(ctx); break;
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::render(ctx); break;
-				case STATE::JUNIPER_LIST: JuniperList::render(ctx); break;
+				case STATE::JUNIPER_LETTER: JuniperLetter::render(ctx); break;
 			}
 
 			DrawRectangle(0, 0, wnd_w, wnd_h, Color{0, 0, 0, ctx.transition_alpha});
