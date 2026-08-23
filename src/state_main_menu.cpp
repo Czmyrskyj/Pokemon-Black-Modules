@@ -4,10 +4,13 @@
 #include <cmath>
 namespace MainMenu{
 	static i8 switch_state_in_main_menu = -1;
-	static std::vector<std::string_view> menu_options{
-		"NEW GAME",
-			"CONNECT VIA WIFI"
-	};
+	static std::vector<std::string_view> menu_options;
+	void init(st_ctx_t& ctx){
+		menu_options.clear();
+		menu_options.push_back(ctx.locale.get(Locale::TYPE::UI, "MM_NEW"));
+		menu_options.push_back(ctx.locale.get(Locale::TYPE::UI, "MM_WIFI"));
+		switch_state_in_main_menu = -1; 
+	}
 	void update(st_ctx_t& ctx){
 		if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
 			ctx.resume_state_alpha(ctx.transition_alpha);

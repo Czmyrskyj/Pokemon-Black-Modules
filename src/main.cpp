@@ -6,6 +6,7 @@
 #include "random.hpp"
 #include "font.hpp"
 #include "st-ctx.hpp"
+#include "locale.hpp"
 
 #include "state_title.hpp"
 #include "state_main_menu.hpp"
@@ -35,10 +36,20 @@ int main(){
 		
 		SetTextureFilter(assets.get_font("font.otf").texture, TEXTURE_FILTER_POINT);
 		trainer_t player{"nodata", ""};
+		Locale::locale_t locale;
+		auto locale_load_res = locale.load_locale_files();
+		if (!locale_load_res.has_value()){
+			std::println(stderr, "error: {}", locale_load_res.error());
+			return -1;
+		}
 		st_ctx_t ctx{
 			.assets = assets,
 			.player = player,
+			.locale = locale,
 		};
+
+		MainMenu::init(ctx);
+
 		while (!WindowShouldClose()){
 			if (!ctx.halt_music){
 				if (!IsMusicStreamPlaying(ctx.current_music)){

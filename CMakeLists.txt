@@ -23,6 +23,7 @@ add_executable(${Project_Name}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/state_boy_or_girl.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/state_whats_your_name.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/state_juniper_list.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/locale.cpp
 )
 add_compile_options(
 	-Wall

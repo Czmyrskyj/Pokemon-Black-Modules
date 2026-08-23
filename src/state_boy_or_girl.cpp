@@ -55,7 +55,7 @@ namespace BoyOrGirl{
 		for (usz i = 0; i < 20; i++){
 			DrawTextureEx(bg_strip, {0 + i * bg_strip.width * 6.0f + screen_x, 0}, 0, 6.0f + (alpha * 0.03f), Color{255, 255, 255, static_cast<u8>(200 - alpha)});
 		}
-		if (done_intro = draw_text_seq(ctx.assets, "Before we can start, tell me about yourself.\nAre you a boy, or a girl?", 10, 100, 50, current_txt_index, txt_seq_timer, WHITE, 1); done_intro){
+		if (done_intro = draw_text_seq(ctx.assets, ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_SEX"), 10, 100, 50, current_txt_index, txt_seq_timer, WHITE, 1); done_intro){
 
 			auto hilbert = ctx.assets.get_tx("hilbert.png");
 			auto hilda = ctx.assets.get_tx("hilda.png");

@@ -121,7 +121,7 @@ namespace WhatsYourName{
 		for (int i = -1; i < 2; i++){
 			DrawTexturePro(ctx.assets.get_tx("your-name-bg.png"), {0, 0, 257, 194}, {i * 1416.0f + screen_x, 0, 1416, 1080}, {0, 0}, 0, WHITE);
 		}
-		draw_text_seq(ctx.assets, "Your name?", 10, 1000, 50, current_txt_index, txt_seq_timer, WHITE, 1);
+		draw_text_seq(ctx.assets, ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"), 10, 1000, 50, current_txt_index, txt_seq_timer, WHITE, 1);
 		DrawTextureEx(ctx.assets.get_tx("text-entry.png"), {300, 20 + wave_pos}, 0, 5, WHITE);
 		draw_text(ctx.assets, entered_name, 710, 80 + wave_pos, 80, WHITE, {50, 50, 50, 255}, 70);
 		ctx.player.draw_overworld_preview(ctx.assets, {325, 30 + wave_pos});

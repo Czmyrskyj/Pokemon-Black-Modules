@@ -3,10 +3,12 @@
 #include "assets.hpp"
 #include "states.hpp"
 #include "trainer.hpp"
+#include "locale.hpp"
 constexpr float alpha_delta{300.0f};
 struct st_ctx_t{
 	assets_t& assets;
 	trainer_t& player;
+	Locale::locale_t& locale;
 	STATE current_state;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};

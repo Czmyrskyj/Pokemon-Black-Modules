@@ -16,6 +16,6 @@ namespace WIFIConnection{
 	void render(st_ctx_t& ctx){
 			auto background = ctx.assets.get_tx("wifi-connection-bg.png");
 			DrawTexturePro(background, {0, 0, static_cast<float>(background.width), static_cast<float>(background.height)}, {0, 0, wnd_w, wnd_h}, {0, 0}, 0, WHITE);
-			draw_text(ctx.assets, "WI-FI Connection is not supported yet.", 500, 400, 50, WHITE, DARKBLUE);
+			draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, "WIFI_NOT_AVAILABLE"), 500, 400, 50, WHITE, DARKBLUE);
 	}
 }
