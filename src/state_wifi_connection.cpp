@@ -1,0 +1,21 @@
+#include "state_wifi_connection.hpp"
+#include "st-ctx.hpp"
+#include "font.hpp"
+
+namespace WIFIConnection{
+	void update(st_ctx_t& ctx){
+			if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
+				ctx.resume_state_alpha(ctx.transition_alpha);
+				ctx.current_music = ctx.assets.get_mus("Wi-Fi Connection.mp3");
+				ctx.halt_music = false;
+			}
+			if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
+				ctx.set_state_meta = true;
+			}
+	}
+	void render(st_ctx_t& ctx){
+			auto background = ctx.assets.get_tx("wifi-connection-bg.png");
+			DrawTexturePro(background, {0, 0, static_cast<float>(background.width), static_cast<float>(background.height)}, {0, 0, wnd_w, wnd_h}, {0, 0}, 0, WHITE);
+			draw_text(ctx.assets, "WI-FI Connection is not supported yet.", 500, 400, 50, WHITE, DARKBLUE);
+	}
+}

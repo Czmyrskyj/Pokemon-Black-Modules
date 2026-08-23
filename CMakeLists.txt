@@ -17,6 +17,12 @@ add_executable(${Project_Name}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/battle.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/assets.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/trainer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/state_title.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/state_main_menu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/state_wifi_connection.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/state_boy_or_girl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/state_whats_your_name.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/state_juniper_list.cpp
 )
 add_compile_options(
 	-Wall
