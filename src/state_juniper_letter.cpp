@@ -10,13 +10,18 @@ namespace JuniperLetter{
 	static writer_t sincerely_writer;
 	static std::string formatted_juniper_letter;
 	static std::string formatted_sincerely;
+	static bool initialized = false;
 	void init(st_ctx_t& ctx, trainer_t& player){	
 		formatted_juniper_letter = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "JUNIPER_LETTER"), &player);
 		formatted_sincerely = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "SINCERELY_JUNIPER"), &player);
 		writer.set_text(formatted_juniper_letter);
 		sincerely_writer.set_text(formatted_sincerely);
 	}
-	void update(st_ctx_t& ctx){
+	void update(st_ctx_t& ctx, trainer_t& player){
+		if (!initialized){
+			init(ctx, player);
+			initialized = true;
+		}
 		writer.update();
 		if (writer.finished){
 			sincerely_writer.update();

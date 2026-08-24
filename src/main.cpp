@@ -51,7 +51,6 @@ int main(){
 		MainMenu::init(ctx);
 		BoyOrGirl::init(ctx);
 		WhatsYourName::init(ctx);
-		JuniperLetter::init(ctx, player);
 
 		while (!WindowShouldClose()){
 			if (!ctx.halt_music){
@@ -67,7 +66,7 @@ int main(){
 				case STATE::WIFI_CONNECTION: WIFIConnection::update(ctx); break;
 				case STATE::BOY_OR_GIRL: BoyOrGirl::update(ctx); break;
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::update(ctx); break;
-				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx); break;
+				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx, player); break;
 
 			}
 
