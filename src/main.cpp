@@ -14,6 +14,7 @@
 #include "state_boy_or_girl.hpp"
 #include "state_whats_your_name.hpp"
 #include "state_juniper_letter.hpp"
+#include "state_choose_a_starter.hpp"
 
 #include <print>
 
@@ -35,7 +36,7 @@ int main(){
 		}
 		
 		SetTextureFilter(assets.get_font("font.otf").texture, TEXTURE_FILTER_POINT);
-		trainer_t player{"nodata", ""};
+		trainer_t player{"Dvoriak", ""};
 		Locale::locale_t locale;
 		auto locale_load_res = locale.load_locale_files();
 		if (!locale_load_res.has_value()){
@@ -67,6 +68,7 @@ int main(){
 				case STATE::BOY_OR_GIRL: BoyOrGirl::update(ctx); break;
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::update(ctx); break;
 				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx, player); break;
+				case STATE::CHOOSE_STARTER: ChooseAStarter::update(ctx, locale, player); break;
 
 			}
 
@@ -80,6 +82,7 @@ int main(){
 				case STATE::BOY_OR_GIRL: BoyOrGirl::render(ctx); break;
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::render(ctx); break;
 				case STATE::JUNIPER_LETTER: JuniperLetter::render(ctx); break;
+				case STATE::CHOOSE_STARTER: ChooseAStarter::render(ctx); break;
 			}
 
 			DrawRectangle(0, 0, wnd_w, wnd_h, Color{0, 0, 0, ctx.transition_alpha});

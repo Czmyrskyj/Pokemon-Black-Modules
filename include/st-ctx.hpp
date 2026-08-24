@@ -9,7 +9,7 @@ struct st_ctx_t{
 	assets_t& assets;
 	trainer_t& player;
 	Locale::locale_t& locale;
-	STATE current_state;
+	STATE current_state = STATE::CHOOSE_STARTER;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};
 	bool halt_music{false};

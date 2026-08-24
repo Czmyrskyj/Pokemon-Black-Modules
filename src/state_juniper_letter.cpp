@@ -26,13 +26,16 @@ namespace JuniperLetter{
 		if (writer.finished){
 			sincerely_writer.update();
 		}
-		 if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
-			 ctx.resume_state_alpha(ctx.transition_alpha);
-		 }
-		 if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
-			 ctx.current_music = ctx.assets.get_mus("Professor Juniper.mp3");
-			 ctx.set_state_meta = true;
-		 }
+		if (sincerely_writer.finished){
+			ctx.switch_state(STATE::CHOOSE_STARTER, ctx.transition_alpha);
+		}
+		if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
+			ctx.current_music = ctx.assets.get_mus("Professor Juniper.mp3");
+			ctx.resume_state_alpha(ctx.transition_alpha);
+		}
+		if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
+			ctx.set_state_meta = true;
+		}
 	}
 	void render(st_ctx_t& ctx){
 		DrawTextureEx(ctx.assets.get_tx("mincinno-mail.png"), {300, 100}, 0, 5, WHITE);

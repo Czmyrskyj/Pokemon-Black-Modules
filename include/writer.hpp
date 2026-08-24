@@ -1,9 +1,6 @@
 #pragma once
 #include "assets.hpp"
-#include <raylib.h>
 #include <string_view>
-#include <format>
-
 
 struct writer_t{
 	std::string_view target{};

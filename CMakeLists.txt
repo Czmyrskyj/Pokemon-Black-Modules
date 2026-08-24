@@ -26,6 +26,8 @@ add_executable(${Project_Name}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/locale.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/formatter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/writer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/state_choose_a_starter.cpp
 )
 add_compile_options(
 	-Wall
