@@ -1,6 +1,6 @@
 #include "state_main_menu.hpp"
 #include "st-ctx.hpp"
-#include "font.hpp"
+#include "writer.hpp"
 #include <cmath>
 namespace MainMenu{
 	static i8 switch_state_in_main_menu = -1;

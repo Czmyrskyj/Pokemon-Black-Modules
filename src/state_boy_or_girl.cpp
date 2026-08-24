@@ -1,6 +1,7 @@
 #include "state_boy_or_girl.hpp"
 #include "st-ctx.hpp"
-#include "font.hpp"
+#include "writer.hpp"
+#include "formatter.hpp"
 #include <cmath>
 
 namespace BoyOrGirl{
@@ -9,13 +10,16 @@ namespace BoyOrGirl{
 	static float screen_x = 0.0f;
 	static u8 char_frame_count_timer = 0;
 	static u8 char_frame_count = 0;
-	static u16 current_txt_index = 0;
-	static float txt_seq_timer = 0.0f;
 	static i8 opt = -1;
-	static bool done_intro = false;
 	static usz char_frame = 0;
+	static writer_t writer;
+	static std::string formatted_prompt;
+	void init(st_ctx_t& ctx){
+		formatted_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_SEX"));
+		writer.set_text(formatted_prompt);
+	}
 	void update(st_ctx_t& ctx){
-
+		writer.update();
 		if (!ctx.set_state_meta && ctx.transition_alpha > 0){
 			ctx.resume_state_alpha(ctx.transition_alpha);
 			ctx.current_music = ctx.assets.get_mus("Abandoned Lot of Dreams.mp3");
@@ -35,7 +39,7 @@ namespace BoyOrGirl{
 		Sound sel_sfx = ctx.assets.get_sfx("SEQ_SE_SELECT1.wav");
 		Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
 
-		if (done_intro && ctx.player.get_sex() == SEX::NONE){
+		if (writer.finished && ctx.player.get_sex() == SEX::NONE){
 			opt = ctx.control_selection(ctx.selected_option, 0, 1, sel_sfx, dec_sfx, true);
 		}
 
@@ -55,7 +59,8 @@ namespace BoyOrGirl{
 		for (usz i = 0; i < 20; i++){
 			DrawTextureEx(bg_strip, {0 + i * bg_strip.width * 6.0f + screen_x, 0}, 0, 6.0f + (alpha * 0.03f), Color{255, 255, 255, static_cast<u8>(200 - alpha)});
 		}
-		if (done_intro = draw_text_seq(ctx.assets, ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_SEX"), 10, 100, 50, current_txt_index, txt_seq_timer, WHITE, 1); done_intro){
+		draw_text_seq(ctx.assets, writer, 10, 100, 50, WHITE, 1);
+		if (writer.finished){
 
 			auto hilbert = ctx.assets.get_tx("hilbert.png");
 			auto hilda = ctx.assets.get_tx("hilda.png");

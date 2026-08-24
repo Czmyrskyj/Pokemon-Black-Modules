@@ -1,19 +1,25 @@
 #include "state_whats_your_name.hpp"
 #include "st-ctx.hpp"
-#include "font.hpp"
+#include "writer.hpp"
+#include "formatter.hpp"
 #include <cmath>
 
 namespace WhatsYourName{
 
-	static u16 current_txt_index = 0;
-	static float txt_seq_timer = 0.0f;
 	static u8 selected_char = 0;
 	static u8 char_cursor_blinker = 0;
 	static std::string entered_name = "";
 	static float screen_x = 0.0f;
 	static constexpr std::string_view name_entry_chars{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., "};
 	static float music_volume = 1.0f;
+	static writer_t writer;
+	static std::string formated_prompt;	
+	void init(st_ctx_t& ctx){
+		formated_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"));
+		writer.set_text(formated_prompt);
+	}
 	void update(st_ctx_t& ctx){
+		writer.update();
 		if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
 			ctx.resume_state_alpha(ctx.transition_alpha);
 		}
@@ -127,7 +133,7 @@ namespace WhatsYourName{
 		for (int i = -1; i < 2; i++){
 			DrawTexturePro(ctx.assets.get_tx("your-name-bg.png"), {0, 0, 257, 194}, {i * 1416.0f + screen_x, 0, 1416, 1080}, {0, 0}, 0, WHITE);
 		}
-		draw_text_seq(ctx.assets, ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"), 10, 1000, 50, current_txt_index, txt_seq_timer, WHITE, 1);
+		draw_text_seq(ctx.assets, writer, 10, 1000, 50, WHITE, 1);
 		DrawTextureEx(ctx.assets.get_tx("text-entry.png"), {300, 20 + wave_pos}, 0, 5, WHITE);
 		draw_text(ctx.assets, entered_name, 710, 80 + wave_pos, 80, WHITE, {50, 50, 50, 255}, 70);
 		ctx.player.draw_overworld_preview(ctx.assets, {325, 30 + wave_pos});

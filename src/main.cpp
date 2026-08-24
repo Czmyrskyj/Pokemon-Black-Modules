@@ -4,7 +4,7 @@
 #include "assets.hpp"
 #include "states.hpp"
 #include "random.hpp"
-#include "font.hpp"
+#include "writer.hpp"
 #include "st-ctx.hpp"
 #include "locale.hpp"
 
@@ -49,6 +49,9 @@ int main(){
 		};
 
 		MainMenu::init(ctx);
+		BoyOrGirl::init(ctx);
+		WhatsYourName::init(ctx);
+		JuniperLetter::init(ctx, player);
 
 		while (!WindowShouldClose()){
 			if (!ctx.halt_music){
