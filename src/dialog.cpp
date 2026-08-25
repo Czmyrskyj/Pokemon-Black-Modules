@@ -17,10 +17,14 @@ std::string dialog_t::tell_whos_talking(){
 	return whos_talking;
 }
 
-std::string dialog_t::step(writer_t& writer, Locale::locale_t& locale){
+std::string dialog_t::step(assets_t& assets, writer_t& writer, Locale::locale_t& locale){
 	if (current_line >= lines.size()) {
 		finished = true;
+		PlaySound(assets.get_sfx("SEQ_SE_CLOSE1.wav"));
 		return "";
+	}
+	if (current_line == 0){
+		PlaySound(assets.get_sfx("SEQ_SE_OPEN2.wav"));
 	}
 	auto buffer = std::string(locale.get(Locale::TYPE::DIALOG, lines[current_line]));
 	if (lines[current_line].starts_with("CHAR_")){
@@ -35,8 +39,11 @@ std::string dialog_t::step(writer_t& writer, Locale::locale_t& locale){
 	return buffer;
 }
 
-bool dialog_t::update(){
-	if (IsKeyPressed(KEY_Z)){
+bool dialog_t::update(assets_t& assets, writer_t& writer){
+	if (IsKeyPressed(KEY_Z) && writer.finished){
+		if (current_line < lines.size()){
+			PlaySound(assets.get_sfx("SEQ_SE_DP_SELECT.wav"));
+		}
 		return true;
 	}
 	if (finished){
@@ -53,5 +60,5 @@ bool dialog_t::update(){
 
 void dialog_t::draw_speaker(assets_t& assets){
 	Texture2D speaker_tx = assets.get_tx(std::format("{}.png", speaker));
-	DrawTexturePro(speaker_tx, {0, 0, 84, 78}, {10, txtbox_y, 170, 157}, {0, 0}, 0, WHITE);
+	DrawTexturePro(speaker_tx, {0, 0, 84, 78}, {10, txtbox_y, 204, 190}, {0, 0}, 0, WHITE);
 }

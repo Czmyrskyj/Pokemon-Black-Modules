@@ -18,7 +18,7 @@ struct dialog_t{
 	float txtbox_y{wnd_h + 10.0f};
 	std::string speaker{""};
 	std::string tell_whos_talking();
-	std::string step(writer_t& writer, Locale::locale_t& locale);
+	std::string step(assets_t& assets, writer_t& writer, Locale::locale_t& locale);
 	void draw_speaker(assets_t& assets);
-	bool update();
+	bool update(assets_t& assets, writer_t& writer);
 };

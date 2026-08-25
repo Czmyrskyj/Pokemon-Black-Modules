@@ -39,7 +39,7 @@ namespace JuniperLetter{
 	}
 	void render(st_ctx_t& ctx){
 		DrawTextureEx(ctx.assets.get_tx("mincinno-mail.png"), {300, 100}, 0, 5, WHITE);
-		draw_text_seq(ctx.assets, writer, 400, 215, 38, BLACK, 0, BLANK);
+		draw_text_seq(ctx.assets, writer, 390, 215, 38, BLACK, 0, BLANK);
 		if (writer.finished){
 			draw_text_seq(ctx.assets, sincerely_writer, 800, 850, 60, BLACK, 0, BLANK);
 		}

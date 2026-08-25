@@ -10,14 +10,16 @@ namespace ChooseAStarter{
 	static std::string current_line;
 	void init(st_ctx_t& ctx){
 		dialog.init({
-			"CHAR_CHEREN_ABOUT_ADO",
-			"CHAR_BIANCA_OPEN_UP",
+			"CHAR_CHEREN_1_1",
+			"CHAR_BIANCA_1_1",
+			"CHAR_CHEREN_1_2",
+			"CHAR_BIANCA_1_2",
 			});
 	}
 	void update(st_ctx_t& ctx, Locale::locale_t& locale, trainer_t& trainer){
 		if (!initialized){
 			init(ctx);
-			current_line = fmt::format(dialog.step(writer, locale), &trainer);
+			current_line = fmt::format(dialog.step(ctx.assets, writer, locale), &trainer);
 			writer.set_text(current_line);
 			initialized = true;
 		}
@@ -27,8 +29,8 @@ namespace ChooseAStarter{
 		if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
 			ctx.set_state_meta = true;
 		}
-		if (dialog.update() && writer.finished){
-			current_line = fmt::format(dialog.step(writer, locale), &trainer);
+		if (dialog.update(ctx.assets, writer) && writer.finished){
+			current_line = fmt::format(dialog.step(ctx.assets, writer, locale), &trainer);
 			writer.set_text(current_line);
 		}
 		writer.update();
