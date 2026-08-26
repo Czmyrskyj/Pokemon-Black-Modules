@@ -47,7 +47,7 @@ namespace BoyOrGirl{
 			if (ctx.player.get_sex() == SEX::NONE){
 				ctx.player.set_sex(static_cast<SEX>(opt));
 			} else {
-				ctx.switch_state(STATE::WHATS_YOUR_NAME, ctx.transition_alpha);
+				ctx.switch_state(STATE::WHATS_YOUR_NAME);
 			}
 		}
 	}

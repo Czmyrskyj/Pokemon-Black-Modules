@@ -60,7 +60,7 @@ namespace WhatsYourName{
 		}
 
 		if (ctx.player.get_name() != "nodata"){
-			ctx.switch_state(STATE::JUNIPER_LETTER, ctx.transition_alpha, 100);
+			ctx.switch_state(STATE::JUNIPER_LETTER, 100);
 			if (music_volume > 0.0f){
 				music_volume -= GetFrameTime()*0.5f;
 			}

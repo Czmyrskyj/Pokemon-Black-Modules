@@ -10,23 +10,24 @@ struct st_ctx_t{
 	trainer_t& player;
 	Locale::locale_t& locale;
 	STATE current_state = STATE::CHOOSE_STARTER;
+	Color transition_color = BLACK;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};
 	bool halt_music{false};
 	Music current_music{};
 	u8 selected_option = 0;
-	void switch_state(STATE new_state, unsigned char& alpha, float delta = alpha_delta){
-		float current_alpha = static_cast<float>(alpha);
+	void switch_state(STATE new_state, float delta = alpha_delta){
+		float current_alpha = static_cast<float>(transition_alpha);
 		if (current_state != new_state){
 			current_alpha+=delta*GetFrameTime();
-			if (alpha >= 255.0f){
+			if (transition_alpha >= 255.0f){
 				current_alpha = 255;
 				current_state = new_state;
 				selected_option = 0;
 				set_state_meta = false;
 			}
 		}
-		alpha = static_cast<unsigned char>(current_alpha);
+		transition_alpha = static_cast<unsigned char>(current_alpha);
 	}
 	void resume_state_alpha(unsigned char& alpha){
 		float current_alpha = static_cast<float>(alpha);

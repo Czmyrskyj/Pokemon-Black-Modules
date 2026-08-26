@@ -27,7 +27,7 @@ namespace JuniperLetter{
 			sincerely_writer.update();
 		}
 		if (sincerely_writer.finished){
-			ctx.switch_state(STATE::CHOOSE_STARTER, ctx.transition_alpha);
+			ctx.switch_state(STATE::CHOOSE_STARTER);
 		}
 		if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
 			ctx.current_music = ctx.assets.get_mus("Professor Juniper.mp3");

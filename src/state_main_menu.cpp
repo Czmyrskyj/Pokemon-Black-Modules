@@ -31,10 +31,10 @@ namespace MainMenu{
 
 		switch (switch_state_in_main_menu){
 			case 0:
-				ctx.switch_state(STATE::BOY_OR_GIRL, ctx.transition_alpha);
+				ctx.switch_state(STATE::BOY_OR_GIRL);
 				break;
 			case 1:
-				ctx.switch_state(STATE::WIFI_CONNECTION, ctx.transition_alpha);
+				ctx.switch_state(STATE::WIFI_CONNECTION);
 				break;
 			case -1:
 			default:

@@ -39,7 +39,7 @@ void draw_text(assets_t& assets, std::string_view str, float x, float y, unsigne
 void draw_text_seq(assets_t& assets, const writer_t& writer, float x, float y, unsigned size, Color tint, usz txtbox_id, Color shadow_tint){
 	if (txtbox_id != 0){
 		Texture2D txtbox = assets.get_tx(std::format("txtbox{}.png", txtbox_id));
-		DrawTexture(txtbox, (txtbox_id != 1) ? x - 10 : 0, y - 10, ColorAlpha(WHITE, tint.a / 255.0f));
+		DrawTexture(txtbox, (txtbox_id != 1) ? x - 10 : 0, y - 20, ColorAlpha(WHITE, tint.a / 255.0f));
 	}
 	draw_text(assets, writer.visible_buffer, x, y, size, tint, shadow_tint, 0, 0);
 }

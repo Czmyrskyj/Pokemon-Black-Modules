@@ -76,7 +76,7 @@ int main(){
 				case STATE::BOY_OR_GIRL: BoyOrGirl::update(ctx); break;
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::update(ctx); break;
 				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx, player); break;
-				case STATE::CHOOSE_STARTER: ChooseAStarter::update(ctx, locale, player); break;
+				case STATE::CHOOSE_STARTER: ChooseAStarter::update(ctx, player); break;
 
 			}
 
@@ -93,7 +93,7 @@ int main(){
 				case STATE::CHOOSE_STARTER: ChooseAStarter::render(ctx); break;
 			}
 
-			DrawRectangle(0, 0, wnd_w, wnd_h, Color{0, 0, 0, ctx.transition_alpha});
+			DrawRectangle(0, 0, wnd_w, wnd_h, Color{ctx.transition_color.r, ctx.transition_color.g, ctx.transition_color.b, ctx.transition_alpha});
 			EndDrawing();
 		}
 	}

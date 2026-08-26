@@ -24,7 +24,7 @@ namespace TitleState{
 		}
 		if (title_pressed_enter){
 			ctx.halt_music = true;
-			ctx.switch_state(STATE::MAIN_MENU, ctx.transition_alpha, 200.0f);
+			ctx.switch_state(STATE::MAIN_MENU, 200.0f);
 		}
 	}
 	void render(st_ctx_t& ctx){

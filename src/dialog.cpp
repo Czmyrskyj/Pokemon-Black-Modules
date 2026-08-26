@@ -59,5 +59,5 @@ bool dialog_t::update(assets_t& assets, writer_t& writer){
 
 void dialog_t::draw_speaker(assets_t& assets){
 	Texture2D speaker_tx = assets.get_tx(std::format("{}.png", speaker));
-	DrawTexturePro(speaker_tx, {0, 0, 84, 78}, {10, txtbox_y, 204, 190}, {0, 0}, 0, WHITE);
+	DrawTexturePro(speaker_tx, {0, 0, 84, 78}, {10, txtbox_y - 10, 204, 190}, {0, 0}, 0, WHITE);
 }
