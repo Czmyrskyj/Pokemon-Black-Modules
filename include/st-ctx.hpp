@@ -37,7 +37,7 @@ struct st_ctx_t{
 		}
 		alpha = static_cast<unsigned char>(current_alpha);
 	}
-	i8 control_selection(u8& opt, u8 min, u8 max, const Sound& sel, const Sound& dec, bool horizontal = false){
+	i8 control_selection(u8& opt, u8 max, const Sound& sel, const Sound& dec, bool horizontal = false){
 		if (IsKeyPressed(!horizontal ? KEY_DOWN : KEY_RIGHT)){
 			opt++;
 			if (opt > max) opt = 0;

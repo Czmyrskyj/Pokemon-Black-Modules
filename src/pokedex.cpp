@@ -1,6 +1,5 @@
 #include "pokedex.hpp"
 #include "common.hpp"
-#include "names.hpp"
 #include <fstream>
 #include <filesystem>
 #include <vector>
@@ -56,9 +55,9 @@ std::optional<pokemon_t> pokedex_t::get_pokedex_entry(POKEDEX id){
 	in.seekg(offset, std::ios::beg);
 	
 	pokemon_t entry{};
-	entry.id = id;
 	
-	in.read(reinterpret_cast<char*>(&entry.base_hp), sizeof(pokemon_t) - sizeof(POKEDEX));
+	in.read(reinterpret_cast<char*>(&entry), sizeof(pokemon_t));
+	entry.id = id;
 	
 	if (!in) {
 		std::println("failed to read bytes for pokemon id: {}", static_cast<u16>(id));

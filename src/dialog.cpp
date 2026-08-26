@@ -1,4 +1,5 @@
 #include "dialog.hpp"
+#include "from_all_caps_to_capitalized.hpp"
 #include <algorithm>
 #include <raylib.h>
 #include <format>
@@ -11,9 +12,7 @@ std::string dialog_t::tell_whos_talking(){
 	usz second_idx = line.find("_", first_idx + 1);
 	if (second_idx == std::string_view::npos || second_idx <= 5) return "";
 	std::string whos_talking = std::string(line.substr(5, second_idx - 5));
-	std::transform(whos_talking.begin() + 1, whos_talking.end(), whos_talking.begin() + 1, [](unsigned char c){
-				return std::tolower(c);
-	});
+	from_all_caps_to_capitalized(whos_talking);
 	return whos_talking;
 }
 

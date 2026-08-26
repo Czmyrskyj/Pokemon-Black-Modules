@@ -22,7 +22,7 @@ namespace MainMenu{
 		Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
 		i8 opt;
 		if (ctx.transition_alpha == 0){
-			opt = ctx.control_selection(ctx.selected_option, 0, menu_options.size() - 1, sel_sfx, dec_sfx);
+			opt = ctx.control_selection(ctx.selected_option, menu_options.size() - 1, sel_sfx, dec_sfx);
 			if (opt != -1 && switch_state_in_main_menu == -1){
 				switch_state_in_main_menu = opt;
 			}

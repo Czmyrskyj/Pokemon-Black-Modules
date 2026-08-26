@@ -40,7 +40,7 @@ namespace BoyOrGirl{
 		Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
 
 		if (writer.finished && ctx.player.get_sex() == SEX::NONE){
-			opt = ctx.control_selection(ctx.selected_option, 0, 1, sel_sfx, dec_sfx, true);
+			opt = ctx.control_selection(ctx.selected_option, 1, sel_sfx, dec_sfx, true);
 		}
 
 		if (opt != -1){
