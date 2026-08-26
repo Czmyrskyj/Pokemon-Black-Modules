@@ -3,6 +3,10 @@
 #include "common.hpp"
 #include "types.hpp"
 #include "abilities.hpp"
+#include <optional>
+#include <string_view>
+#include <vector>
+#include <expected>
 
 enum POKEDEX{
 	MISSINGNO,
@@ -655,8 +659,10 @@ enum POKEDEX{
 	KELDEO_ORDINARY,
 	MELOETTA_ARIA,
 	GENESECT,
+	PK_COUNT,
 };
 
+#pragma pack(push, 1)
 struct pokemon_t{
 	POKEDEX id;
 	u8 base_hp;
@@ -673,7 +679,18 @@ struct pokemon_t{
 	ABILITY ability2;
 	ABILITY hidden_ability;
 };
+#pragma pack(pop)
 
 struct legendary_t{
 	pokemon_t pokemon;
 };
+
+
+class pokedex_t{
+	std::array<u32, PK_COUNT> pokemon_registry{};
+	std::vector<std::optional<pokemon_t>> pokemon_cache{};
+	public:
+	std::expected<void, std::string_view> load_pokedex();
+	std::optional<pokemon_t> get_pokedex_entry(POKEDEX ID);
+};
+

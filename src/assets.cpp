@@ -1,6 +1,7 @@
 #include "assets.hpp"
 #include <fstream>
 #include <filesystem>
+#include <print>
 #include "pokedex.hpp"
 
 namespace fs = std::filesystem;
@@ -44,6 +45,7 @@ std::vector<u8> assets_t::read_bytes(std::string_view name) const{
 
 	std::ifstream in(assets_pakg, std::ios::binary);
 	if (!in.is_open()){
+		std::println(stderr, "failed to find: {}", name);
 		return {};
 	}
 	in.seekg(it->second.offset, std::ios::beg);

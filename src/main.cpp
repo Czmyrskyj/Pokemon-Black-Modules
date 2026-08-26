@@ -7,6 +7,7 @@
 #include "writer.hpp"
 #include "st-ctx.hpp"
 #include "locale.hpp"
+#include "pokedex.hpp"
 
 #include "state_title.hpp"
 #include "state_main_menu.hpp"
@@ -48,6 +49,13 @@ int main(){
 			.player = player,
 			.locale = locale,
 		};
+
+		pokedex_t pokedex;
+		auto pokedex_load_res = pokedex.load_pokedex();
+		if (!pokedex_load_res.has_value()){
+			std::println(stderr, "error: {}", pokedex_load_res.error());
+			return -1;
+		}
 
 		MainMenu::init(ctx);
 		BoyOrGirl::init(ctx);
