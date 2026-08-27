@@ -5,14 +5,21 @@
 #include "pokemon.hpp"
 #include <string>
 #include <cassert>
+#include <span>
 
 class party_t{
-	std::array<pokemon_t, 6> data;
-	usz size = 0;
+	std::array<pokemon_t, 6> data_;
+	usz size_ = 0;
 	public:
 	void push_back(pokemon_t pokemon){
-		assert(size < (data.size() - 1) && "pokemon party index exceeds 6");
-		data[size++] = std::move(pokemon);
+		assert(size_ < (data_.size() - 1) && "pokemon party index exceeds 6");
+		data_[size_++] = std::move(pokemon);
+	}
+	std::span<const pokemon_t> data(){
+		return data_;
+	}
+	usz size() const{
+		return size_;
 	}
 };
 
@@ -29,6 +36,7 @@ class trainer_t{
 	std::string prefix = "";
 	SEX sex = SEX::NONE;
 	party_t party;
+	std::vector <pokemon_t> pc_party{};
 	public:
 	trainer_t(std::string n, std::string p) : name(std::move(n)), prefix(std::move(p)) {}
 	std::string_view get_name() const{
@@ -48,7 +56,14 @@ class trainer_t{
 	}
 	void draw_overworld_preview(assets_t& assets, Vector2 pos);
 	void push_pokemon(pokemon_t pokemon){
-		party.push_back(pokemon);
+		if (party.size() < 6){
+			party.push_back(pokemon);
+		} else {
+			pc_party.push_back(pokemon);
+		}
+	}
+	party_t& get_party(){
+		return party;
 	}
 };
 

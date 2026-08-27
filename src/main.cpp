@@ -16,6 +16,7 @@
 #include "state_whats_your_name.hpp"
 #include "state_juniper_letter.hpp"
 #include "state_choose_a_starter.hpp"
+#include "state_starter_selected.hpp"
 
 #include <print>
 
@@ -80,11 +81,11 @@ int main(){
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::update(ctx); break;
 				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx, player); break;
 				case STATE::CHOOSE_STARTER: ChooseAStarter::update(ctx, player, cheren, bianca); break;
-
+				case STATE::STARTER_SELECTED: StarterSelected::update(ctx, player, cheren); break;
 			}
 
 			BeginDrawing();
-			ClearBackground(BLACK);
+			ClearBackground(ctx.bg_color);
 
 			switch (ctx.current_state){
 				case STATE::TITLE: TitleState::render(ctx); break;
@@ -94,6 +95,7 @@ int main(){
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::render(ctx); break;
 				case STATE::JUNIPER_LETTER: JuniperLetter::render(ctx); break;
 				case STATE::CHOOSE_STARTER: ChooseAStarter::render(ctx); break;
+				case STATE::STARTER_SELECTED: StarterSelected::render(ctx); break;
 			}
 
 			DrawRectangle(0, 0, wnd_w, wnd_h, Color{ctx.transition_color.r, ctx.transition_color.g, ctx.transition_color.b, ctx.transition_alpha});

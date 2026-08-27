@@ -11,6 +11,7 @@ struct st_ctx_t{
 	Locale::locale_t& locale;
 	pokedex_t pokedex;
 	STATE current_state = STATE::CHOOSE_STARTER;
+	Color bg_color = BLACK;
 	Color transition_color = BLACK;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};

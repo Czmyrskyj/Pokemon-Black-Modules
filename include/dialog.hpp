@@ -10,12 +10,14 @@ struct dialog_t{
 	std::vector<std::string> lines;
 	usz current_line{0};
 	bool finished{false};
+	float txtbox_x{10.0f};
+	float txtbox_y{wnd_h + 20.0f};
+	bool top{false};
 	void init(std::vector<std::string> l) { 
 		lines = std::move(l);
 		current_line = 0;
+		txtbox_y = !top ? wnd_h + 20.0f : -200.0f;
 	}
-	float txtbox_x{10.0f};
-	float txtbox_y{wnd_h + 10.0f};
 	std::string speaker{""};
 	bool hid_txtbox() const { return txtbox_y >= wnd_h; }
 	std::string tell_whos_talking();

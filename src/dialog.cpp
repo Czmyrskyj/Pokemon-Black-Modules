@@ -45,13 +45,25 @@ bool dialog_t::update(assets_t& assets, writer_t& writer){
 		}
 		return true;
 	}
-	if (finished){
-		if (txtbox_y <= wnd_h + 10.0f){
-			txtbox_y += 10.0f;
+	if (!top){
+		if (finished){
+			if (txtbox_y <= wnd_h + 20.0f){
+				txtbox_y += 10.0f;
+			}
+		} else {
+			if (txtbox_y >= wnd_h - 200.0f){
+				txtbox_y -= 10.0f;
+			}
 		}
 	} else {
-		if (txtbox_y >= wnd_h - 200.0f){
-			txtbox_y -= 10.0f;
+		if (finished){
+			if (txtbox_y >= -200.0f){
+				txtbox_y -= 10.0f;
+			}
+		} else {
+			if (txtbox_y <= 40.0f){
+				txtbox_y += 10.0f;
+			}
 		}
 	}
 	return false;
