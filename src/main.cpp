@@ -8,6 +8,7 @@
 #include "st-ctx.hpp"
 #include "locale.hpp"
 #include "pokedex.hpp"
+#include "time.hpp"
 
 #include "state_title.hpp"
 #include "state_main_menu.hpp"
@@ -38,7 +39,7 @@ int main(){
 		}
 		
 		SetTextureFilter(assets.get_font("font.otf").texture, TEXTURE_FILTER_POINT);
-		trainer_t player{"Dvoriak", ""};
+		trainer_t player{"nodata", ""};
 		trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
 		trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 		Locale::locale_t locale;
@@ -65,7 +66,11 @@ int main(){
 		BoyOrGirl::init(ctx);
 		WhatsYourName::init(ctx);
 
+		Time::time_t time;
+		auto season = time.get_season();
+
 		while (!WindowShouldClose()){
+			auto tm = time.get_time();
 			if (!ctx.halt_music){
 				if (!IsMusicStreamPlaying(ctx.current_music)){
 					PlayMusicStream(ctx.current_music);

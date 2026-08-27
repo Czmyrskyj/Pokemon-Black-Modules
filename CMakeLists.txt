@@ -30,6 +30,7 @@ add_executable(${Project_Name}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/state_choose_a_starter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/pokedex.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/state_starter_selected.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/time.cpp
 )
 add_compile_options(
 	-Wall

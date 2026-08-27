@@ -13,10 +13,10 @@ namespace WhatsYourName{
 	static constexpr std::string_view name_entry_chars{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., "};
 	static float music_volume = 1.0f;
 	static writer_t writer;
-	static std::string formated_prompt;	
+	static std::string formatted_prompt;	
 	void init(st_ctx_t& ctx){
-		formated_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"));
-		writer.set_text(formated_prompt);
+		formatted_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"));
+		writer.set_text(formatted_prompt, 0.03f);
 	}
 	void update(st_ctx_t& ctx){
 		writer.update();

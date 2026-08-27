@@ -14,8 +14,8 @@ namespace JuniperLetter{
 	void init(st_ctx_t& ctx, trainer_t& player){	
 		formatted_juniper_letter = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "JUNIPER_LETTER"), &player);
 		formatted_sincerely = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "SINCERELY_JUNIPER"), &player);
-		writer.set_text(formatted_juniper_letter);
-		sincerely_writer.set_text(formatted_sincerely);
+		writer.set_text(formatted_juniper_letter, 0.03f);
+		sincerely_writer.set_text(formatted_sincerely, 0.03f);
 	}
 	void update(st_ctx_t& ctx, trainer_t& player){
 		if (!initialized){

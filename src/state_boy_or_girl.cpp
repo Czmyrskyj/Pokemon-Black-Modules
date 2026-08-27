@@ -16,7 +16,7 @@ namespace BoyOrGirl{
 	static std::string formatted_prompt;
 	void init(st_ctx_t& ctx){
 		formatted_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_SEX"));
-		writer.set_text(formatted_prompt);
+		writer.set_text(formatted_prompt, 0.03f);
 	}
 	void update(st_ctx_t& ctx){
 		writer.update();
