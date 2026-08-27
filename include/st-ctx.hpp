@@ -9,6 +9,7 @@ struct st_ctx_t{
 	assets_t& assets;
 	trainer_t& player;
 	Locale::locale_t& locale;
+	pokedex_t pokedex;
 	STATE current_state = STATE::CHOOSE_STARTER;
 	Color transition_color = BLACK;
 	u8 transition_alpha = 255;

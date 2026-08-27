@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include "pokedex.hpp"
+#include "pokemon.hpp"
 #include "trainer.hpp"
 #include <variant>
 

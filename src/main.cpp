@@ -38,24 +38,27 @@ int main(){
 		
 		SetTextureFilter(assets.get_font("font.otf").texture, TEXTURE_FILTER_POINT);
 		trainer_t player{"Dvoriak", ""};
+		trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
+		trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 		Locale::locale_t locale;
 		auto locale_load_res = locale.load_locale_files();
 		if (!locale_load_res.has_value()){
 			std::println(stderr, "error: {}", locale_load_res.error());
 			return -1;
 		}
-		st_ctx_t ctx{
-			.assets = assets,
-			.player = player,
-			.locale = locale,
-		};
-
 		pokedex_t pokedex;
 		auto pokedex_load_res = pokedex.load_pokedex();
 		if (!pokedex_load_res.has_value()){
 			std::println(stderr, "error: {}", pokedex_load_res.error());
 			return -1;
 		}
+		st_ctx_t ctx{
+			.assets = assets,
+			.player = player,
+			.locale = locale,
+			.pokedex = pokedex,
+		};
+
 
 		MainMenu::init(ctx);
 		BoyOrGirl::init(ctx);
@@ -76,7 +79,7 @@ int main(){
 				case STATE::BOY_OR_GIRL: BoyOrGirl::update(ctx); break;
 				case STATE::WHATS_YOUR_NAME: WhatsYourName::update(ctx); break;
 				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx, player); break;
-				case STATE::CHOOSE_STARTER: ChooseAStarter::update(ctx, player); break;
+				case STATE::CHOOSE_STARTER: ChooseAStarter::update(ctx, player, cheren, bianca); break;
 
 			}
 

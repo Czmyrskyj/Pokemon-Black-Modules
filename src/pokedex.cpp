@@ -27,15 +27,17 @@ std::expected<void, std::string_view> pokedex_t::load_pokedex(){
 		u32 offset;
 		rd_memb(id, u32);
 		rd_memb(offset, u32);
+		if (id >= PK_COUNT){
+			return std::unexpected("id exceeds PK_COUNT");
+		}
 		pokemon_registry[id] = offset;
 	}
-	
 	pokemon_cache.resize(PK_COUNT, std::nullopt);
 	return {};
 }
 
 
-std::optional<pokemon_t> pokedex_t::get_pokedex_entry(POKEDEX id){
+std::optional<pokedex_entry_t> pokedex_t::get_pokedex_entry(POKEDEX id){
 	if (id >= PK_COUNT){
 		return std::nullopt;
 	}
@@ -53,12 +55,12 @@ std::optional<pokemon_t> pokedex_t::get_pokedex_entry(POKEDEX id){
 		return std::nullopt;
 	}
 	in.seekg(offset, std::ios::beg);
-	
-	pokemon_t entry{};
-	
-	in.read(reinterpret_cast<char*>(&entry), sizeof(pokemon_t));
+
+	pokedex_entry_t entry{};
+
+	in.read(reinterpret_cast<char*>(&entry), sizeof(pokedex_entry_t));
 	entry.id = id;
-	
+
 	if (!in) {
 		std::println("failed to read bytes for pokemon id: {}", static_cast<u16>(id));
 		return std::nullopt;

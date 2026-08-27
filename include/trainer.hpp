@@ -2,9 +2,19 @@
 
 #include "common.hpp"
 #include "pokedex.hpp"
+#include "pokemon.hpp"
 #include <string>
+#include <cassert>
 
-using party_t = std::array<pokemon_t, 6>;
+class party_t{
+	std::array<pokemon_t, 6> data;
+	usz size = 0;
+	public:
+	void push_back(pokemon_t pokemon){
+		assert(size < (data.size() - 1) && "pokemon party index exceeds 6");
+		data[size++] = std::move(pokemon);
+	}
+};
 
 enum class SEX : i8{
 	NONE = -1,
@@ -37,6 +47,9 @@ class trainer_t{
 		name = std::move(n);
 	}
 	void draw_overworld_preview(assets_t& assets, Vector2 pos);
+	void push_pokemon(pokemon_t pokemon){
+		party.push_back(pokemon);
+	}
 };
 
 struct gym_leader_t{

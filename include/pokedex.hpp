@@ -663,34 +663,29 @@ enum POKEDEX{
 };
 
 #pragma pack(push, 1)
-struct pokemon_t{
-	POKEDEX id;
-	u8 base_hp;
-	u8 base_attack;
-	u8 base_defense;
-	u8 base_speed;
-	u8 base_sp_att;
-	u8 base_sp_def;
-	TYPE type1;
-	TYPE type2;
-	u8 catch_rate;
-	u8 base_friendship;
-	ABILITY ability1;
-	ABILITY ability2;
-	ABILITY hidden_ability;
+struct pokedex_entry_t{
+	POKEDEX id		= MISSINGNO;
+	u8 base_hp		= 0;
+	u8 base_attack		= 0;
+	u8 base_defense		= 0;
+	u8 base_speed		= 0;
+	u8 base_sp_att		= 0;
+	u8 base_sp_def		= 0;
+	TYPE type1		= TYPE::NONE;
+	TYPE type2		= TYPE::NONE;
+	u8 catch_rate		= 0;
+	u8 base_friendship	= 0;
+	ABILITY ability1	= ABILITY::NONE;
+	ABILITY ability2	= ABILITY::NONE;
+	ABILITY hidden_ability	= ABILITY::NONE;
 };
 #pragma pack(pop)
 
-struct legendary_t{
-	pokemon_t pokemon;
-};
-
-
 class pokedex_t{
 	std::array<u32, PK_COUNT> pokemon_registry{};
-	std::vector<std::optional<pokemon_t>> pokemon_cache{};
+	std::vector<std::optional<pokedex_entry_t>> pokemon_cache{};
 	public:
 	std::expected<void, std::string_view> load_pokedex();
-	std::optional<pokemon_t> get_pokedex_entry(POKEDEX ID);
+	std::optional<pokedex_entry_t> get_pokedex_entry(POKEDEX ID);
 };
 
