@@ -18,19 +18,6 @@ struct st_ctx_t{
 	bool halt_music{false};
 	Music current_music{};
 	u8 selected_option = 0;
-	void switch_state(STATE new_state, float delta = alpha_delta){
-		float current_alpha = static_cast<float>(transition_alpha);
-		if (current_state != new_state){
-			current_alpha+=delta*GetFrameTime();
-			if (transition_alpha >= 255.0f){
-				current_alpha = 255;
-				current_state = new_state;
-				selected_option = 0;
-				set_state_meta = false;
-			}
-		}
-		transition_alpha = static_cast<unsigned char>(current_alpha);
-	}
 	void resume_state_alpha(unsigned char& alpha){
 		float current_alpha = static_cast<float>(alpha);
 		if (current_alpha > 5.0f){

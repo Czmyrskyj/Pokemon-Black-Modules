@@ -6,29 +6,34 @@
 #include "dialog.hpp"
 
 #include <cmath>
+#include <memory>
 
 namespace StarterSelected{
-	static bool initialized = false;
-	static bool played_received_starter = false;
-	static bool init_dialog = false;
-	static std::string formatted_string;
-	static std::string current_line;
-	static writer_t writer;
-	static dialog_t dialog;
+	struct state_meta_t{
+		bool played_received_starter = false;
+		bool init_dialog = false;
+		std::string formatted_string;
+		std::string current_line;
+		writer_t writer;
+		dialog_t dialog;
+	};
+	static std::unique_ptr<state_meta_t> meta;
 	void init(st_ctx_t& ctx, trainer_t& player, trainer_t& cheren){
-		dialog.top = true;
+		if (!meta){
+			meta = std::make_unique<state_meta_t>();
+		}
+		meta->dialog.top = true;
 		ctx.bg_color = WHITE;
-		formatted_string = fmt::format(ctx.locale.get(Locale::TYPE::UI, "RECEIVED_POKEMON"), &player, player.get_party().data()[0].pokedex.id);
-		dialog.init({
+		meta->formatted_string = fmt::format(ctx.locale.get(Locale::TYPE::UI, "RECEIVED_POKEMON"), &player, player.get_party().data()[0].pokedex.id);
+		meta->dialog.init({
 				"CHAR_BIANCA_2_1",
 				"CHAR_CHEREN_2_2",
 				"CHAR_CHEREN_2_3",
 				});
 	}
 	void update(st_ctx_t& ctx, trainer_t& player, trainer_t& cheren){
-		if (!initialized){
+		if (!meta){
 			init(ctx, player, cheren);
-			initialized = true;
 		}
 		if (!ctx.set_state_meta && ctx.transition_alpha > 0){
 			ctx.resume_state_alpha(ctx.transition_alpha);
@@ -38,28 +43,34 @@ namespace StarterSelected{
 			ctx.set_state_meta = true;
 		}
 		Sound received_starter_sound = ctx.assets.get_sfx("received-starter.wav");
-		if (!played_received_starter){
+		if (!meta->played_received_starter){
 			PlaySound(received_starter_sound);
-			played_received_starter = true;
+			meta->played_received_starter = true;
 		} else if (!IsSoundPlaying(received_starter_sound)){
-			if (!init_dialog){
-				current_line = fmt::format(dialog.step(ctx.assets, writer, ctx.locale), nullptr, cheren.get_party().data()[0].pokedex.id);
-				writer.set_text(current_line);
-				init_dialog = true;
+			if (!meta->init_dialog){
+				meta->current_line = fmt::format(meta->dialog.step(ctx.assets, meta->writer, ctx.locale), nullptr, cheren.get_party().data()[0].pokedex.id);
+				meta->writer.set_text(meta->current_line);
+				meta->init_dialog = true;
 			}
-			if (dialog.update(ctx.assets, writer) && writer.finished){
-				current_line = fmt::format(dialog.step(ctx.assets, writer, ctx.locale), nullptr, cheren.get_party().data()[0].pokedex.id);
-				writer.set_text(current_line);
+			if (meta->dialog.update(ctx.assets, meta->writer) && meta->writer.finished){
+				meta->current_line = fmt::format(meta->dialog.step(ctx.assets, meta->writer, ctx.locale), nullptr, cheren.get_party().data()[0].pokedex.id);
+				meta->writer.set_text(meta->current_line);
 			}
 		}
-		writer.update();
+		meta->writer.update();
 	}
 	void render(st_ctx_t& ctx){
-		for (usz i = 0; i < formatted_string.size(); i++){
-			const char c[2]{formatted_string[i], '\0'};
+		if (!meta){
+			return;
+		}
+		for (usz i = 0; i < meta->formatted_string.size(); i++){
+			const char c[2]{meta->formatted_string[i], '\0'};
 			draw_text(ctx.assets, c, 10 + i * 30, std::sinf((10 + i * 30) + (GetTime() * 2.0f)) * 5.0f + 1000, 50, BLACK);
 		}
-		draw_text_seq(ctx.assets, writer, dialog.txtbox_x, dialog.txtbox_y, 50, WHITE, 1);
-		dialog.draw_speaker(ctx.assets);
+		draw_text_seq(ctx.assets, meta->writer, meta->dialog.txtbox_x, meta->dialog.txtbox_y, 50, WHITE, 1);
+		meta->dialog.draw_speaker(ctx.assets);
+	}
+	void clear(){
+		meta = nullptr;
 	}
 }

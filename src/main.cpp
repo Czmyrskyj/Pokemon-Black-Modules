@@ -62,10 +62,6 @@ int main(){
 		};
 
 
-		MainMenu::init(ctx);
-		BoyOrGirl::init(ctx);
-		WhatsYourName::init(ctx);
-
 		Time::time_t time;
 		auto season = time.get_season();
 
