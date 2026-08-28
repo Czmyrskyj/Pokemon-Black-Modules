@@ -145,12 +145,17 @@ struct starter_selected_t{
 	void render(st_ctx_t& ctx);
 	explicit starter_selected_t(Color& bg_color, Locale::locale_t& locale, trainer_t& player);
 };
-
+namespace Time{
+struct time_t;
+};
 struct which_season_and_region_t{
 	writer_t writer{};
 	dialog_t dialog{};
+	std::string season_label{};
+	Color season_label_color{};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
+	explicit which_season_and_region_t(Color& bg_color, Locale::locale_t& locale, Time::time_t& time);
 };
 
 using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t, which_season_and_region_t>;

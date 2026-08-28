@@ -16,6 +16,7 @@ struct st_ctx_t{
 	trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 	Locale::locale_t& locale;
 	pokedex_t pokedex;
+	Time::time_t& time;
 	STATE current_state = STATE::TITLE;
 	active_state_t state_data = title_state_t{};
 	Color bg_color = BLACK;
@@ -80,7 +81,7 @@ struct st_ctx_t{
 				state_data.emplace<starter_selected_t>(bg_color, locale, player);
 				break;
 			case STATE::WHICH_SEASON_AND_REGION:
-				state_data.emplace<which_season_and_region_t>();
+				state_data.emplace<which_season_and_region_t>(bg_color, locale, time);
 				break;
 			default:
 				break;

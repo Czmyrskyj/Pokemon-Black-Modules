@@ -41,19 +41,16 @@ int main(){
 			std::println(stderr, "error: {}", pokedex_load_res.error());
 			return -1;
 		}
+		Time::time_t time;
 		st_ctx_t ctx{
 			.assets = assets,
 			.locale = locale,
 			.pokedex = pokedex,
+			.time = time,
 		};
-
-		Time::time_t time;
-		auto season = time.get_season();
-	
 		active_state_t state;
 
 		while (!WindowShouldClose()){
-			auto tm = time.get_time();
 			if (!ctx.halt_music){
 				if (!IsMusicStreamPlaying(ctx.current_music)){
 					PlayMusicStream(ctx.current_music);

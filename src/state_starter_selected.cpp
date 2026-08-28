@@ -39,6 +39,10 @@ void starter_selected_t::update(st_ctx_t& ctx){
 			writer.set_text(current_line);
 		}
 	}
+	if (dialog.finished){
+		ctx.transition_color = BLACK;
+		ctx.switch_state(STATE::WHICH_SEASON_AND_REGION);
+	}
 	writer.update();
 }
 void starter_selected_t::render(st_ctx_t& ctx){

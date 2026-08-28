@@ -2,7 +2,6 @@
 #include <fstream>
 #include <filesystem>
 #include <print>
-#include "pokedex.hpp"
 
 namespace fs = std::filesystem;
 const fs::path assets_pakg{"assets.PAKG"};
