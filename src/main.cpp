@@ -10,17 +10,7 @@
 #include "pokedex.hpp"
 #include "time.hpp"
 
-#include "state_title.hpp"
-#include "state_main_menu.hpp"
-#include "state_wifi_connection.hpp"
-#include "state_boy_or_girl.hpp"
-#include "state_whats_your_name.hpp"
-#include "state_juniper_letter.hpp"
-#include "state_choose_a_starter.hpp"
-#include "state_starter_selected.hpp"
-
 #include <print>
-
 
 int main(){
 	SetTraceLogLevel(LOG_WARNING);
@@ -39,9 +29,6 @@ int main(){
 		}
 		
 		SetTextureFilter(assets.get_font("font.otf").texture, TEXTURE_FILTER_POINT);
-		trainer_t player{"nodata", ""};
-		trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
-		trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 		Locale::locale_t locale;
 		auto locale_load_res = locale.load_locale_files();
 		if (!locale_load_res.has_value()){
@@ -56,14 +43,14 @@ int main(){
 		}
 		st_ctx_t ctx{
 			.assets = assets,
-			.player = player,
 			.locale = locale,
 			.pokedex = pokedex,
 		};
 
-
 		Time::time_t time;
 		auto season = time.get_season();
+	
+		active_state_t state;
 
 		while (!WindowShouldClose()){
 			auto tm = time.get_time();
@@ -74,30 +61,22 @@ int main(){
 				UpdateMusicStream(ctx.current_music);
 			}
 
-			switch (ctx.current_state){
-				case STATE::TITLE: TitleState::update(ctx); break;
-				case STATE::MAIN_MENU: MainMenu::update(ctx); break;
-				case STATE::WIFI_CONNECTION: WIFIConnection::update(ctx); break;
-				case STATE::BOY_OR_GIRL: BoyOrGirl::update(ctx); break;
-				case STATE::WHATS_YOUR_NAME: WhatsYourName::update(ctx); break;
-				case STATE::JUNIPER_LETTER: JuniperLetter::update(ctx, player); break;
-				case STATE::CHOOSE_STARTER: ChooseAStarter::update(ctx, player, cheren, bianca); break;
-				case STATE::STARTER_SELECTED: StarterSelected::update(ctx, player, cheren); break;
-			}
+			std::visit([&ctx](auto& state){
+				using T = std::decay_t<decltype(state)>;
+				if constexpr (!std::is_same_v<T, std::monostate>){
+					state.update(ctx);
+				}
+			}, ctx.state_data);			
 
 			BeginDrawing();
 			ClearBackground(ctx.bg_color);
 
-			switch (ctx.current_state){
-				case STATE::TITLE: TitleState::render(ctx); break;
-				case STATE::MAIN_MENU: MainMenu::render(ctx); break;
-				case STATE::WIFI_CONNECTION: WIFIConnection::render(ctx); break;
-				case STATE::BOY_OR_GIRL: BoyOrGirl::render(ctx); break;
-				case STATE::WHATS_YOUR_NAME: WhatsYourName::render(ctx); break;
-				case STATE::JUNIPER_LETTER: JuniperLetter::render(ctx); break;
-				case STATE::CHOOSE_STARTER: ChooseAStarter::render(ctx); break;
-				case STATE::STARTER_SELECTED: StarterSelected::render(ctx); break;
-			}
+			std::visit([&ctx](auto& state){
+				using T = std::decay_t<decltype(state)>;
+				if constexpr (!std::is_same_v<T, std::monostate>){
+					state.render(ctx);
+				}
+			}, ctx.state_data);			
 
 			DrawRectangle(0, 0, wnd_w, wnd_h, Color{ctx.transition_color.r, ctx.transition_color.g, ctx.transition_color.b, ctx.transition_alpha});
 			EndDrawing();

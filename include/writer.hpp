@@ -3,7 +3,7 @@
 #include <string_view>
 
 struct writer_t{
-	std::string_view target{};
+	std::string target{};
 	std::string visible_buffer{};
 	usz current_idx = 0;
 	float timer = 0.0f;

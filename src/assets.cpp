@@ -131,4 +131,5 @@ void assets_t::unload_assets(){
 	sound_cache.clear();
 	music_cache.clear();
 	font_cache.clear();
+	music_buffer.clear();
 }
