@@ -39,7 +39,7 @@ struct main_menu_t{
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	void clear(assets_t& assets);
-	explicit main_menu_t(Locale::locale_t& locale);
+	explicit main_menu_t(st_ctx_t& ctx);
 };
 
 struct boy_or_girl_t{
@@ -53,7 +53,7 @@ struct boy_or_girl_t{
 	std::string formatted_prompt;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
-	explicit boy_or_girl_t(Locale::locale_t& locale);
+	explicit boy_or_girl_t(st_ctx_t& ctx);
 };
 
 struct wifi_connection_t{
@@ -73,7 +73,7 @@ struct whats_your_name_t{
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	void clear(assets_t& assets);
-	explicit whats_your_name_t(Locale::locale_t& locale);
+	explicit whats_your_name_t(st_ctx_t& ctx);
 };
 
 struct juniper_letter_t{
@@ -84,7 +84,7 @@ struct juniper_letter_t{
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	void clear(assets_t& assets);
-	explicit juniper_letter_t(Locale::locale_t& locale, trainer_t& player);
+	explicit juniper_letter_t(st_ctx_t& ctx);
 };
 
 struct choose_a_starter_t{
@@ -134,7 +134,7 @@ struct choose_a_starter_t{
 	};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
-	explicit choose_a_starter_t(assets_t& assets, Locale::locale_t& locale, trainer_t& player);
+	explicit choose_a_starter_t(st_ctx_t& ctx);
 	void clear(assets_t& assets);
 };
 
@@ -147,19 +147,25 @@ struct starter_selected_t{
 	dialog_t dialog{};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
-	explicit starter_selected_t(Color& bg_color, Locale::locale_t& locale, trainer_t& player);
+	explicit starter_selected_t(st_ctx_t& ctx);
 };
 namespace Time{
 struct time_t;
 };
 struct which_season_and_region_t{
 	writer_t writer{};
-	dialog_t dialog{};
+	writer_t region_writer{};
 	std::string season_label{};
 	Color season_label_color{};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
-	explicit which_season_and_region_t(Color& bg_color, Locale::locale_t& locale, Time::time_t& time);
+	explicit which_season_and_region_t(st_ctx_t& ctx);
+};
+
+struct main_t{
+	usz index = 0;
+	void update(st_ctx_t& ctx);
+	void render(st_ctx_t& ctx);
 };
 
 using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t, which_season_and_region_t>;

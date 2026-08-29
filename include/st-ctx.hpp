@@ -3,6 +3,7 @@
 #include "assets.hpp"
 #include "trainer.hpp"
 #include "locale.hpp"
+#include "regions.hpp"
 
 struct st_ctx_t;
 
@@ -11,15 +12,16 @@ struct st_ctx_t;
 constexpr float alpha_delta{300.0f};
 struct st_ctx_t{
 	assets_t& assets;
-	trainer_t player{"nodata", ""};
+	trainer_t player{"Dvoriak", ""};
 	trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
 	trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 	Locale::locale_t& locale;
 	pokedex_t pokedex;
 	Time::time_t& time;
-	STATE current_state = STATE::TITLE;
-	active_state_t state_data = title_state_t{};
+	STATE current_state = STATE::WHICH_SEASON_AND_REGION;
+	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;
+	active_state_t state_data = which_season_and_region_t{*this};
 	Color transition_color = BLACK;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};
@@ -62,33 +64,32 @@ struct st_ctx_t{
 				}, state_data);
 
 		switch (new_state){
-
 			case STATE::TITLE:
 				state_data = title_state_t{};
 				break;
 			case STATE::MAIN_MENU:
-				state_data.emplace<main_menu_t>(locale);
+				state_data.emplace<main_menu_t>(*this);
 				break;
 			case STATE::BOY_OR_GIRL:
-				state_data.emplace<boy_or_girl_t>(locale);
+				state_data.emplace<boy_or_girl_t>(*this);
 				break;
 			case STATE::WIFI_CONNECTION:
 				state_data = wifi_connection_t{};
 				break;
 			case STATE::WHATS_YOUR_NAME:
-				state_data.emplace<whats_your_name_t>(locale);
+				state_data.emplace<whats_your_name_t>(*this);
 				break;
 			case STATE::JUNIPER_LETTER:
-				state_data.emplace<juniper_letter_t>(locale, player);
+				state_data.emplace<juniper_letter_t>(*this);
 				break;
 			case STATE::CHOOSE_STARTER:
-				state_data.emplace<choose_a_starter_t>(assets, locale, player);
+				state_data.emplace<choose_a_starter_t>(*this);
 				break;
 			case STATE::STARTER_SELECTED:
-				state_data.emplace<starter_selected_t>(bg_color, locale, player);
+				state_data.emplace<starter_selected_t>(*this);
 				break;
 			case STATE::WHICH_SEASON_AND_REGION:
-				state_data.emplace<which_season_and_region_t>(bg_color, locale, time);
+				state_data.emplace<which_season_and_region_t>(*this);
 				break;
 			default:
 				break;

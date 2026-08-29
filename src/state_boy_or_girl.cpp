@@ -2,8 +2,8 @@
 #include "formatter.hpp"
 #include <cmath>
 
-boy_or_girl_t::boy_or_girl_t(Locale::locale_t& locale){
-	formatted_prompt = fmt::format(locale.get(Locale::TYPE::DIALOG, "PROMPT_SEX"));
+boy_or_girl_t::boy_or_girl_t(st_ctx_t& ctx){
+	formatted_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_SEX"));
 	writer.set_text(formatted_prompt, 0.03f);
 }
 

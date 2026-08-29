@@ -3,8 +3,8 @@
 #include "formatter.hpp"
 #include <cmath>
 
-whats_your_name_t::whats_your_name_t(Locale::locale_t& locale){
-	formatted_prompt = fmt::format(locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"));
+whats_your_name_t::whats_your_name_t(st_ctx_t& ctx){
+	formatted_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"));
 	writer.set_text(formatted_prompt, 0.03f);
 }
 void whats_your_name_t::update(st_ctx_t& ctx){

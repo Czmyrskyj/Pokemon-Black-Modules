@@ -1,10 +1,10 @@
 #include "st-ctx.hpp"
 #include "writer.hpp"
 #include <cmath>
-main_menu_t::main_menu_t(Locale::locale_t& locale){
+main_menu_t::main_menu_t(st_ctx_t& ctx){
 	menu_options.clear();
-	menu_options.push_back(locale.get(Locale::TYPE::UI, "MM_NEW"));
-	menu_options.push_back(locale.get(Locale::TYPE::UI, "MM_WIFI"));
+	menu_options.push_back(ctx.locale.get(Locale::TYPE::UI, "MM_NEW"));
+	menu_options.push_back(ctx.locale.get(Locale::TYPE::UI, "MM_WIFI"));
 	switch_state_in_main_menu = -1; 
 }
 void main_menu_t::update(st_ctx_t& ctx){

@@ -6,10 +6,10 @@
 
 #include <cmath>
 
-starter_selected_t::starter_selected_t(Color& bg_color, Locale::locale_t& locale, trainer_t& player){
+starter_selected_t::starter_selected_t(st_ctx_t& ctx){
 	dialog.top = true;
-	bg_color = WHITE;
-	formatted_string = fmt::format(locale.get(Locale::TYPE::UI, "RECEIVED_POKEMON"), &player, player.get_party().data()[0].pokedex.id);
+	ctx.bg_color = WHITE;
+	formatted_string = fmt::format(ctx.locale.get(Locale::TYPE::UI, "RECEIVED_POKEMON"), &ctx.player, ctx.player.get_party().data()[0].pokedex.id);
 	dialog.init({
 			"CHAR_BIANCA_2_1",
 			"CHAR_CHEREN_2_2",

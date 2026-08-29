@@ -48,7 +48,6 @@ add_compile_options(
 	-Wunused-parameter
 	-Wunused-result
 	-Wshadow
-	-Wshadow-all
 	-Wfloat-equal
 	-Woverloaded-virtual
 	-Wnon-virtual-dtor

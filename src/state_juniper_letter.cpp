@@ -3,9 +3,9 @@
 #include "formatter.hpp"
 #include "trainer.hpp"
 
-juniper_letter_t::juniper_letter_t(Locale::locale_t& locale, trainer_t& player){
-	formatted_juniper_letter = fmt::format(locale.get(Locale::TYPE::DIALOG, "JUNIPER_LETTER"), &player);
-	formatted_sincerely = fmt::format(locale.get(Locale::TYPE::DIALOG, "SINCERELY_JUNIPER"), &player);
+juniper_letter_t::juniper_letter_t(st_ctx_t& ctx){
+	formatted_juniper_letter = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "JUNIPER_LETTER"), &ctx.player);
+	formatted_sincerely = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "SINCERELY_JUNIPER"), &ctx.player);
 	writer.set_text(formatted_juniper_letter, 0.03f);
 	sincerely_writer.set_text(formatted_sincerely, 0.03f);
 }

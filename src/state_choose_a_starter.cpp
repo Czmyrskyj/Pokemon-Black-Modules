@@ -10,17 +10,17 @@
 
 constexpr float shift_speed{30.0f};
 
-choose_a_starter_t::choose_a_starter_t(assets_t& assets, Locale::locale_t& locale, trainer_t& player){
+choose_a_starter_t::choose_a_starter_t(st_ctx_t& ctx){
 	dialog.init({
 			"CHAR_CHEREN_1_1",
 			"CHAR_BIANCA_1_1",
 			"CHAR_CHEREN_1_2",
 			"CHAR_BIANCA_1_2",
 			});
-	current_line = fmt::format(dialog.step(assets, writer, locale), &player);
+	current_line = fmt::format(dialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
 	writer.set_text(current_line);
 	for (auto& o : yes_no){
-		o = locale.get(Locale::TYPE::UI, o);
+		o = ctx.locale.get(Locale::TYPE::UI, o);
 	}
 }
 
