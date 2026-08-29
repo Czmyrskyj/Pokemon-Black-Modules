@@ -162,10 +162,20 @@ struct which_season_and_region_t{
 	explicit which_season_and_region_t(st_ctx_t& ctx);
 };
 
-struct main_t{
+struct cloud_t{
+	Vector2 pos;
+	float scale;
+};
+struct main_state_t{
+	writer_t writer{};
+	dialog_t dialog{};
+	Vector2 celestial_pos{};
 	usz index = 0;
+	std::vector<cloud_t> clouds{};
+	Color sky_color{SKYBLUE};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
+	explicit main_state_t(st_ctx_t& ctx);
 };
 
-using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t, which_season_and_region_t>;
+using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t, which_season_and_region_t, main_state_t>;

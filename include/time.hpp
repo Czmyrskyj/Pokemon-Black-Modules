@@ -13,10 +13,8 @@ namespace Time{
 	};
 
 	class time_t{
-		chrono::zoned_time<chrono::seconds> local_now{};
 		public:
-		time_t();
-		SEASON get_season();
-		chrono::hh_mm_ss<chrono::seconds> get_time();
+			SEASON get_season();
+			chrono::hh_mm_ss<chrono::seconds> get_time();
 	};
 }

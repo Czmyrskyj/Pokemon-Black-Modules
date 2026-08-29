@@ -91,6 +91,9 @@ struct st_ctx_t{
 			case STATE::WHICH_SEASON_AND_REGION:
 				state_data.emplace<which_season_and_region_t>(*this);
 				break;
+			case STATE::MAIN:
+				state_data.emplace<main_state_t>(*this);
+				break;
 			default:
 				break;
 		}
