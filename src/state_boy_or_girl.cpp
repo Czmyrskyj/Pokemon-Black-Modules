@@ -11,7 +11,7 @@ void boy_or_girl_t::update(st_ctx_t& ctx){
 	writer.update();
 	if (!ctx.set_state_meta && ctx.transition_alpha > 0){
 		ctx.resume_state_alpha(ctx.transition_alpha);
-		ctx.current_music = ctx.assets.get_mus("Abandoned Lot of Dreams.mp3");
+		ctx.current_music = ctx.assets.get_mus("Abandoned Lot of Dreams.ogg");
 		ctx.halt_music = false;
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){

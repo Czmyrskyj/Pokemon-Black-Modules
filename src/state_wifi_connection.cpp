@@ -3,7 +3,7 @@
 void wifi_connection_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha > 0.0f){
 		ctx.resume_state_alpha(ctx.transition_alpha);
-		ctx.current_music = ctx.assets.get_mus("Wi-Fi Connection.mp3");
+		ctx.current_music = ctx.assets.get_mus("Wi-Fi Connection.ogg");
 		ctx.halt_music = false;
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){

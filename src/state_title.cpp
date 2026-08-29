@@ -5,7 +5,7 @@
 void title_state_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha > 0){
 		ctx.resume_state_alpha(ctx.transition_alpha);
-		ctx.current_music = ctx.assets.get_mus("Title.mp3");
+		ctx.current_music = ctx.assets.get_mus("Title.ogg");
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0){
 		ctx.set_state_meta = true;
