@@ -37,5 +37,6 @@ class assets_t{
 	Sound get_cry(u16 id);
 	Music get_mus(std::string_view);
 	Font get_font(std::string_view);
+	void unload_track(std::string_view);
 	void unload_assets();
 };

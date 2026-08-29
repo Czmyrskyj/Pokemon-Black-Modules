@@ -45,3 +45,7 @@ void title_state_t::render(st_ctx_t& ctx){
 		DrawText("press ENTER", 750, 950, 50.0f, WHITE);
 	}
 }
+
+void title_state_t::clear(assets_t& assets){
+	assets.unload_track("Title.ogg");
+}

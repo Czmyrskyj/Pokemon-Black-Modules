@@ -55,7 +55,14 @@ struct st_ctx_t{
 		return -1;
 	}
 	void switch_data(STATE new_state){
+		std::visit([this](auto& active){
+				if constexpr (requires { active.clear(assets); }){
+				active.clear(assets);
+				}
+				}, state_data);
+
 		switch (new_state){
+
 			case STATE::TITLE:
 				state_data = title_state_t{};
 				break;

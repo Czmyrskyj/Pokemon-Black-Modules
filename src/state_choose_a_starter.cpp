@@ -81,6 +81,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 				}
 			}
 		}
+		SetMusicVolume(ctx.current_music, volume);
 		if (selected_starter != -1){
 			if (volume > 0.2f){
 				volume -= 0.05f;
@@ -148,7 +149,9 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 						ctx.bianca.push_pokemon(biancas_choosen);
 						handed_pokemon = true;
 					}
+					ctx.current_music = {};
 					ctx.switch_state(STATE::STARTER_SELECTED, 100);
+					return;
 				}
 				if ((IsKeyPressed(KEY_X) || selected_opt == 1) && !handed_pokemon){
 					selected_starter = -1;
@@ -164,7 +167,6 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 		}
 	}
 	screen_x += 1.0f;
-	SetMusicVolume(ctx.current_music, volume);
 	writer.update();
 }
 void choose_a_starter_t::render(st_ctx_t& ctx){
@@ -210,4 +212,8 @@ void choose_a_starter_t::render(st_ctx_t& ctx){
 			draw_text(ctx.assets, yes_no[i], wnd_w - 300 + 30.0f, wnd_h - 400 + i * (button.height * 4.0f) + 15.0f, 60, WHITE);
 		}
 	}
+}
+
+void choose_a_starter_t::clear(assets_t& assets){
+	assets.unload_track("Professor Juniper.ogg");
 }

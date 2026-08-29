@@ -30,6 +30,7 @@ struct title_state_t{
 	bool title_pressed_enter = false;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
+	void clear(assets_t& assets);
 };
 
 struct main_menu_t{
@@ -71,6 +72,7 @@ struct whats_your_name_t{
 	std::string formatted_prompt;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
+	void clear(assets_t& assets);
 	explicit whats_your_name_t(Locale::locale_t& locale);
 };
 
@@ -132,6 +134,7 @@ struct choose_a_starter_t{
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	explicit choose_a_starter_t(assets_t& assets, Locale::locale_t& locale, trainer_t& player);
+	void clear(assets_t& assets);
 };
 
 struct starter_selected_t{

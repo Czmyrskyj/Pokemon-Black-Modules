@@ -132,3 +132,6 @@ void whats_your_name_t::render(st_ctx_t& ctx){
 	}
 }
 
+void whats_your_name_t::clear(assets_t& assets){
+	assets.unload_track("Abandoned Lof of Dreams.ogg");
+}

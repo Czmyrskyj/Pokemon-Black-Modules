@@ -132,3 +132,14 @@ void assets_t::unload_assets(){
 	font_cache.clear();
 	music_buffer.clear();
 }
+
+void assets_t::unload_track(std::string_view name){
+	auto nm = std::string(name);
+	auto it = music_cache.find(nm);
+	if (it != music_cache.end()){
+		StopMusicStream(it->second);
+		UnloadMusicStream(it->second);
+		music_cache.erase(it);
+	}
+	music_buffer.erase(nm);
+}
