@@ -47,5 +47,8 @@ void title_state_t::render(st_ctx_t& ctx){
 }
 
 void title_state_t::clear(assets_t& assets){
+	for (const auto& i : {"title-strip.png", "pokemon-logo.png"}){
+		assets.unload_texture(i);
+	}
 	assets.unload_track("Title.ogg");
 }

@@ -215,5 +215,8 @@ void choose_a_starter_t::render(st_ctx_t& ctx){
 }
 
 void choose_a_starter_t::clear(assets_t& assets){
+	for (const auto& i : {"starter-SNIVY.png", "starter-TEPIG.png", "starter-OSHAWOTT.png"}){
+		assets.unload_texture(i);
+	}
 	assets.unload_track("Professor Juniper.ogg");
 }

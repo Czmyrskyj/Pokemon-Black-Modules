@@ -36,9 +36,9 @@ struct title_state_t{
 struct main_menu_t{
 	i8 switch_state_in_main_menu = -1;
 	std::vector<std::string_view> menu_options;
-	void init(st_ctx_t& ctx);
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
+	void clear(assets_t& assets);
 	explicit main_menu_t(Locale::locale_t& locale);
 };
 
@@ -83,6 +83,7 @@ struct juniper_letter_t{
 	std::string formatted_sincerely;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
+	void clear(assets_t& assets);
 	explicit juniper_letter_t(Locale::locale_t& locale, trainer_t& player);
 };
 

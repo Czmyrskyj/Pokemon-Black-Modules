@@ -143,3 +143,12 @@ void assets_t::unload_track(std::string_view name){
 	}
 	music_buffer.erase(nm);
 }
+
+void assets_t::unload_texture(std::string_view name){
+	auto nm = std::string(name);
+	auto it = texture_cache.find(nm);
+	if (it != texture_cache.end()){
+		UnloadTexture(it->second);
+		texture_cache.erase(it);
+	}
+}

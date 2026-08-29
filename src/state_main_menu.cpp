@@ -48,3 +48,6 @@ void main_menu_t::render(st_ctx_t& ctx){
 		draw_text(ctx.assets, menu_options[i], 350, 330 + i * 100.0f, 50, WHITE);
 	}
 }
+void main_menu_t::clear(assets_t& assets){
+	assets.unload_texture("menu10.png");
+}

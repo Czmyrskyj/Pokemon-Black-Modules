@@ -33,3 +33,7 @@ void juniper_letter_t::render(st_ctx_t& ctx){
 		draw_text_seq(ctx.assets, sincerely_writer, 800, 850, 60, BLACK, 0, BLANK);
 	}
 }
+
+void juniper_letter_t::clear(assets_t& assets){
+	assets.unload_texture("mincinno-mail.png");
+}

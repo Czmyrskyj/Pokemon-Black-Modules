@@ -133,5 +133,8 @@ void whats_your_name_t::render(st_ctx_t& ctx){
 }
 
 void whats_your_name_t::clear(assets_t& assets){
+	for (const auto& i : {"hilbert.png", "hilda.png"}){
+		assets.unload_texture(i);
+	}
 	assets.unload_track("Abandoned Lof of Dreams.ogg");
 }
