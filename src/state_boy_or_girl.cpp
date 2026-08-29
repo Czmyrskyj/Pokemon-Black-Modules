@@ -23,7 +23,7 @@ void boy_or_girl_t::update(st_ctx_t& ctx){
 		char_frame_count_timer = 0;
 	}
 	char_frame_count %= 4;
-	char_frame = frame_order[char_frame_count];
+	char_frame = static_cast<usz>(frame_order[char_frame_count]);
 	screen_x -= 1.0f;
 	Sound sel_sfx = ctx.assets.get_sfx("SEQ_SE_SELECT1.wav");
 	Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");

@@ -22,8 +22,6 @@ void title_state_t::update(st_ctx_t& ctx){
 	}
 }
 void title_state_t::render(st_ctx_t& ctx){
-	static float strip_pos = 0.0f;
-	static u8 press_enter_timer = 0;
 	press_enter_timer++;
 	if (press_enter_timer >= 50){
 		press_enter_timer = 0;

@@ -13,11 +13,11 @@ namespace Time{
 		unsigned month = static_cast<unsigned>(ymd.month());
 		if (month <= 2 || month == 12){
 			return SEASON::WINTER;
-		} else if (month <= 3 && month >= 5){
+		} else if (month >= 3 && month <= 5){
 			return SEASON::SPRING;
-		} else if (month <= 6 && month >= 8){
+		} else if (month >= 6 && month <= 8){
 			return SEASON::SUMMER;
-		} else if (month <= 9 && month >= 11){
+		} else if (month >= 9 && month <= 11){
 			return SEASON::AUTUMN;
 		}
 		return SEASON::SUMMER;

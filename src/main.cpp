@@ -48,7 +48,6 @@ int main(){
 			.pokedex = pokedex,
 			.time = time,
 		};
-		active_state_t state;
 
 		while (!WindowShouldClose()){
 			if (!ctx.halt_music){

@@ -54,7 +54,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 				}
 				if (starter_scales[i] < 6.0f){
 					starter_scales[i] += 0.25f;
-					jump_factor = std::fabs(std::sinf(GetTime() * 20.0f) * 150.0f);
+					jump_factor = std::fabs(std::sinf(GetTime() * 20.0) * 150.0f);
 				} else if (!played_cry){
 					PlaySound(ctx.assets.get_sfx(std::format("{}.wav", std::to_string(starters[i]))));
 					played_cry = true;

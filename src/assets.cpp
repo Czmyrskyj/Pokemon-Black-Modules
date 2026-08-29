@@ -47,9 +47,9 @@ std::vector<u8> assets_t::read_bytes(std::string_view name) const{
 		std::println(stderr, "failed to find: {}", name);
 		return {};
 	}
-	in.seekg(it->second.offset, std::ios::beg);
+	in.seekg(static_cast<std::streamoff>(it->second.offset), std::ios::beg);
 	std::vector<u8> buffer(it->second.size);
-	in.read(reinterpret_cast<char*>(buffer.data()), it->second.size);
+	in.read(reinterpret_cast<char*>(buffer.data()), static_cast<std::streamsize>(it->second.size));
 	return buffer;
 }
 
@@ -58,7 +58,7 @@ Texture2D assets_t::get_tx(std::string_view name) {
 	if (!texture_cache.contains(key)){
 		auto contents = read_bytes(key);
 		if (contents.empty()) return Texture2D{};
-		Image img = LoadImageFromMemory(".png", contents.data(), contents.size());
+		Image img = LoadImageFromMemory(".png", contents.data(), static_cast<int>(contents.size()));
 		Texture2D texture = LoadTextureFromImage(img);
 		UnloadImage(img);
 		texture_cache[key] = texture;
@@ -71,7 +71,7 @@ Sound assets_t::get_sfx(std::string_view name) {
 	if (!sound_cache.contains(key)){
 		auto contents = read_bytes(key);
 		if (contents.empty()) return Sound{};
-		Wave wave = LoadWaveFromMemory(".wav", contents.data(), contents.size());
+		Wave wave = LoadWaveFromMemory(".wav", contents.data(), static_cast<int>(contents.size()));
 		Sound sound = LoadSoundFromWave(wave);
 		UnloadWave(wave);
 		sound_cache[key] = sound;
@@ -89,7 +89,7 @@ Music assets_t::get_mus(std::string_view name) {
 		music_buffer[key] = read_bytes(key);
 		const auto& contents = music_buffer[key];
 		if (contents.empty()) return Music{};
-		Music music = LoadMusicStreamFromMemory(".ogg", contents.data(), contents.size());
+		Music music = LoadMusicStreamFromMemory(".ogg", contents.data(), static_cast<int>(contents.size()));
 		music_cache[key] = music;
 	}
 	return music_cache[key];
@@ -107,7 +107,7 @@ Font assets_t::get_font(std::string_view name) {
 			'0','1','2','3','4','5','6','7','8','9',' ', '!', '?', ',', '.', '\n', '-', '\'', ':',
 			0x00E9
 		});
-		Font font = LoadFontFromMemory(".otf", contents.data(), contents.size(), 50, codepoints.data(), codepoints.size());
+		Font font = LoadFontFromMemory(".otf", contents.data(), static_cast<int>(contents.size()), 50, codepoints.data(), codepoints.size());
 		font_cache[key] = font;
 	}
 	return font_cache[key];

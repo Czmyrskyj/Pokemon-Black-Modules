@@ -28,8 +28,9 @@ void draw_text(assets_t& assets, std::string_view str, float x, float y, unsigne
 	    DrawTextCodepoints(font, codepoints, codepoints_count, {x, y}, static_cast<float>(size), 0, tint);
     } else {
 	    for (usz i = 0; i < str.size(); i++){
-		    DrawTextEx(font, (char[2]){str[i], 0}, {x + 2 + (i * spacing), y + 2}, static_cast<float>(size), 0, shadow_tint); 
-		    DrawTextEx(font, (char[2]){str[i], 0}, {x + (i * spacing), y}, static_cast<float>(size), 0, tint);
+		    char c[2] = {str[i], 0};
+		    DrawTextEx(font, c, {x + 2 + (i * spacing), y + 2}, static_cast<float>(size), 0, shadow_tint); 
+		    DrawTextEx(font, c, {x + (i * spacing), y}, static_cast<float>(size), 0, tint);
 	    }
     }
     UnloadCodepoints(codepoints);

@@ -48,7 +48,7 @@ void starter_selected_t::update(st_ctx_t& ctx){
 void starter_selected_t::render(st_ctx_t& ctx){
 	for (usz i = 0; i < formatted_string.size(); i++){
 		const char c[2]{formatted_string[i], '\0'};
-		draw_text(ctx.assets, c, 10 + i * 30, std::sinf((10 + i * 30) + (GetTime() * 2.0f)) * 5.0f + 1000, 50, BLACK);
+		draw_text(ctx.assets, c, 10 + i * 30, std::sinf((10 + i * 30) + (GetTime() * 2.0)) * 5.0f + 1000, 50, BLACK);
 	}
 	draw_text_seq(ctx.assets, writer, dialog.txtbox_x, dialog.txtbox_y, 50, WHITE, 1);
 	dialog.draw_speaker(ctx.assets);

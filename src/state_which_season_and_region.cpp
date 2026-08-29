@@ -23,7 +23,7 @@ which_season_and_region_t::which_season_and_region_t(st_ctx_t& ctx){
 			default: return {137, 249, 129, 255};
 		}
 	}();
-	std::string hh_mm_unova = std::format("{}:{}, {}", ctx.time.get_time().hours().count(), ctx.time.get_time().minutes().count(), ctx.locale.get(Locale::TYPE::UI, "UNOVA"));
+	std::string hh_mm_unova = std::format("{}:{:02}, {}", ctx.time.get_time().hours().count(), ctx.time.get_time().minutes().count(), ctx.locale.get(Locale::TYPE::UI, "UNOVA"));
 	writer.set_text(hh_mm_unova, 0.08f);
 	region_writer.set_text(get_region_str(ctx.region), 0.12f);
 }

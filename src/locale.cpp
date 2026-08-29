@@ -26,8 +26,8 @@ namespace Locale{
 		}
 		ui_locale.seekg(0, std::ios::beg);
 		
-		std::vector<u8> ui_locale_contents(ui_locale_file_size);
-		ui_locale.read(reinterpret_cast<char*>(ui_locale_contents.data()), ui_locale_contents.size());
+		std::vector<u8> ui_locale_contents(static_cast<usz>(ui_locale_file_size));
+		ui_locale.read(reinterpret_cast<char*>(ui_locale_contents.data()), static_cast<std::streamsize>(ui_locale_contents.size()));
 
 		u32 ui_locale_entries_amount = *reinterpret_cast<u32*>(ui_locale_contents.data());
 		
@@ -51,8 +51,8 @@ namespace Locale{
 		}
 		dialog_locale.seekg(0, std::ios::beg);
 		
-		std::vector<u8> dialog_locale_contents(dialog_locale_file_size);
-		dialog_locale.read(reinterpret_cast<char*>(dialog_locale_contents.data()), dialog_locale_contents.size());
+		std::vector<u8> dialog_locale_contents(static_cast<usz>(dialog_locale_file_size));
+		dialog_locale.read(reinterpret_cast<char*>(dialog_locale_contents.data()), static_cast<std::streamsize>(dialog_locale_contents.size()));
 
 		u32 dialog_locale_entries_amount = *reinterpret_cast<u32*>(dialog_locale_contents.data());
 		
