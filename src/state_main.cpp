@@ -121,5 +121,6 @@ void main_state_t::render(st_ctx_t& ctx){
 		auto& c = clouds[i];
 		DrawTextureEx(ctx.assets.get_tx("cloud.png"), c.pos, 0.0f, c.scale, {255, 255, 255, static_cast<u8>(100 + (i * 5))});
 	}
+	DrawTexture(ctx.assets.get_tx(std::format("{}.png", get_region_str(ctx.region))), 0, 0, WHITE);
 	DrawTexturePro(ctx.assets.get_tx("bar.png"), {0, 0, 256, 24}, {0, 0, 1920, 72}, {0, 0}, 0, WHITE);
 }
