@@ -166,6 +166,7 @@ struct cloud_t{
 	Vector2 pos;
 	float scale;
 };
+
 struct main_state_t{
 	writer_t writer{};
 	dialog_t dialog{};

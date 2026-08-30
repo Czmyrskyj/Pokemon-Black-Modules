@@ -1,10 +1,8 @@
 #include <raylib.h>
-#include "battle.hpp"
 #include "trainer.hpp"
 #include "assets.hpp"
 #include "states.hpp"
-#include "random.hpp"
-#include "writer.hpp"
+#include "battle_info.hpp"
 #include "st-ctx.hpp"
 #include "locale.hpp"
 #include "pokedex.hpp"
@@ -42,6 +40,11 @@ int main(){
 			return -1;
 		}
 		Time::time_t time;
+		battle_info_t battle_info;
+		auto battle_info_load_res = battle_info.load_battle_info();
+		if (!battle_info_load_res.has_value()){
+			std::println(stderr, "error: {}", battle_info_load_res.error());
+		}
 		st_ctx_t ctx{
 			.assets = assets,
 			.locale = locale,

@@ -1,5 +1,6 @@
 #pragma once
 #include <string_view>
+#include "common.hpp"
 
 enum class REGION{
 	NUVEMA,
@@ -141,3 +142,7 @@ constexpr std::string_view get_region_str(REGION r) {
 	}
 	return "Unknown";
 }
+
+constexpr std::array<usz, static_cast<u8>(REGION::UNITY_TOWER) + 1> encounters_count{
+	2,
+};

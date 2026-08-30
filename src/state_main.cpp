@@ -123,4 +123,8 @@ void main_state_t::render(st_ctx_t& ctx){
 	}
 	DrawTexture(ctx.assets.get_tx(std::format("{}.png", get_region_str(ctx.region))), 0, 0, WHITE);
 	DrawTexturePro(ctx.assets.get_tx("bar.png"), {0, 0, 256, 24}, {0, 0, 1920, 72}, {0, 0}, 0, WHITE);
+	for (usz i = 0; i < encounters_count[static_cast<u8>(ctx.region)]; i++){
+		DrawTextureEx(ctx.assets.get_tx("level-point.png"), {100 + i * 400.0f, 600.0f}, 0.0f, 2.0f, (i == index) ? WHITE : DARKGRAY);
+	}
+	DrawTextureEx(ctx.assets.get_tx("level-point-outline.png"), {100 + index * 400.0f - 15.0f, 585.0f}, 0.0f, 3.0f, WHITE);
 }

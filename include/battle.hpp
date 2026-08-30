@@ -1,9 +1,8 @@
 #pragma once
 
-#include "common.hpp"
-#include "pokedex.hpp"
 #include "pokemon.hpp"
 #include "trainer.hpp"
+#include "dialog.hpp"
 #include <variant>
 
 enum class OPPONENT{

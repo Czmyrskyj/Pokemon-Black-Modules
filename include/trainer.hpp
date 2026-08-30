@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.hpp"
-#include "pokedex.hpp"
 #include "pokemon.hpp"
 #include <string>
 #include <cassert>
@@ -38,6 +37,7 @@ class trainer_t{
 	party_t party;
 	std::vector <pokemon_t> pc_party{};
 	public:
+	trainer_t() = default;
 	trainer_t(std::string n, std::string p) : name(std::move(n)), prefix(std::move(p)) {}
 	std::string_view get_name() const{
 		return name;
