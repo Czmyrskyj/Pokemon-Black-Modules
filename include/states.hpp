@@ -172,6 +172,7 @@ struct main_state_t{
 	writer_t writer{};
 	dialog_t dialog{};
 	Vector2 celestial_pos{};
+	std::string current_line;
 	usz index = 0;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};

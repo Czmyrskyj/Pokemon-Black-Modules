@@ -1,4 +1,5 @@
 #include "battle_info.hpp"
+#include "locale.hpp"
 #include <filesystem>
 #include <fstream>
 #include <print>
@@ -63,26 +64,18 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index){
 
 	u32 dialog_count = 0;
 	in.read(reinterpret_cast<char*>(&dialog_count), sizeof(u32));
-	std::optional<dialog_t> dialog = std::nullopt;
-	std::vector<std::string> dialogs(dialog_count);
+	std::vector<std::string> dialog;
 	if (dialog_count > 0){
-		dialog = dialog_t{};
+		dialog.reserve(dialog_count);
 		for (u32 i = 0; i < dialog_count; i++){
 			u32 dlg_len = 0;
 			in.read(reinterpret_cast<char*>(&dlg_len), sizeof(u32));
 
 			std::string dlg(dlg_len, '\0');
 			in.read(dlg.data(), dlg_len);
-
-			dialogs.push_back(std::move(dlg));
+			dialog.push_back(std::move(dlg));
 		}
-	} else {
-		dialog = std::nullopt;
 	}
-	if (dialog.has_value()){
-		dialog.value().init(dialogs);
-	}
-	std::println("{}, {}, {}, {}, {}", name, meet_msg, def_msg, reward, dialog_count);
 
 	battle_entry_t battle_entry = {
 		.foe = {

@@ -69,6 +69,7 @@ namespace Locale{
 		return {};
 	}
 	std::string_view locale_t::get(TYPE t, std::string_view key){
+		using namespace std::string_view_literals;
 		u32 hash = get_hash(key);
 		if (t == TYPE::UI){
 			auto it = ui_cache.find(hash);
@@ -82,6 +83,6 @@ namespace Locale{
 			}
 
 		}
-		return "[MISSING STRING]";
+		return "[MISSING STRING]"sv;
 	}
 }

@@ -4,6 +4,7 @@
 #include "trainer.hpp"
 #include "locale.hpp"
 #include "regions.hpp"
+#include "battle_info.hpp"
 
 struct st_ctx_t;
 
@@ -16,8 +17,9 @@ struct st_ctx_t{
 	trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
 	trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 	Locale::locale_t& locale;
-	pokedex_t pokedex;
+	pokedex_t& pokedex;
 	Time::time_t& time;
+	battle_info_t& battle_info;
 	STATE current_state = STATE::MAIN;
 	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;

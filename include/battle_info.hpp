@@ -11,7 +11,7 @@ struct battle_entry_t{
 	std::string meet_msg{};
 	std::string defeat_msg{};
 	u16 reward;
-	std::optional<dialog_t> dialog;
+	std::vector<std::string> dialog;
 };
 
 struct lookup_t{
@@ -19,8 +19,10 @@ struct lookup_t{
 	u32 offset;
 };
 
+
 class battle_info_t{
 	std::vector<lookup_t> table;
+	
 	public:
 		std::expected<void, std::string_view> load_battle_info();
 		battle_entry_t get_battle_info(REGION region, u8 index);

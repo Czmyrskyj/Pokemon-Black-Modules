@@ -50,6 +50,7 @@ int main(){
 			.locale = locale,
 			.pokedex = pokedex,
 			.time = time,
+			.battle_info = battle_info,
 		};
 
 		while (!WindowShouldClose()){

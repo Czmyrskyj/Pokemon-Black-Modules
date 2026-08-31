@@ -7,7 +7,7 @@
 
 constexpr float celestial_orbit{wnd_w * 0.5f};
 
-main_state_t::main_state_t(st_ctx_t&){
+main_state_t::main_state_t(st_ctx_t& ctx){
 	for (usz i = 0; i < 20; i++){
 		clouds.push_back(
 				{
@@ -19,6 +19,15 @@ main_state_t::main_state_t(st_ctx_t&){
 				}
 			);
 	}
+	auto bt_info = ctx.battle_info.get_battle_info(ctx.region, index);
+	dialog.init(bt_info.dialog);
+
+	// todo:
+	// format,
+	// separate before and after dialogs [A at the end]
+
+	current_line = dialog.step(ctx.assets, writer, ctx.locale);
+	writer.set_text(current_line);
 }
 
 void main_state_t::update(st_ctx_t& ctx){
@@ -103,14 +112,19 @@ void main_state_t::update(st_ctx_t& ctx){
 			c.pos.x = wnd_w + rnd::get_val<float>(0.0f, 500.0f);
 		}
 	}
+	if (dialog.update(ctx.assets, writer) && writer.finished){
+		current_line = dialog.step(ctx.assets, writer, ctx.locale);
+		writer.set_text(current_line);
+	}
+	writer.update();
 }
 
 void main_state_t::render(st_ctx_t& ctx){
 	DrawRectangleGradientV(0, 0, GetScreenWidth(), GetScreenHeight(), sky_color, ctx.bg_color);
 	auto t = ctx.time.get_time();
 	float celestial_time = static_cast<float>(t.hours().count()) +
-				static_cast<float>(t.minutes().count() / 60.0f) +
-				static_cast<float>(t.seconds().count() / 3600.0f);
+		static_cast<float>(t.minutes().count() / 60.0f) +
+		static_cast<float>(t.seconds().count() / 3600.0f);
 	Vector2 orbit_center = {wnd_w / 2.0, wnd_h / 2.0f};
 	double angle = (static_cast<double>(celestial_time) / 24.0) * 2 * M_PI + (M_PI / 2.0);
 	celestial_pos.x = orbit_center.x + std::cosf(angle) * (celestial_orbit * 0.8f);
@@ -127,4 +141,6 @@ void main_state_t::render(st_ctx_t& ctx){
 		DrawTextureEx(ctx.assets.get_tx("level-point.png"), {100 + i * 400.0f, 600.0f}, 0.0f, 2.0f, (i == index) ? WHITE : DARKGRAY);
 	}
 	DrawTextureEx(ctx.assets.get_tx("level-point-outline.png"), {100 + index * 400.0f - 15.0f, 585.0f}, 0.0f, 3.0f, WHITE);
+	draw_text_seq(ctx.assets, writer, dialog.txtbox_x, dialog.txtbox_y, 50, WHITE, 1);
+	dialog.draw_speaker(ctx.assets);
 }
