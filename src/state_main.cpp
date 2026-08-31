@@ -1,6 +1,7 @@
 #include "st-ctx.hpp"
 #include "time.hpp"
 #include "random.hpp"
+#include "formatter.hpp"
 
 #include <print>
 #include <cmath>
@@ -20,13 +21,19 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 			);
 	}
 	auto bt_info = ctx.battle_info.get_battle_info(ctx.region, index);
-	dialog.init(bt_info.dialog);
+	std::vector<std::string> for_pre;
+	std::vector<std::string> for_post;
+	for (const auto& d : bt_info.dialog){
+		if (d.ends_with("A")){
+			for_post.push_back(d);
+		} else {
+			for_pre.push_back(d);
+		}
+	}
+	predialog.init(for_pre);
+	postdialog.init(for_post);
 
-	// todo:
-	// format,
-	// separate before and after dialogs [A at the end]
-
-	current_line = dialog.step(ctx.assets, writer, ctx.locale);
+	current_line = fmt::format(predialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
 	writer.set_text(current_line);
 }
 
@@ -112,9 +119,23 @@ void main_state_t::update(st_ctx_t& ctx){
 			c.pos.x = wnd_w + rnd::get_val<float>(0.0f, 500.0f);
 		}
 	}
-	if (dialog.update(ctx.assets, writer) && writer.finished){
-		current_line = dialog.step(ctx.assets, writer, ctx.locale);
+	if (predialog.update(ctx.assets, writer) && writer.finished && !predialog.finished){
+		current_line = fmt::format(predialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
 		writer.set_text(current_line);
+	}
+	if (IsKeyPressed(KEY_C)){
+		ended_battle = true;
+	}
+	if (predialog.finished && ended_battle){
+		if (!initialized_postdialog){
+			current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+			writer.set_text(current_line);
+			initialized_postdialog = true;
+		}
+		if (postdialog.update(ctx.assets, writer) && writer.finished){
+			current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+			writer.set_text(current_line);
+		}
 	}
 	writer.update();
 }
@@ -141,6 +162,12 @@ void main_state_t::render(st_ctx_t& ctx){
 		DrawTextureEx(ctx.assets.get_tx("level-point.png"), {100 + i * 400.0f, 600.0f}, 0.0f, 2.0f, (i == index) ? WHITE : DARKGRAY);
 	}
 	DrawTextureEx(ctx.assets.get_tx("level-point-outline.png"), {100 + index * 400.0f - 15.0f, 585.0f}, 0.0f, 3.0f, WHITE);
-	draw_text_seq(ctx.assets, writer, dialog.txtbox_x, dialog.txtbox_y, 50, WHITE, 1);
-	dialog.draw_speaker(ctx.assets);
+	if (!predialog.finished || !predialog.hid_txtbox()){
+		draw_text_seq(ctx.assets, writer, predialog.txtbox_x, predialog.txtbox_y, 50, WHITE, 1);
+		predialog.draw_speaker(ctx.assets);
+	} 
+	if (!postdialog.finished || !postdialog.hid_txtbox()){
+		draw_text_seq(ctx.assets, writer, postdialog.txtbox_x, postdialog.txtbox_y, 50, WHITE, 1);
+		postdialog.draw_speaker(ctx.assets);
+	}
 }

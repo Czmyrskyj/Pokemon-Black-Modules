@@ -24,4 +24,7 @@ struct dialog_t{
 	std::string step(assets_t& assets, writer_t& writer, Locale::locale_t& locale);
 	void draw_speaker(assets_t& assets);
 	bool update(assets_t& assets, writer_t& writer);
+	std::string get_identifier() {
+		return lines[current_line];
+	}
 };

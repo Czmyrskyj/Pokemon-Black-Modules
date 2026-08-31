@@ -170,10 +170,13 @@ struct cloud_t{
 
 struct main_state_t{
 	writer_t writer{};
-	dialog_t dialog{};
+	dialog_t predialog{};
+	dialog_t postdialog{};
 	Vector2 celestial_pos{};
+	bool initialized_postdialog{false};
+	bool ended_battle{false};
 	std::string current_line;
-	usz index = 0;
+	usz index = 1;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	void update(st_ctx_t& ctx);
