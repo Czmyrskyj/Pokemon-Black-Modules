@@ -3,10 +3,11 @@
 #include <expected>
 #include <vector>
 #include "battle.hpp"
-#include "states.hpp"
+#include "regions.hpp"
 
 struct battle_entry_t{
 	foe_t foe;
+	std::string name{};
 	std::string meet_msg{};
 	std::string defeat_msg{};
 	u16 reward;
@@ -20,8 +21,7 @@ struct lookup_t{
 
 class battle_info_t{
 	std::vector<lookup_t> table;
-	std::vector<battle_entry_t> infos;
 	public:
 		std::expected<void, std::string_view> load_battle_info();
-		const battle_entry_t& get_battle_info(STATE state, u8 index);
+		battle_entry_t get_battle_info(REGION region, u8 index);
 };

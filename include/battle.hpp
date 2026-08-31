@@ -12,9 +12,11 @@ enum class OPPONENT{
 	GYM_LEADER,
 };
 
+using opp_entry_t = std::variant<trainer_t, pokemon_t, legendary_t, gym_leader_t>;
+
 struct foe_t{
 	OPPONENT opp;
-	std::variant<trainer_t, pokemon_t, legendary_t, gym_leader_t> entry;
+	opp_entry_t entry;
 };
 
 class battle_t{

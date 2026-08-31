@@ -18,10 +18,10 @@ struct st_ctx_t{
 	Locale::locale_t& locale;
 	pokedex_t pokedex;
 	Time::time_t& time;
-	STATE current_state = STATE::WHICH_SEASON_AND_REGION;
+	STATE current_state = STATE::MAIN;
 	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;
-	active_state_t state_data = which_season_and_region_t{*this};
+	active_state_t state_data = main_state_t{*this};
 	Color transition_color = BLACK;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};
