@@ -15,4 +15,4 @@ struct writer_t{
 };
 
 extern void draw_text(assets_t& assets, std::string_view str, float x, float y, unsigned size, Color tint, Color shadow_tint = {150, 150, 150, 255}, usz spacing = 0, usz txtbox_id = 0);
-extern void draw_text_seq(assets_t& assets, const writer_t& writer, float x, float y, unsigned size, Color tint, usz txtbox_id = 0, Color shadow_tint = {50, 50, 50, 255});
+extern void draw_text_seq(assets_t& assets, const writer_t& writer, float x, float y, unsigned size, Color tint, usz txtbox_id = 0, Color shadow_tint = {150, 150, 150, 255});

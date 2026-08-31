@@ -20,7 +20,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 				}
 			);
 	}
-	auto bt_info = ctx.battle_info.get_battle_info(ctx.region, index);
+	bt_info = ctx.battle_info.get_battle_info(ctx.region, index);
 	std::vector<std::string> for_pre;
 	std::vector<std::string> for_post;
 	for (const auto& d : bt_info.dialog){
@@ -123,19 +123,36 @@ void main_state_t::update(st_ctx_t& ctx){
 		current_line = fmt::format(predialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
 		writer.set_text(current_line);
 	}
-	if (IsKeyPressed(KEY_C)){
-		ended_battle = true;
+	if (predialog.finished) {
+		allow_fight = true;
+		if (ended_battle){
+			if (!initialized_postdialog){
+				current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+				writer.set_text(current_line);
+				initialized_postdialog = true;
+			}
+			if (postdialog.update(ctx.assets, writer) && writer.finished){
+				current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+				writer.set_text(current_line);
+			}
+		}
 	}
-	if (predialog.finished && ended_battle){
-		if (!initialized_postdialog){
-			current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
-			writer.set_text(current_line);
-			initialized_postdialog = true;
+	if (allow_fight && predialog.hid_txtbox()){
+		if (!initialized_meet_msg){
+			writer.set_text(fmt::format(bt_info.meet_msg));
+			initialized_meet_msg = true;
 		}
-		if (postdialog.update(ctx.assets, writer) && writer.finished){
-			current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
-			writer.set_text(current_line);
-		}
+		ctx.current_music = ctx.assets.get_mus(
+				std::format(
+					"{}.ogg",
+					[&]() -> std::string{
+					if (bt_info.prefix.empty()){
+					return bt_info.name;
+					}
+					return "Trainer";
+					}()
+					)
+				);
 	}
 	writer.update();
 }
@@ -169,5 +186,14 @@ void main_state_t::render(st_ctx_t& ctx){
 	if (!postdialog.finished || !postdialog.hid_txtbox()){
 		draw_text_seq(ctx.assets, writer, postdialog.txtbox_x, postdialog.txtbox_y, 50, WHITE, 1);
 		postdialog.draw_speaker(ctx.assets);
+	}
+	if (allow_fight && predialog.hid_txtbox()){
+		if (encounter_info_txtbox_y > wnd_h - 200.0f){
+			encounter_info_txtbox_y -= 10.0f;
+		}
+		DrawTexture(ctx.assets.get_tx("txtbox1.png"), 0, encounter_info_txtbox_y, WHITE);
+		draw_text(ctx.assets, bt_info.name, 200, encounter_info_txtbox_y + 20.0f, 50, WHITE);
+		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y + 80.0f, 50, WHITE);
+		draw_text(ctx.assets, std::format("Reward: {}[POKEDOLLAR]", bt_info.reward), 200, encounter_info_txtbox_y + 140.0f, 50, WHITE);
 	}
 }

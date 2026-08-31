@@ -77,6 +77,12 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index){
 		}
 	}
 
+	u32 prefix_len;
+	in.read(reinterpret_cast<char*>(&prefix_len), sizeof(u32));
+
+	std::string prefix(prefix_len, '\0');
+	in.read(prefix.data(), prefix_len);
+
 	battle_entry_t battle_entry = {
 		.foe = {
 			battle_type,
@@ -87,6 +93,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index){
 		.defeat_msg = def_msg,
 		.reward = reward,
 		.dialog = dialog,
+		.prefix = prefix,
 	};
 	return battle_entry;
 }

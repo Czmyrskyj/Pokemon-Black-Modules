@@ -168,16 +168,22 @@ struct cloud_t{
 	float scale;
 };
 
+#include "battle_info.hpp"
+
 struct main_state_t{
 	writer_t writer{};
 	dialog_t predialog{};
 	dialog_t postdialog{};
 	Vector2 celestial_pos{};
 	bool initialized_postdialog{false};
+	bool initialized_meet_msg{false};
+	bool allow_fight{false};
 	bool ended_battle{false};
 	std::string current_line;
-	usz index = 1;
+	usz index = 0;
+	float encounter_info_txtbox_y{wnd_h};
 	std::vector<cloud_t> clouds{};
+	battle_entry_t bt_info;
 	Color sky_color{SKYBLUE};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
