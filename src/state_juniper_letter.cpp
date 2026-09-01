@@ -4,8 +4,8 @@
 #include "trainer.hpp"
 
 juniper_letter_t::juniper_letter_t(st_ctx_t& ctx){
-	formatted_juniper_letter = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "JUNIPER_LETTER"), &ctx.player);
-	formatted_sincerely = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "SINCERELY_JUNIPER"), &ctx.player);
+	formatted_juniper_letter = ctx.formatter.format(ctx.locale.get(Locale::TYPE::DIALOG, "JUNIPER_LETTER"));
+	formatted_sincerely = ctx.formatter.format(ctx.locale.get(Locale::TYPE::DIALOG, "SINCERELY_JUNIPER"));
 	writer.set_text(formatted_juniper_letter, 0.03f);
 	sincerely_writer.set_text(formatted_sincerely, 0.03f);
 }

@@ -118,11 +118,6 @@ struct choose_a_starter_t{
 			Color{45, 45, 45, 200},
 			Color{45, 45, 45, 200},
 	};
-	const std::array<std::string_view, 3> starter_type_labels{
-		"Grass",
-			"Fire",
-			"Water",
-	};
 	std::array<float, 3> starter_positions{
 		400.0f,
 			900.0f,

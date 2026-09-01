@@ -17,7 +17,7 @@ choose_a_starter_t::choose_a_starter_t(st_ctx_t& ctx){
 			"CHAR_CHEREN_1_2",
 			"CHAR_BIANCA_1_2",
 			});
-	current_line = fmt::format(dialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+	current_line = ctx.formatter.format(dialog.step(ctx.assets, writer, ctx.locale));
 	writer.set_text(current_line);
 	for (auto& o : yes_no){
 		o = ctx.locale.get(Locale::TYPE::UI, o);
@@ -32,7 +32,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 		ctx.set_state_meta = true;
 	}
 	if (dialog.update(ctx.assets, writer) && writer.finished){
-		current_line = fmt::format(dialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+		current_line = ctx.formatter.format(dialog.step(ctx.assets, writer, ctx.locale));
 		writer.set_text(current_line);
 	}
 	if (selected_starter == -1 && (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT))){
@@ -119,7 +119,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							std::println(stderr, "fatal error: could not fetch pokedex entry for: {}", names[starters[selected_starter]]);
 							std::abort();
 						}
-						pokemon_t players_choosen{
+						pokemon_t players_chosen{
 							.pokedex = players_entry.value(),
 								.nickname = std::string(names[starters[selected_starter]]),
 								.nature = rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
@@ -129,7 +129,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							std::println(stderr, "fatal error: could not fetch pokedex entry for: {}", names[starters[cheren_selected_starter]]);
 							std::abort();
 						}
-						pokemon_t cherens_choosen{
+						pokemon_t cherens_chosen{
 							.pokedex = cherens_entry.value(),
 								.nickname = "",
 								.nature = rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
@@ -139,14 +139,17 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							std::println(stderr, "fatal error: could not fetch pokedex entry for: {}", names[starters[bianca_selected_starter]]);
 							std::abort();
 						}
-						pokemon_t biancas_choosen{
+						pokemon_t biancas_chosen{
 							.pokedex = biancas_entry.value(),
 								.nickname = "",
 								.nature = rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 						};
-						ctx.player.push_pokemon(players_choosen);
-						ctx.cheren.push_pokemon(cherens_choosen);
-						ctx.bianca.push_pokemon(biancas_choosen);
+						ctx.player.push_pokemon(players_chosen);
+						ctx.cheren.push_pokemon(cherens_chosen);
+						ctx.bianca.push_pokemon(biancas_chosen);
+						ctx.formatter.feed("[PLAYER-STARTER]", std::string(names[players_chosen.pokedex.id]));
+						ctx.formatter.feed("[BIANCA-STARTER]", std::string(names[biancas_chosen.pokedex.id]));
+						ctx.formatter.feed("[CHEREN-STARTER]", std::string(names[cherens_chosen.pokedex.id]));
 						handed_pokemon = true;
 					}
 					ctx.current_music = {};
@@ -190,7 +193,7 @@ void choose_a_starter_t::render(st_ctx_t& ctx){
 			if (starter_scales[i] == 6.0f){
 				std::string_view desc = ctx.locale.get(Locale::TYPE::UI, "SR_PKMN_DESC");
 				if (selected_starter == -1){
-					draw_text(ctx.assets, fmt::format(desc, nullptr, starters[i], starter_type_labels[i]), 700, 900, 50, WHITE, {150, 150, 150, 255}, 0, 1);
+					draw_text(ctx.assets, ctx.formatter.format(desc, starters[current_starter], ctx.locale.get(Locale::TYPE::UI, std::format("STARTER_TYPE_LABEL{}", current_starter))), 700, 900, 50, WHITE, {150, 150, 150, 255}, 0, 1);
 				} else {
 					draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, "IS_THIS_PKMN_U_WANT"), 700, 900, 50, WHITE, {150, 150, 150, 255}, 0, 1);
 				}

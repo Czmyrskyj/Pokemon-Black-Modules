@@ -5,6 +5,7 @@
 #include "locale.hpp"
 #include "regions.hpp"
 #include "battle_info.hpp"
+#include "formatter.hpp"
 
 struct st_ctx_t;
 
@@ -13,17 +14,18 @@ struct st_ctx_t;
 constexpr float alpha_delta{300.0f};
 struct st_ctx_t{
 	assets_t& assets;
-	trainer_t player{"Dvoriak", ""};
+	trainer_t player{"nodata", ""};
 	trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
 	trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 	Locale::locale_t& locale;
 	pokedex_t& pokedex;
 	Time::time_t& time;
 	battle_info_t& battle_info;
-	STATE current_state = STATE::WHICH_SEASON_AND_REGION;
+	formatter_t& formatter;
+	STATE current_state = STATE::BOY_OR_GIRL;
 	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;
-	active_state_t state_data = which_season_and_region_t{*this};
+	active_state_t state_data = boy_or_girl_t{*this};
 	Color transition_color = BLACK;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};

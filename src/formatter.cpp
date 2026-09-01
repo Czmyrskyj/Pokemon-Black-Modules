@@ -2,38 +2,46 @@
 #include "trainer.hpp"
 #include "names.hpp"
 
-namespace fmt{
-	std::string format(std::string_view txt, const trainer_t* trainer, POKEDEX pokemon, std::string_view custom){
-		std::string buffer(txt);
-		if (trainer != nullptr){
-			usz pos;
-			while ((pos = buffer.find("[PLAYER]")) != std::string::npos){
-				std::string_view name = trainer->get_name();
-				buffer.replace(pos, 8, name);
-				pos += name.size();
-			}
-		}
-		if (pokemon != MISSINGNO){
-			usz pos;
-			while ((pos = buffer.find("[POKEMON]")) != std::string::npos){
-				std::string_view name = names[static_cast<u16>(pokemon)];
-				buffer.replace(pos, 9, name);
-				pos += name.size();
-			}
-		}
-		if (!custom.empty()){
-			usz pos;
-			while ((pos = buffer.find("[]")) != std::string::npos){
-				buffer.replace(pos, 2, custom);
-				pos += custom.size();
-			}
-		}
-		usz pos = 0;
-		while ((pos = buffer.find("[WAIT]")) != std::string::npos){
-			buffer.replace(pos, 6, "\xEE\x80\x80");
-			pos += 3;
-		}
+void formatter_t::feed(std::string key, std::string value){
+	format_variables[std::move(key)] = std::move(value);
+}
 
-		return buffer;
+std::string formatter_t::format(std::string_view txt, POKEDEX pokemon, std::string_view freestanding){
+	std::string buffer(txt);
+	usz pos = 0;
+	while ((pos = buffer.find('[', pos)) != std::string::npos){
+		auto close = buffer.find(']', pos);
+		if (close == std::string::npos){
+			break;
+		}
+		std::string key = buffer.substr(pos, close - pos + 1);
+		auto it = format_variables.find(key);
+		if (it != format_variables.end()){
+			const auto& val = it->second;
+			buffer.replace(pos, key.size(), val);
+			pos += val.size();
+		} else {
+			pos = close + 1;
+		}
 	}
+	if (pokemon != MISSINGNO){
+		pos = 0;
+		while ((pos = buffer.find("[POKEMON]")) != std::string::npos){
+			std::string_view name = names[pokemon];
+			buffer.replace(pos, 9, name);
+		}
+	}
+	if (!freestanding.empty()){
+		pos = 0;
+		while ((pos = buffer.find("[FREESTANDING]")) != std::string::npos){
+			buffer.replace(pos, 14, freestanding);
+		}
+	}
+	pos = 0;
+	while ((pos = buffer.find("[WAIT]")) != std::string::npos){
+		buffer.replace(pos, 6, "\xEE\x80\x80");
+		pos += 3;
+	}
+
+	return buffer;
 }

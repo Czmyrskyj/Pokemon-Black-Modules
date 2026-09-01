@@ -7,6 +7,7 @@
 #include "locale.hpp"
 #include "pokedex.hpp"
 #include "time.hpp"
+#include "formatter.hpp"
 
 #include <print>
 
@@ -45,12 +46,14 @@ int main(){
 		if (!battle_info_load_res.has_value()){
 			std::println(stderr, "error: {}", battle_info_load_res.error());
 		}
+		formatter_t formatter;
 		st_ctx_t ctx{
 			.assets = assets,
 			.locale = locale,
 			.pokedex = pokedex,
 			.time = time,
 			.battle_info = battle_info,
+			.formatter = formatter,
 		};
 
 		while (!WindowShouldClose()){

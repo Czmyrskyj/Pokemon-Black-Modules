@@ -9,7 +9,7 @@
 starter_selected_t::starter_selected_t(st_ctx_t& ctx){
 	dialog.top = true;
 	ctx.bg_color = WHITE;
-	formatted_string = fmt::format(ctx.locale.get(Locale::TYPE::UI, "RECEIVED_POKEMON"), &ctx.player, ctx.player.get_party().data()[0].pokedex.id);
+	formatted_string = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "RECEIVED_POKEMON"));
 	dialog.init({
 			"CHAR_BIANCA_2_1",
 			"CHAR_CHEREN_2_2",
@@ -30,12 +30,12 @@ void starter_selected_t::update(st_ctx_t& ctx){
 		played_received_starter = true;
 	} else if (!IsSoundPlaying(received_starter_sound)){
 		if (!init_dialog){
-			current_line = fmt::format(dialog.step(ctx.assets, writer, ctx.locale), nullptr, ctx.cheren.get_party().data()[0].pokedex.id);
+			current_line = ctx.formatter.format(dialog.step(ctx.assets, writer, ctx.locale));
 			writer.set_text(current_line);
 			init_dialog = true;
 		}
 		if (dialog.update(ctx.assets, writer) && writer.finished){
-			current_line = fmt::format(dialog.step(ctx.assets, writer, ctx.locale), nullptr, ctx.cheren.get_party().data()[0].pokedex.id);
+			current_line = ctx.formatter.format(dialog.step(ctx.assets, writer, ctx.locale));
 			writer.set_text(current_line);
 		}
 	}

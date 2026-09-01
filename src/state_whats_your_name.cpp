@@ -4,7 +4,7 @@
 #include <cmath>
 
 whats_your_name_t::whats_your_name_t(st_ctx_t& ctx){
-	formatted_prompt = fmt::format(ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME"));
+	formatted_prompt = ctx.locale.get(Locale::TYPE::DIALOG, "PROMPT_NAME");
 	writer.set_text(formatted_prompt, 0.03f);
 }
 void whats_your_name_t::update(st_ctx_t& ctx){
@@ -43,6 +43,7 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 				}
 			} else if (selected_char == 74 && (!entered_name.empty() && entered_name != "nodata" && ctx.player.get_name() == "nodata")){
 				ctx.player.set_name(entered_name);
+				ctx.formatter.feed("[PLAYER]", std::string(ctx.player.get_name()));
 				PlaySound(dec2_sfx);
 			}
 		}

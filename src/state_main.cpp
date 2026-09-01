@@ -33,7 +33,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 	predialog.init(for_pre);
 	postdialog.init(for_post);
 
-	current_line = fmt::format(predialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+	current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
 	writer.set_text(current_line);
 }
 
@@ -120,26 +120,26 @@ void main_state_t::update(st_ctx_t& ctx){
 		}
 	}
 	if (predialog.update(ctx.assets, writer) && writer.finished && !predialog.finished){
-		current_line = fmt::format(predialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+		current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
 		writer.set_text(current_line);
 	}
 	if (predialog.finished) {
 		allow_fight = true;
 		if (ended_battle){
 			if (!initialized_postdialog){
-				current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+				current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
 				writer.set_text(current_line);
 				initialized_postdialog = true;
 			}
 			if (postdialog.update(ctx.assets, writer) && writer.finished){
-				current_line = fmt::format(postdialog.step(ctx.assets, writer, ctx.locale), &ctx.player);
+				current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
 				writer.set_text(current_line);
 			}
 		}
 	}
 	if (allow_fight && predialog.hid_txtbox()){
 		if (!initialized_meet_msg){
-			writer.set_text(fmt::format(bt_info.meet_msg));
+			writer.set_text(ctx.formatter.format(bt_info.meet_msg));
 			initialized_meet_msg = true;
 		}
 		ctx.current_music = ctx.assets.get_mus(
