@@ -15,8 +15,9 @@ void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle des
 		}
 		return 0.0f;
 	}();
+	static float menu_y = 0.0f;
+	frame_timer++;
 	if (type != POKEMON_RENDER_TYPE::MENU){
-		frame_timer++;
 		if (frame_timer >= 5.0f){
 			frame++;
 			frame_timer = 0.0f;
@@ -24,10 +25,18 @@ void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle des
 		if (frame * frame_width >= tx.width){
 			frame = 0;
 		}
+	} else {
+		if (frame_timer >= 10.0f){
+			menu_y += 5.0f;
+			frame_timer = 0.0f;
+		}
+		if (menu_y >= 10.0f){
+			menu_y = 0.0f;
+		}
 	}
 	Rectangle src {
 		frame * frame_width,
-		      y,
+		      y + menu_y,
 		      (type != POKEMON_RENDER_TYPE::MENU) ? frame_width : 40.0f,
 		      (type != POKEMON_RENDER_TYPE::MENU) ? frame_height: 30.0f,
 	};
