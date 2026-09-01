@@ -13,6 +13,7 @@ struct battle_entry_t{
 	u16 reward;
 	std::vector<std::string> dialog;
 	std::string prefix{};
+	party_t party;
 };
 
 struct lookup_t{
@@ -23,8 +24,7 @@ struct lookup_t{
 
 class battle_info_t{
 	std::vector<lookup_t> table;
-	
 	public:
 		std::expected<void, std::string_view> load_battle_info();
-		battle_entry_t get_battle_info(REGION region, u8 index);
+		battle_entry_t get_battle_info(REGION region, u8 index, pokedex_t& pokedex);
 };

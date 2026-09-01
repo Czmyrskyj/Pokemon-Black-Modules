@@ -1,5 +1,5 @@
 #include "battle_info.hpp"
-#include "locale.hpp"
+#include "random.hpp"
 #include <filesystem>
 #include <fstream>
 #include <print>
@@ -21,7 +21,7 @@ std::expected<void, std::string_view> battle_info_t::load_battle_info(){
 	return {};
 }
 
-battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index){
+battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t& pokedex){
 	u16 total_index = static_cast<u8>(region) + index;
 	std::ifstream in("BATTLEINFO", std::ios::binary);
 	if (!in.is_open()){
@@ -83,6 +83,24 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index){
 	std::string prefix(prefix_len, '\0');
 	in.read(prefix.data(), prefix_len);
 
+	u8 party_len;
+	in.read(reinterpret_cast<char*>(&party_len), sizeof(u8));
+	party_t party;
+	while (party.size() < party_len){
+		POKEDEX id;
+		in.read(reinterpret_cast<char*>(&id), sizeof(u16));
+		auto pokeentry = pokedex.get_pokedex_entry(id);
+		if (!pokeentry.has_value()){
+			pokeentry = pokedex.get_pokedex_entry(MISSINGNO);
+		}
+		pokemon_t pokemon{
+			pokeentry.value(),
+			"",
+			rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+		};
+		party.push_back(pokemon);
+	}
+
 	battle_entry_t battle_entry = {
 		.foe = {
 			battle_type,
@@ -94,6 +112,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index){
 		.reward = reward,
 		.dialog = dialog,
 		.prefix = prefix,
+		.party = party,
 	};
 	return battle_entry;
 }

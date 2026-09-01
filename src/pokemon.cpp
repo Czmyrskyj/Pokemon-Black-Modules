@@ -15,7 +15,6 @@ void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle des
 		}
 		return 0.0f;
 	}();
-	static float menu_y = 0.0f;
 	frame_timer++;
 	if (type != POKEMON_RENDER_TYPE::MENU){
 		if (frame_timer >= 5.0f){

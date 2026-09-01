@@ -20,7 +20,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 				}
 			);
 	}
-	bt_info = ctx.battle_info.get_battle_info(ctx.region, index);
+	bt_info = ctx.battle_info.get_battle_info(ctx.region, index, ctx.pokedex);
 	std::vector<std::string> for_pre;
 	std::vector<std::string> for_post;
 	for (const auto& d : bt_info.dialog){
@@ -196,5 +196,11 @@ void main_state_t::render(st_ctx_t& ctx){
 		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y + 80.0f, 50, WHITE);
 		draw_text(ctx.assets, std::format("Reward: {}[POKEDOLLAR]", bt_info.reward), 200, encounter_info_txtbox_y + 140.0f, 50, WHITE);
 	}
-	ctx.bianca.get_party().data()[0].render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000, encounter_info_txtbox_y + 50, 160, 120});
+	for (auto& p :
+		(!bt_info.party.empty()) ? bt_info.party.data() :
+		(bt_info.name == "Cheren") ? ctx.cheren.get_party().data() :
+		ctx.bianca.get_party().data()
+	){
+		p.render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000, encounter_info_txtbox_y + 50, 160, 120});
+	}
 }

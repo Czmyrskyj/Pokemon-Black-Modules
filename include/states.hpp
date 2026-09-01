@@ -175,7 +175,7 @@ struct main_state_t{
 	bool allow_fight{false};
 	bool ended_battle{false};
 	std::string current_line;
-	usz index = 0;
+	usz index = 2;
 	float encounter_info_txtbox_y{wnd_h};
 	std::vector<cloud_t> clouds{};
 	battle_entry_t bt_info;

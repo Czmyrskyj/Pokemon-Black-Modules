@@ -41,6 +41,7 @@ enum class POKEMON_RENDER_TYPE{
 class assets_t;
 class pokemon_t{
 	u8 frame{0};
+	float menu_y{0.0f};
 	float frame_timer{0.0f};
 	pokedex_entry_t pokedex{};
 	std::string nickname	= "";

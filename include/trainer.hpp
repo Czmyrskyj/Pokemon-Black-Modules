@@ -20,6 +20,9 @@ class party_t{
 	usz size() const{
 		return size_;
 	}
+	bool empty() const{
+		return size_ == 0;
+	}
 };
 
 enum class SEX : i8{
