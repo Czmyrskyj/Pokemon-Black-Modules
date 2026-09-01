@@ -52,6 +52,7 @@ add_executable(${Project_Name}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/state_which_season_and_region.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/state_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/battle_info.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pokemon.cpp
 )
 
 target_precompile_headers(${Project_Name} PRIVATE

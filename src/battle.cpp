@@ -8,9 +8,9 @@ void battle_t::start(){
 		if constexpr (std::is_same_v<T, trainer_t>){
 			return {"You are challanged by {} {}!", arg.get_prefix().empty() ? "[PKMN] Trainer" : arg.get_prefix(), arg.get_name()};
 		} else if constexpr (std::is_same_v<T, pokemon_t>){
-			return {"{} {} appeared!", "Wild", names[arg.pokedex.id]};
+			return {"{} {} appeared!", "Wild", names[arg.get_pokedex().id]};
 		} else if constexpr (std::is_same_v<T, legendary_t>){
-			return {"{}{} appeared!", "", names[arg.pokemon.pokedex.id]};
+			return {"{}{} appeared!", "", names[arg.pokemon.get_pokedex().id]};
 		} else if constexpr (std::is_same_v<T, gym_leader_t>){
 			return {"You are challanged by {} {}!", "Leader", arg.trainer.get_name()};
 		}

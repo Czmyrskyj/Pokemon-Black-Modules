@@ -1,5 +1,4 @@
 #include "formatter.hpp"
-#include "trainer.hpp"
 #include "names.hpp"
 
 void formatter_t::feed(std::string key, std::string value){

@@ -14,7 +14,7 @@ struct st_ctx_t;
 constexpr float alpha_delta{300.0f};
 struct st_ctx_t{
 	assets_t& assets;
-	trainer_t player{"nodata", ""};
+	trainer_t player{"Dvoriak", ""};
 	trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
 	trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
 	Locale::locale_t& locale;
@@ -22,10 +22,10 @@ struct st_ctx_t{
 	Time::time_t& time;
 	battle_info_t& battle_info;
 	formatter_t& formatter;
-	STATE current_state = STATE::BOY_OR_GIRL;
+	STATE current_state = STATE::CHOOSE_STARTER;
 	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;
-	active_state_t state_data = boy_or_girl_t{*this};
+	active_state_t state_data = choose_a_starter_t{*this};
 	Color transition_color = BLACK;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};

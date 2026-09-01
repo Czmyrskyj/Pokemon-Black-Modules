@@ -196,4 +196,5 @@ void main_state_t::render(st_ctx_t& ctx){
 		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y + 80.0f, 50, WHITE);
 		draw_text(ctx.assets, std::format("Reward: {}[POKEDOLLAR]", bt_info.reward), 200, encounter_info_txtbox_y + 140.0f, 50, WHITE);
 	}
+	ctx.bianca.get_party().data()[0].render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000, encounter_info_txtbox_y + 50, 160, 120});
 }

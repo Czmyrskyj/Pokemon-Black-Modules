@@ -14,7 +14,7 @@ class party_t{
 		assert(size_ < (data_.size() - 1) && "pokemon party index exceeds 6");
 		data_[size_++] = std::move(pokemon);
 	}
-	std::span<const pokemon_t> data(){
+	std::span<pokemon_t> data(){
 		return data_;
 	}
 	usz size() const{
@@ -34,7 +34,7 @@ class trainer_t{
 	std::string name = "nodata";
 	std::string prefix = "";
 	SEX sex = SEX::NONE;
-	party_t party;
+	party_t party{};
 	std::vector <pokemon_t> pc_party{};
 	public:
 	trainer_t() = default;

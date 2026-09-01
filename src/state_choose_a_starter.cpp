@@ -120,9 +120,9 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							std::abort();
 						}
 						pokemon_t players_chosen{
-							.pokedex = players_entry.value(),
-								.nickname = std::string(names[starters[selected_starter]]),
-								.nature = rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+							players_entry.value(),
+							std::string(names[starters[selected_starter]]),
+							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 						};
 						auto cherens_entry = ctx.pokedex.get_pokedex_entry(starters[cheren_selected_starter]);
 						if (!cherens_entry.has_value()){
@@ -130,9 +130,9 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							std::abort();
 						}
 						pokemon_t cherens_chosen{
-							.pokedex = cherens_entry.value(),
-								.nickname = "",
-								.nature = rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+							cherens_entry.value(),
+							"",
+							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 						};
 						auto biancas_entry = ctx.pokedex.get_pokedex_entry(starters[bianca_selected_starter]);
 						if (!biancas_entry.has_value()){
@@ -140,16 +140,16 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							std::abort();
 						}
 						pokemon_t biancas_chosen{
-							.pokedex = biancas_entry.value(),
-								.nickname = "",
-								.nature = rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+							biancas_entry.value(),
+							"",
+							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 						};
 						ctx.player.push_pokemon(players_chosen);
 						ctx.cheren.push_pokemon(cherens_chosen);
 						ctx.bianca.push_pokemon(biancas_chosen);
-						ctx.formatter.feed("[PLAYER-STARTER]", std::string(names[players_chosen.pokedex.id]));
-						ctx.formatter.feed("[BIANCA-STARTER]", std::string(names[biancas_chosen.pokedex.id]));
-						ctx.formatter.feed("[CHEREN-STARTER]", std::string(names[cherens_chosen.pokedex.id]));
+						ctx.formatter.feed("[PLAYER-STARTER]", std::string(names[players_chosen.get_pokedex().id]));
+						ctx.formatter.feed("[BIANCA-STARTER]", std::string(names[biancas_chosen.get_pokedex().id]));
+						ctx.formatter.feed("[CHEREN-STARTER]", std::string(names[cherens_chosen.get_pokedex().id]));
 						handed_pokemon = true;
 					}
 					ctx.current_music = {};

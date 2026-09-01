@@ -33,10 +33,26 @@ enum class NATURE : u8{
 	TIMID,
 };
 
-struct pokemon_t{
-	pokedex_entry_t pokedex;
+enum class POKEMON_RENDER_TYPE{
+	FRONT,
+	BACK,
+	MENU,
+};
+class assets_t;
+class pokemon_t{
+	u8 frame{0};
+	float frame_timer{0.0f};
+	pokedex_entry_t pokedex{};
 	std::string nickname	= "";
 	NATURE nature		= NATURE::NONE;
+	public:
+	pokemon_t() = default;
+	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat) : pokedex(std::move(p)), nickname(std::move(nick)), nature(nat){}
+	void render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle dest);
+	const pokedex_entry_t& get_pokedex() const{
+		return pokedex;
+	}
+
 };
 
 
