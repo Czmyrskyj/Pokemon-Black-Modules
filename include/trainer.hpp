@@ -69,7 +69,14 @@ class trainer_t{
 		return party;
 	}
 };
-
+struct anim_trainer_render_t{
+	u8 frame{0};
+	float frametimer{0.0f};
+	float framerate{2.0f};
+	float x_shift{0.0f};
+	float y_shift{0.0f};
+	void draw(assets_t& assets, std::string_view speaker, Vector2 pos);
+};
 struct gym_leader_t{
 	trainer_t trainer;
 };

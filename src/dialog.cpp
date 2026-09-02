@@ -70,6 +70,24 @@ bool dialog_t::update(assets_t& assets, writer_t& writer){
 }
 
 void dialog_t::draw_speaker(assets_t& assets){
-	Texture2D speaker_tx = assets.get_tx(std::format("{}.png", speaker));
-	DrawTexturePro(speaker_tx, {0, 0, 84, 78}, {10, txtbox_y - 10, 204, 190}, {0, 0}, 0, WHITE);
+	Texture2D speaker_tx;
+	Vector2 src_offset{0.0f, 0.0f};
+	if (speaker == "Cheren" || speaker == "Bianca" || speaker == "N"){
+		speaker_tx = assets.get_tx("Animated Trainers.png");
+		src_offset = {0.0f, 
+			[&]() -> float{
+				if (speaker == "Cheren"){
+					return 1;
+				} else if (speaker == "Bianca"){
+					return 0;
+				} else if (speaker == "N"){
+					return 2;
+				}
+				return 0;
+			}()
+		};
+		DrawTexturePro(speaker_tx, {src_offset.x, src_offset.y * 78, 84, 78}, {10, txtbox_y - 10, 204, 190}, {0, 0}, 0, WHITE);
+	} else {
+		
+	}
 }

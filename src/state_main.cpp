@@ -2,8 +2,9 @@
 #include "time.hpp"
 #include "random.hpp"
 #include "formatter.hpp"
-
+#include "trainer.hpp"
 #include <print>
+#include <charconv>
 #include <cmath>
 
 constexpr float celestial_orbit{wnd_w * 0.5f};
@@ -123,7 +124,7 @@ void main_state_t::update(st_ctx_t& ctx){
 		current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
 		writer.set_text(current_line);
 	}
-	if (predialog.finished) {
+	if (predialog.finished && predialog.hid_txtbox()) {
 		allow_fight = true;
 		if (ended_battle){
 			if (!initialized_postdialog){
@@ -138,9 +139,15 @@ void main_state_t::update(st_ctx_t& ctx){
 		}
 	}
 	if (allow_fight && predialog.hid_txtbox()){
-		if (!initialized_meet_msg){
-			writer.set_text(ctx.formatter.format(bt_info.meet_msg));
-			initialized_meet_msg = true;
+		if (!initialized_encounter_info){
+			std::string reward_string(5, '\0');
+			std::to_chars(reward_string.data(), reward_string.data() + reward_string.size(), bt_info.reward);
+			if (usz pos = reward_string.find('\0'); pos != std::string::npos){
+				reward_string = reward_string.substr(0, pos);
+			}
+			current_line = std::format("{}\n{}\n{}", bt_info.name, ctx.formatter.format(bt_info.meet_msg), ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ENCOUNTER_REWARD"), MISSINGNO, reward_string));
+			writer.set_text(current_line);
+			initialized_encounter_info = true;
 		}
 		ctx.current_music = ctx.assets.get_mus(
 				std::format(
@@ -188,19 +195,18 @@ void main_state_t::render(st_ctx_t& ctx){
 		postdialog.draw_speaker(ctx.assets);
 	}
 	if (allow_fight && predialog.hid_txtbox()){
-		if (encounter_info_txtbox_y > wnd_h - 200.0f){
-			encounter_info_txtbox_y -= 10.0f;
+		if (encounter_info_txtbox_y >= wnd_h - 200){
+			encounter_info_txtbox_y -= 10;
 		}
-		DrawTexture(ctx.assets.get_tx("txtbox1.png"), 0, encounter_info_txtbox_y, WHITE);
-		draw_text(ctx.assets, bt_info.name, 200, encounter_info_txtbox_y + 20.0f, 50, WHITE);
-		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y + 80.0f, 50, WHITE);
-		draw_text(ctx.assets, std::format("Reward: {}[POKEDOLLAR]", bt_info.reward), 200, encounter_info_txtbox_y + 140.0f, 50, WHITE);
+		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y, 50, WHITE, 1);
+		for (auto& p :
+				(!bt_info.party.empty()) ? bt_info.party.data() :
+				(bt_info.name == "Cheren") ? ctx.cheren.get_party().data() :
+				ctx.bianca.get_party().data()
+		    ){
+			p.render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000, encounter_info_txtbox_y + 50, 160, 120});
+		}
+		anim_trainer_render.draw(ctx.assets, bt_info.name, {10, encounter_info_txtbox_y - 10});
 	}
-	for (auto& p :
-		(!bt_info.party.empty()) ? bt_info.party.data() :
-		(bt_info.name == "Cheren") ? ctx.cheren.get_party().data() :
-		ctx.bianca.get_party().data()
-	){
-		p.render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000, encounter_info_txtbox_y + 50, 160, 120});
-	}
+
 }
