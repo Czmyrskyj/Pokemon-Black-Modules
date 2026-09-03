@@ -149,7 +149,7 @@ void main_state_t::update(st_ctx_t& ctx){
 			writer.set_text(current_line);
 			initialized_encounter_info = true;
 		}
-		ctx.current_music = ctx.assets.get_mus(
+		ctx.set_music(
 				std::format(
 					"{}.ogg",
 					[&]() -> std::string{
@@ -159,7 +159,7 @@ void main_state_t::update(st_ctx_t& ctx){
 					return "Trainer";
 					}()
 					)
-				);
+			     );
 	}
 	writer.update();
 }

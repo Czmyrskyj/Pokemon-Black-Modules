@@ -22,16 +22,18 @@ struct st_ctx_t{
 	Time::time_t& time;
 	battle_info_t& battle_info;
 	formatter_t& formatter;
-	STATE current_state = STATE::MAIN;
+	STATE current_state = STATE::TITLE;
 	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;
-	active_state_t state_data = main_state_t{*this};
+	active_state_t state_data = title_state_t{};
 	Color transition_color = BLACK;
 	u8 transition_alpha = 255;
 	bool set_state_meta{false};
 	bool halt_music{false};
 	Music current_music{};
+	std::string music_name{};
 	u8 selected_option = 0;
+	bool music_started{false};
 	void resume_state_alpha(unsigned char& alpha){
 		float current_alpha = static_cast<float>(alpha);
 		if (current_alpha > 5.0f){
@@ -116,5 +118,11 @@ struct st_ctx_t{
 			}
 		}
 		transition_alpha = static_cast<unsigned char>(current_alpha);
+	}
+	void set_music(std::string_view mus){
+		if (music_name == mus) return;
+		music_name = mus;
+		current_music = assets.get_mus(music_name);
+		music_started = false;
 	}
 };

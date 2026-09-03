@@ -33,7 +33,7 @@ void which_season_and_region_t::update(st_ctx_t& ctx){
 		ctx.resume_state_alpha(ctx.transition_alpha);
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
-		ctx.current_music = ctx.assets.get_mus(std::format("{}.ogg", get_region_str(ctx.region)));
+		ctx.set_music(std::format("{}.ogg", get_region_str(ctx.region)));
 		ctx.set_state_meta = true;
 	}
 	Sound char_sfx = ctx.assets.get_sfx("SEQ_SE_TB_KARA.wav");

@@ -53,6 +53,7 @@ add_executable(${Project_Name}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/state_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/battle_info.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/pokemon.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/music-offset.cpp
 )
 
 target_precompile_headers(${Project_Name} PRIVATE

@@ -90,6 +90,7 @@ Music assets_t::get_mus(std::string_view name) {
 		const auto& contents = music_buffer[key];
 		if (contents.empty()) return Music{};
 		Music music = LoadMusicStreamFromMemory(".ogg", contents.data(), static_cast<int>(contents.size()));
+		music.looping = false;
 		music_cache[key] = music;
 	}
 	return music_cache[key];

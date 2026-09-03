@@ -8,8 +8,11 @@
 #include "pokedex.hpp"
 #include "time.hpp"
 #include "formatter.hpp"
+#include "music-offset.hpp"
 
 #include <print>
+
+constexpr u16 sample_rate{44100};
 
 int main(){
 	SetTraceLogLevel(LOG_WARNING);
@@ -45,8 +48,15 @@ int main(){
 		auto battle_info_load_res = battle_info.load_battle_info();
 		if (!battle_info_load_res.has_value()){
 			std::println(stderr, "error: {}", battle_info_load_res.error());
+			return -1;
 		}
 		formatter_t formatter;
+		music_offset_t music_offset;
+		auto music_offset_load_res = music_offset.load();
+		if (!music_offset_load_res.has_value()){
+			std::println(stderr, "error: {}", music_offset_load_res.error());
+			return -1;
+		}
 		st_ctx_t ctx{
 			.assets = assets,
 			.locale = locale,
@@ -57,29 +67,37 @@ int main(){
 		};
 
 		while (!WindowShouldClose()){
-			if (!ctx.halt_music){
-				if (!IsMusicStreamPlaying(ctx.current_music)){
+			if (!ctx.halt_music && ctx.current_music.stream.buffer != nullptr){
+				bool playing = IsMusicStreamPlaying(ctx.current_music);
+				if (!playing && !ctx.music_started){
 					PlayMusicStream(ctx.current_music);
+					ctx.music_started = true;
+				} else if (!playing && ctx.music_started) {
+					u32 moff = music_offset.get(ctx.music_name);
+					PlayMusicStream(ctx.current_music);
+					if (moff >= 1){
+						SeekMusicStream(ctx.current_music, static_cast<float>(moff) / sample_rate);
+					}
 				}
 				UpdateMusicStream(ctx.current_music);
 			}
 
 			std::visit([&ctx](auto& state){
-				using T = std::decay_t<decltype(state)>;
-				if constexpr (!std::is_same_v<T, std::monostate>){
+					using T = std::decay_t<decltype(state)>;
+					if constexpr (!std::is_same_v<T, std::monostate>){
 					state.update(ctx);
-				}
-			}, ctx.state_data);			
+					}
+					}, ctx.state_data);			
 
 			BeginDrawing();
 			ClearBackground(ctx.bg_color);
 
 			std::visit([&ctx](auto& state){
-				using T = std::decay_t<decltype(state)>;
-				if constexpr (!std::is_same_v<T, std::monostate>){
+					using T = std::decay_t<decltype(state)>;
+					if constexpr (!std::is_same_v<T, std::monostate>){
 					state.render(ctx);
-				}
-			}, ctx.state_data);			
+					}
+					}, ctx.state_data);			
 
 			DrawRectangle(0, 0, wnd_w, wnd_h, Color{ctx.transition_color.r, ctx.transition_color.g, ctx.transition_color.b, ctx.transition_alpha});
 			EndDrawing();
