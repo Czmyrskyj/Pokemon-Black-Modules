@@ -22,6 +22,13 @@ struct st_ctx_t{
 	Time::time_t& time;
 	battle_info_t& battle_info;
 	formatter_t& formatter;
+	Camera3D camera{
+		.position = {0, 0, 0},
+			.target = {0, 0, 0},
+			.up = {0, 1, 0},
+			.fovy = 65,
+			.projection = CAMERA_PERSPECTIVE,
+	};
 	STATE current_state = STATE::TITLE;
 	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;

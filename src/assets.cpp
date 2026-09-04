@@ -114,6 +114,34 @@ Font assets_t::get_font(std::string_view name) {
 	return font_cache[key];
 }
 
+
+Model assets_t::get_model(std::string_view name){
+	std::string key(name);
+	if (!model_cache.contains(key)){
+		auto contents = read_bytes(key);
+		if (contents.empty()) return Model{};
+
+		fs::path temp_path = fs::temp_directory_path() / (key + ".glb");
+		{
+			std::ofstream out(temp_path, std::ios::binary);
+			if (!out.is_open()){
+				std::println(stderr, "failed to create temp file for model: {}", name);
+				return Model{};
+			}
+			out.write(reinterpret_cast<const char*>(contents.data()),
+					static_cast<std::streamsize>(contents.size()));
+		}
+
+		Model model = LoadModel(temp_path.string().c_str());
+
+		std::error_code ec;
+		fs::remove(temp_path, ec);
+
+		model_cache[key] = model;
+	}
+	return model_cache[key];
+}
+
 void assets_t::unload_assets(){
 	for (auto& [name, tx] : texture_cache){
 		UnloadTexture(tx);
@@ -127,10 +155,14 @@ void assets_t::unload_assets(){
 	for (auto& [name, font] : font_cache){
 		UnloadFont(font);
 	}
+	for (auto& [name, model] : model_cache){
+		UnloadModel(model);
+	}
 	texture_cache.clear();
 	sound_cache.clear();
 	music_cache.clear();
 	font_cache.clear();
+	model_cache.clear();
 	music_buffer.clear();
 }
 

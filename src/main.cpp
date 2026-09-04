@@ -92,12 +92,14 @@ int main(){
 			BeginDrawing();
 			ClearBackground(ctx.bg_color);
 
+
 			std::visit([&ctx](auto& state){
 					using T = std::decay_t<decltype(state)>;
 					if constexpr (!std::is_same_v<T, std::monostate>){
 					state.render(ctx);
 					}
 					}, ctx.state_data);			
+
 
 			DrawRectangle(0, 0, wnd_w, wnd_h, Color{ctx.transition_color.r, ctx.transition_color.g, ctx.transition_color.b, ctx.transition_alpha});
 			EndDrawing();
