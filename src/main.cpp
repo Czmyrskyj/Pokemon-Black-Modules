@@ -66,6 +66,9 @@ int main(){
 			.formatter = formatter,
 		};
 
+		// WARN: delete after testing!
+		ctx.set_temp_data();
+
 		while (!WindowShouldClose()){
 			if (!ctx.halt_music && ctx.current_music.stream.buffer != nullptr){
 				bool playing = IsMusicStreamPlaying(ctx.current_music);

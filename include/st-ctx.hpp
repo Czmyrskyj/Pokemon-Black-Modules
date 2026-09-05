@@ -132,4 +132,31 @@ struct st_ctx_t{
 		current_music = assets.get_mus(music_name);
 		music_started = false;
 	}
+	// WARN: only for debugging!
+	void set_temp_data(){
+		current_state = STATE::MAIN;
+		state_data = main_state_t{*this};
+		player.set_name("Dvoriak");
+		pokemon_t players{
+			pokedex.get_pokedex_entry(OSHAWOTT).value(),
+			"OSHAWOTT",
+			NATURE::CALM,
+		};
+		pokemon_t cherens{
+			pokedex.get_pokedex_entry(SNIVY).value(),
+			"SNIVY",
+			NATURE::TIMID,
+		};
+		pokemon_t biancas{
+			pokedex.get_pokedex_entry(TEPIG).value(),
+			"TEPIG",
+			NATURE::LONELY,
+		};
+		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
+		formatter.feed("[BIANCA-STARTER]", "TEPIG");
+		formatter.feed("[CHEREN-STARTER]", "SNIVY");
+		player.push_pokemon(players);
+		cheren.push_pokemon(cherens);
+		bianca.push_pokemon(biancas);
+	}
 };
