@@ -57,6 +57,9 @@ int main(){
 			std::println(stderr, "error: {}", music_offset_load_res.error());
 			return -1;
 		}
+
+		camera_t camera;
+
 		st_ctx_t ctx{
 			.assets = assets,
 			.locale = locale,
@@ -64,6 +67,7 @@ int main(){
 			.time = time,
 			.battle_info = battle_info,
 			.formatter = formatter,
+			.camera = camera,
 		};
 
 		// WARN: delete after testing!
