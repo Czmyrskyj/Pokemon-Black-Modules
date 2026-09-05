@@ -17,8 +17,9 @@ enum class STATE{
 	STARTER_SELECTED,
 	WHICH_SEASON_AND_REGION,
 	MAIN,
-	POKEMON_RESEARCH_LAB,
+	BATTLE_VS,
 	BATTLE,
+	POKEMON_RESEARCH_LAB,
 	SHOP,
 	POKECENTER,
 };
@@ -68,7 +69,6 @@ struct whats_your_name_t{
 	std::string entered_name = "";
 	float screen_x = 0.0f;
 	const std::string_view name_entry_chars{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789., "};
-	float music_volume = 1.0f;
 	writer_t writer;
 	std::string formatted_prompt;
 	void update(st_ctx_t& ctx);
@@ -173,12 +173,12 @@ struct main_state_t{
 	bool initialized_postdialog{false};
 	bool initialized_encounter_info{false};
 	bool allow_fight{false};
+	bool started_battle{false};
 	bool ended_battle{false};
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
 	usz index = 0;
 	std::vector<cloud_t> clouds{};
-	battle_entry_t bt_info;
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
 	void update(st_ctx_t& ctx);
@@ -186,4 +186,26 @@ struct main_state_t{
 	explicit main_state_t(st_ctx_t& ctx);
 };
 
-using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t, which_season_and_region_t, main_state_t>;
+constexpr float bn_w{128.0f};
+constexpr float bn_h{64.0f};
+struct battle_vs_t{
+	u8 flash_count = 0;
+	u8 flash_alpha = 0;
+	u8 after_three_flashes_timer = 0;
+	u16 after_flashed_last_time_timer = 0;
+	bool flashed = false;
+	bool flashed_last_time = false;
+	bool played_vs_whoosh{false};
+	float banner_x = -bn_w*8.0f;
+	float source_x = 0.0f;
+	float portrait_x = -bn_w*8.0f;
+	float portrait_vel = 80.0f;
+	float vs_scale{4.0f};
+	Vector2 shake{0, 0};
+	void update(st_ctx_t& ctx);
+	void render(st_ctx_t& ctx);
+	anim_trainer_render_t anim_trainer_render;
+	explicit battle_vs_t(st_ctx_t& ctx);
+};
+
+using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t, which_season_and_region_t, main_state_t, battle_vs_t>;

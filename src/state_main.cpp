@@ -3,7 +3,6 @@
 #include "random.hpp"
 #include "formatter.hpp"
 #include "trainer.hpp"
-#include <print>
 #include <charconv>
 #include <cmath>
 
@@ -21,10 +20,10 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 				}
 			);
 	}
-	bt_info = ctx.battle_info.get_battle_info(ctx.region, index, ctx.pokedex);
+	ctx.bt_info = ctx.battle_info.get_battle_info(ctx.region, index, ctx.pokedex);
 	std::vector<std::string> for_pre;
 	std::vector<std::string> for_post;
-	for (const auto& d : bt_info.dialog){
+	for (const auto& d : ctx.bt_info.dialog){
 		if (d.ends_with("A")){
 			for_post.push_back(d);
 		} else {
@@ -141,11 +140,11 @@ void main_state_t::update(st_ctx_t& ctx){
 	if (allow_fight && predialog.hid_txtbox()){
 		if (!initialized_encounter_info){
 			std::string reward_string(5, '\0');
-			std::to_chars(reward_string.data(), reward_string.data() + reward_string.size(), bt_info.reward);
+			std::to_chars(reward_string.data(), reward_string.data() + reward_string.size(), ctx.bt_info.reward);
 			if (usz pos = reward_string.find('\0'); pos != std::string::npos){
 				reward_string = reward_string.substr(0, pos);
 			}
-			current_line = std::format("{}\n{}\n{}", bt_info.name, ctx.formatter.format(bt_info.meet_msg), ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ENCOUNTER_REWARD"), MISSINGNO, reward_string));
+			current_line = std::format("{}\n{}\n{}", ctx.bt_info.name, ctx.formatter.format(ctx.bt_info.meet_msg), ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ENCOUNTER_REWARD"), MISSINGNO, reward_string));
 			writer.set_text(current_line);
 			initialized_encounter_info = true;
 		}
@@ -153,13 +152,23 @@ void main_state_t::update(st_ctx_t& ctx){
 				std::format(
 					"{}.ogg",
 					[&]() -> std::string{
-					if (bt_info.prefix.empty()){
-					return bt_info.name;
+					if (ctx.bt_info.prefix.empty()){
+					return ctx.bt_info.name;
 					}
 					return "Trainer";
 					}()
 					)
 			     );
+		if (IsKeyPressed(KEY_Z)){
+			started_battle = true;
+		}
+		if (started_battle){
+			ctx.switch_state(STATE::BATTLE_VS);
+			SetMusicVolume(ctx.current_music, ctx.music_volume);
+			if (ctx.music_volume > 0.0f){
+				ctx.music_volume -= GetFrameTime()*1.5f;
+			}
+		}
 	}
 	writer.update();
 }
@@ -200,13 +209,14 @@ void main_state_t::render(st_ctx_t& ctx){
 		}
 		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y, 50, WHITE, 1);
 		for (auto& p :
-				(!bt_info.party.empty()) ? bt_info.party.data() :
-				(bt_info.name == "Cheren") ? ctx.cheren.get_party().data() :
+				(!ctx.bt_info.party.empty()) ? ctx.bt_info.party.data() :
+				(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party().data() :
 				ctx.bianca.get_party().data()
 		    ){
 			p.render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000, encounter_info_txtbox_y + 50, 160, 120});
 		}
-		anim_trainer_render.draw(ctx.assets, bt_info.name, {10, encounter_info_txtbox_y - 10});
+		anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {10, encounter_info_txtbox_y - 10});
+		draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, "FIGHT"), 1700, encounter_info_txtbox_y + 100, 50, WHITE);
 	}
 
 }

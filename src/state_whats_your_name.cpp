@@ -107,11 +107,11 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 		}
 	}
 
-	SetMusicVolume(ctx.current_music, music_volume);
+	SetMusicVolume(ctx.current_music, ctx.music_volume);
 	if (ctx.player.get_name() != "nodata"){
 		ctx.switch_state(STATE::JUNIPER_LETTER, 100);
-		if (music_volume > 0.0f){
-			music_volume -= GetFrameTime()*0.5f;
+		if (ctx.music_volume > 0.0f){
+			ctx.music_volume -= GetFrameTime()*0.5f;
 		}
 		return;
 	}

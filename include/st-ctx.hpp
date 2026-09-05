@@ -24,6 +24,7 @@ struct st_ctx_t{
 	battle_info_t& battle_info;
 	formatter_t& formatter;
 	camera_t& camera;
+	battle_entry_t bt_info{};
 	STATE current_state = STATE::TITLE;
 	REGION region = REGION::NUVEMA;
 	Color bg_color = BLACK;
@@ -36,6 +37,7 @@ struct st_ctx_t{
 	std::string music_name{};
 	u8 selected_option = 0;
 	bool music_started{false};
+	float music_volume = 1.0f;
 	void resume_state_alpha(unsigned char& alpha){
 		float current_alpha = static_cast<float>(alpha);
 		if (current_alpha > 5.0f){
@@ -102,6 +104,9 @@ struct st_ctx_t{
 			case STATE::MAIN:
 				state_data.emplace<main_state_t>(*this);
 				break;
+			case STATE::BATTLE_VS:
+				state_data.emplace<battle_vs_t>(*this);
+				break;
 			default:
 				break;
 		}
@@ -112,7 +117,7 @@ struct st_ctx_t{
 		if (current_state != new_state){
 			current_alpha+=delta*GetFrameTime();
 			if (transition_alpha >= 255.0f){
-				current_alpha = 255;
+				current_alpha = 255.0f;
 				current_state = new_state;
 				switch_data(new_state);
 				selected_option = 0;
@@ -132,6 +137,7 @@ struct st_ctx_t{
 		current_state = STATE::MAIN;
 		state_data = main_state_t{*this};
 		player.set_name("Dvoriak");
+		player.set_sex(SEX::MALE);
 		pokemon_t players{
 			pokedex.get_pokedex_entry(OSHAWOTT).value(),
 			"OSHAWOTT",
@@ -147,6 +153,7 @@ struct st_ctx_t{
 			"TEPIG",
 			NATURE::LONELY,
 		};
+		formatter.feed("[PLAYER]", std::string(player.get_name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
 		formatter.feed("[CHEREN-STARTER]", "SNIVY");
