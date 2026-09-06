@@ -1,19 +1,33 @@
 #include "battle.hpp"
+#include "writer.hpp"
 #include "names.hpp"
-#include <print>
-#include <format>
-void battle_t::start(){
-	auto [intro_str, foe_prefix, name] = std::visit([&](auto&& arg) -> std::tuple<std::string_view, std::string_view, std::string_view>{
-		using T = std::decay_t<decltype(arg)>;
-		if constexpr (std::is_same_v<T, trainer_t>){
-			return {"You are challanged by {} {}!", arg.get_prefix().empty() ? "[PKMN] Trainer" : arg.get_prefix(), arg.get_name()};
-		} else if constexpr (std::is_same_v<T, pokemon_t>){
-			return {"{} {} appeared!", "Wild", names[arg.get_pokedex().id]};
-		} else if constexpr (std::is_same_v<T, legendary_t>){
-			return {"{}{} appeared!", "", names[arg.pokemon.get_pokedex().id]};
-		} else if constexpr (std::is_same_v<T, gym_leader_t>){
-			return {"You are challanged by {} {}!", "Leader", arg.trainer.get_name()};
+std::string battle_t::get_battle_intro(){
+	return std::visit([&](auto&& arg) -> std::string{
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, trainer_t>){
+			return "CHALLANGED_BY_TRAINER";
+			} else if constexpr (std::is_same_v<T, pokemon_t>){
+			return "WILD_POKEMON_APPEARED";
+			} else if constexpr (std::is_same_v<T, legendary_t>){
+			return "LEGENDARY_POKEMON_APPEARED";
+			} else if constexpr (std::is_same_v<T, gym_leader_t>){
+			return "CHALLANGED_BY_GYM_LEADER";
+			}
+			}, foe.entry);
+}
+
+void battle_t::write(assets_t& assets, writer_t& writer){
+	if (!writer.finished){
+		if (txtbox_alpha < 255){
+			txtbox_alpha+=5;
 		}
-	}, foe.entry);
-	std::println("{}", std::vformat(intro_str, std::make_format_args(foe_prefix, name)));
+	} else {
+		txtbox_peak_alpha_timer++;
+		if (txtbox_alpha > 0 && txtbox_peak_alpha_timer > 50){
+			txtbox_alpha-=5;
+		} else if (txtbox_alpha <= 0){
+			txtbox_peak_alpha_timer = 0;
+		}
+	}
+	draw_text_seq(assets, writer, 10, wnd_h - 200, 50, {255, 255, 255, txtbox_alpha}, 1, {150, 150, 150, txtbox_alpha});
 }

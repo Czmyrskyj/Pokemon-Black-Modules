@@ -16,8 +16,8 @@ constexpr float alpha_delta{300.0f};
 struct st_ctx_t{
 	assets_t& assets;
 	trainer_t player{"nodata", ""};
-	trainer_t cheren{"Cheren", "[PKMN_SIGN]"};
-	trainer_t bianca{"Bianca", "[PKMN_SIGN]"};
+	trainer_t cheren{"Cheren", "[PKMN_SIGN] Trainer"};
+	trainer_t bianca{"Bianca", "[PKMN_SIGN] Trainer"};
 	Locale::locale_t& locale;
 	pokedex_t& pokedex;
 	Time::time_t& time;

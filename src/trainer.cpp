@@ -108,8 +108,7 @@ void anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 	if (!camera){
 		DrawTexturePro(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift, pos.y - y_shift, 204, 190}, {0, 0}, 0, WHITE);
 	} else {
-		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {1, 1}, {0, 0}, 0, {50, 50, 50, 200});
-		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {1, 1}, {0, 0}, 0, WHITE);
+		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {0.8f, 0.8f}, {0, 0}, 0, WHITE);
 	}
 
 }

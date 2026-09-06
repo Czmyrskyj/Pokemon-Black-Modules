@@ -56,7 +56,7 @@ add_executable(${Project_Name}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/music-offset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/state_battle_vs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/battle_state.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/state_battle.cpp
 )
 
 target_precompile_headers(${Project_Name} PRIVATE

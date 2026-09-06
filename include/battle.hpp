@@ -22,12 +22,16 @@ struct foe_t{
 class battle_t{
 	trainer_t& player;
 	foe_t foe;
+	u8 txtbox_alpha = 0;
+	u8 txtbox_peak_alpha_timer = 0;
 	public:
+	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){};
 	battle_t(trainer_t& p, trainer_t& t) : player(p), foe(foe_t{OPPONENT::TRAINER, t}){};
 	battle_t(trainer_t& p, pokemon_t& w) : player(p), foe(foe_t{OPPONENT::WILD, w}){};
 	battle_t(trainer_t& p, legendary_t& l) : player(p), foe(foe_t{OPPONENT::LEGENDARY, l}){};
 	battle_t(trainer_t& p, gym_leader_t& g) : player(p), foe(foe_t{OPPONENT::GYM_LEADER, g}){};
 	~battle_t() = default;
 
-	void start();
+	std::string get_battle_intro();
+	void write(assets_t& assets, writer_t& writer);
 };
