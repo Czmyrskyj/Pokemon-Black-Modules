@@ -11,11 +11,14 @@ class party_t{
 	usz size_ = 0;
 	public:
 	void push_back(pokemon_t pokemon){
-		assert(size_ < (data_.size() - 1) && "pokemon party index exceeds 6");
+		assert(size_ < data_.size() && "pokemon party index exceeds 6");
 		data_[size_++] = std::move(pokemon);
 	}
 	std::span<pokemon_t> data(){
-		return data_;
+		return std::span<pokemon_t>(data_.data(), size_);
+	}
+	std::span<const pokemon_t> data() const{
+		return std::span<const pokemon_t>(data_.data(), size_);
 	}
 	usz size() const{
 		return size_;
@@ -23,6 +26,10 @@ class party_t{
 	bool empty() const{
 		return size_ == 0;
 	}
+	auto begin() { return data_.begin(); }
+	auto end() { return data_.begin() + size_; }
+	auto begin() const { return data_.begin(); }
+	auto end() const { return data_.begin() + size_; }
 };
 
 enum class SEX : i8{

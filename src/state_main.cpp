@@ -158,7 +158,7 @@ void main_state_t::update(st_ctx_t& ctx){
 					}()
 					)
 			     );
-		if (IsKeyPressed(KEY_Z)){
+		if (IsKeyPressed(KEY_Z) && writer.finished){
 			started_battle = true;
 		}
 		if (started_battle){
@@ -167,6 +167,7 @@ void main_state_t::update(st_ctx_t& ctx){
 			if (ctx.music_volume > 0.0f){
 				ctx.music_volume -= GetFrameTime()*1.5f;
 			}
+			return;
 		}
 	}
 	writer.update();
@@ -207,11 +208,10 @@ void main_state_t::render(st_ctx_t& ctx){
 			encounter_info_txtbox_y -= 10;
 		}
 		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y, 50, WHITE, 1);
-		for (auto& p :
-				(!ctx.bt_info.party.empty()) ? ctx.bt_info.party.data() :
-				(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party().data() :
-				ctx.bianca.get_party().data()
-		    ){
+		auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
+				(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
+				ctx.bianca.get_party();
+		for (auto& p : party){
 			p.render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000, encounter_info_txtbox_y + 50, 160, 120});
 		}
 		anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {10, encounter_info_txtbox_y - 10});
