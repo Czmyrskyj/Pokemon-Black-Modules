@@ -208,4 +208,13 @@ struct battle_vs_t{
 	explicit battle_vs_t(st_ctx_t& ctx);
 };
 
-using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t, which_season_and_region_t, main_state_t, battle_vs_t>;
+struct battle_state_t{
+	float bg_rotation = 0.0f;
+	void update(st_ctx_t& ctx);
+	void render(st_ctx_t& ctx);
+	explicit battle_state_t(st_ctx_t& ctx);
+};
+
+using active_state_t = std::variant<std::monostate, title_state_t, main_menu_t, boy_or_girl_t, 
+      wifi_connection_t, whats_your_name_t, juniper_letter_t, choose_a_starter_t, starter_selected_t,
+      which_season_and_region_t, main_state_t, battle_vs_t, battle_state_t>;

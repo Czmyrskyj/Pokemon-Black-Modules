@@ -38,7 +38,6 @@ battle_vs_t::battle_vs_t(st_ctx_t& ctx){
 void battle_vs_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha > 0){
 		ctx.resume_state_alpha(ctx.transition_alpha);
-		ctx.halt_music = false;
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
 		ctx.set_state_meta = true;
@@ -101,7 +100,7 @@ void battle_vs_t::update(st_ctx_t& ctx){
 							if (vs_scale < 45.0f){
 								vs_scale += 1.0f;
 							} else {
-								// TODO: ctx.switch_state(STATE::BATTLE);
+								ctx.switch_state(STATE::BATTLE, 600);
 							}
 						}
 					}

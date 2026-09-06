@@ -107,6 +107,9 @@ struct st_ctx_t{
 			case STATE::BATTLE_VS:
 				state_data.emplace<battle_vs_t>(*this);
 				break;
+			case STATE::BATTLE:
+				state_data.emplace<battle_state_t>(*this);
+				break;
 			default:
 				break;
 		}
@@ -116,7 +119,7 @@ struct st_ctx_t{
 		float current_alpha = static_cast<float>(transition_alpha);
 		if (current_state != new_state){
 			current_alpha+=delta*GetFrameTime();
-			if (transition_alpha >= 255.0f){
+			if (current_alpha >= 255.0f){
 				current_alpha = 255.0f;
 				current_state = new_state;
 				switch_data(new_state);

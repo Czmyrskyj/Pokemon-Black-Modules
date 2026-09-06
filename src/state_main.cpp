@@ -40,7 +40,6 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 void main_state_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha > 0){
 		ctx.resume_state_alpha(ctx.transition_alpha);
-		ctx.halt_music = false;
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
 		ctx.set_state_meta = true;

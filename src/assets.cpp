@@ -3,6 +3,12 @@
 #include <filesystem>
 #include <print>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#include <raymath.h>
+#pragma GCC diagnostic pop
+
 namespace fs = std::filesystem;
 const fs::path assets_pakg{"assets.PAKG"};
 
@@ -133,6 +139,7 @@ Model assets_t::get_model(std::string_view name){
 		}
 
 		Model model = LoadModel(temp_path.string().c_str());
+		model.transform = MatrixMultiply(model.transform, MatrixRotateX(-90.0f * DEG2RAD));
 
 		std::error_code ec;
 		fs::remove(temp_path, ec);
