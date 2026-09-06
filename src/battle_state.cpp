@@ -25,6 +25,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 void battle_state_t::render(st_ctx_t& ctx){
 	BeginMode3D(ctx.camera.camera);
 	DrawModelEx(ctx.assets.get_model("batt_bg01.glb"), {0, 0, 0}, {0, 0, 0}, bg_rotation, {0.05f, 0.05f, 0.05f}, WHITE);
+	// TODO: fix floating, add shadow
+	anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.0f, 0.0f, -3.0f}, &ctx.camera.camera);
 	EndMode3D();
 	draw_text(ctx.assets, "This is battle", 10, 10, 50, WHITE);
 }
