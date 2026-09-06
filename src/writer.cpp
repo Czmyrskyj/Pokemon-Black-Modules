@@ -48,7 +48,7 @@ void draw_text_seq(assets_t& assets, const writer_t& writer, float x, float y, u
 
 void writer_t::update(const Sound* char_sfx, const Sound* begin_sfx){
 	if (finished || target.empty() || current_idx >= target.size()) return;
-	bool is_waiting = (current_idx + 3 <= target.size() && std::string_view(&target[current_idx], 3) == "\xEE\x80\x80");
+	bool is_waiting = (target[current_idx] == '\x02');
 	float step_speed = is_waiting ? (speed * 10.0f) : speed;
 	if (begin_sfx && current_idx == 0){
 		PlaySound(*begin_sfx);
@@ -57,7 +57,7 @@ void writer_t::update(const Sound* char_sfx, const Sound* begin_sfx){
 	if (timer >= step_speed){
 		timer = 0.0f;
 		if (is_waiting){
-			current_idx += 3;
+			current_idx += 1;
 		} else {
 			int bytes_proc;
 			GetCodepointNext(&target[current_idx], &bytes_proc);

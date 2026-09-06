@@ -38,8 +38,11 @@ std::string formatter_t::format(std::string_view txt, POKEDEX pokemon, std::stri
 	}
 	pos = 0;
 	while ((pos = buffer.find("[WAIT]")) != std::string::npos){
-		buffer.replace(pos, 6, "\xEE\x80\x80");
-		pos += 3;
+		buffer.replace(pos, 6, "\x02");
+	}
+	pos = 0;
+	while ((pos = buffer.find("[PKMN_SIGN]")) != std::string::npos){
+		buffer.replace(pos, 11, "\x01");
 	}
 
 	return buffer;
