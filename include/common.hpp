@@ -14,4 +14,3 @@ using i8 = std::int8_t;
 
 constexpr int wnd_w{1920};
 constexpr int wnd_h{1080};
-

@@ -24,6 +24,7 @@ class battle_t{
 	foe_t foe;
 	u8 txtbox_alpha = 0;
 	u8 txtbox_peak_alpha_timer = 0;
+	bool __finished_line = false;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){};
 	battle_t(trainer_t& p, trainer_t& t) : player(p), foe(foe_t{OPPONENT::TRAINER, t}){};
@@ -34,4 +35,10 @@ class battle_t{
 
 	std::string get_battle_intro();
 	void write(assets_t& assets, writer_t& writer);
+	void finish_line(bool f){
+		__finished_line = f;
+	}
+	bool finished_line() const{
+		return __finished_line;
+	}
 };

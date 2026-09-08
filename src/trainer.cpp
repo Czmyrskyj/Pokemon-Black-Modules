@@ -28,7 +28,7 @@ void trainer_t::draw_overworld_preview(assets_t& assets, Vector2 pos){
 
 
 
-void anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vector3 pos, const Camera3D* camera){
+bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vector3 pos, const Camera3D* camera, Color tint, bool allow_animated){
 	Texture2D speaker_tx = assets.get_tx("Animated Trainers.png");
 	Vector2 src_offset{0.0f, 0.0f};
 	std::vector<u8> frameorder{};
@@ -92,7 +92,7 @@ void anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 				break;
 		}
 	}
-	if (frame < frameorder.size() - 1){
+	if (allow_animated && frame < frameorder.size() - 1){
 		frametimer += GetFrameTime()*framerate;
 		if (frametimer > 1.0f){
 			frame++;
@@ -106,11 +106,11 @@ void anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 	}
 	src_offset.x = frameorder[frame];
 	if (!camera){
-		DrawTexturePro(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift, pos.y - y_shift, 204, 190}, {0, 0}, 0, WHITE);
+		DrawTexturePro(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift, pos.y - y_shift, 204, 190}, {0, 0}, 0, tint);
 	} else {
-		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {0.8f, 0.8f}, {0, 0}, 0, WHITE);
+		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {0.8f, 0.8f}, {0, 0}, 0, tint);
 	}
-
+	return frame >= frameorder.size() - 1;
 }
 
 constexpr int get_vs_idx(std::string_view name){

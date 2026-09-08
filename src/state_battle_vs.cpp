@@ -112,6 +112,7 @@ void battle_vs_t::update(st_ctx_t& ctx){
 			}
 		}
 	}
+	std::get<trainer_t>(ctx.bt_info.foe.entry).get_party().empty();
 }
 
 constexpr float vs_w{61.0f};
