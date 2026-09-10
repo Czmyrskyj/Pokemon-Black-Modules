@@ -6,7 +6,7 @@
 battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.foe){
 	ctx.camera.camera = {
 		.position = {0.4f, 0.8f, -2.0f},
-		.target = {0, 0, 0},
+		.target = {-0.3f, 0, 0},
 		.up = {0, 1, 0},
 		.fovy = 65,
 		.projection = CAMERA_PERSPECTIVE,
@@ -47,12 +47,12 @@ void battle_state_t::render(st_ctx_t& ctx){
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
 	// TODO: fix floating, add shadow
-	if (anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {-0.2f, 0.05f, -1.0f}, &ctx.camera.camera, {foe_alpha, foe_alpha, foe_alpha, 255}, foe_alpha == 255) && !battle.finished_line()){
+	if (anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {-0.2f, 0.08f, -0.9f}, &ctx.camera.camera, {foe_alpha, foe_alpha, foe_alpha, 255}, foe_alpha == 255) && !battle.finished_line()){
 		if (writer.finished){
 			battle.finish_line(true);
 		}
 		if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry) && !party.empty()){
-			current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "TRAINER_SENT_OUT"), party.data()[0].get_pokedex().id);
+			current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "TRAINER_SENT_OUT"), party.data()[battle.get_current_foe_pokemon_idx()].get_pokedex().id);
 			writer.set_text(current_line);
 		}
 	}

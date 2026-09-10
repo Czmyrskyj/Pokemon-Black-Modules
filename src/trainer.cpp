@@ -1,10 +1,13 @@
 #include "trainer.hpp"
 #include "assets.hpp"
 #include <raylib.h>
+#include <rlgl.h>
 #include <cmath>
 
 constexpr u8 vs_w{128};
 constexpr u8 vs_h{64};
+
+constexpr float trainer_scale{0.8f};
 
 void trainer_t::draw_overworld_preview(assets_t& assets, Vector2 pos){
 	static float char_frame_timer = 0.0f;
@@ -27,6 +30,31 @@ void trainer_t::draw_overworld_preview(assets_t& assets, Vector2 pos){
 }
 
 
+void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos){
+
+	pos.y += 0.08f;
+
+	rlDisableDepthMask();
+	rlDisableBackfaceCulling();
+	rlSetTexture(texture.id);
+
+	float u0 = src.x / texture.width;
+	float v0 = src.y / texture.height;
+	float u1 = (src.x + src.width) / texture.width;
+	float v1 = (src.y + src.height) / texture.height;
+
+	rlBegin(RL_QUADS);
+	rlColor4ub(0, 0, 0, 180);
+	rlTexCoord2f(u0, v0); rlVertex3f(pos.x, pos.y, pos.z + trainer_scale);
+	rlTexCoord2f(u1, v0); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z + trainer_scale);
+	rlTexCoord2f(u1, v1); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z);
+	rlTexCoord2f(u0, v1); rlVertex3f(pos.x, pos.y, pos.z);
+	rlEnd();
+
+	rlSetTexture(0);
+	rlEnableBackfaceCulling();
+	rlEnableDepthMask();
+}
 
 bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vector3 pos, const Camera3D* camera, Color tint, bool allow_animated){
 	Texture2D speaker_tx = assets.get_tx("Animated Trainers.png");
@@ -108,7 +136,8 @@ bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 	if (!camera){
 		DrawTexturePro(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift, pos.y - y_shift, 204, 190}, {0, 0}, 0, tint);
 	} else {
-		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {0.8f, 0.8f}, {0, 0}, 0, tint);
+		draw_shadow(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, 0.03f, pos.z + y_shift / 78.0f});
+		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale}, {0, 0}, 0, tint);
 	}
 	return frame >= frameorder.size() - 1;
 }
