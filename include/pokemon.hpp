@@ -49,7 +49,7 @@ class pokemon_t{
 	public:
 	pokemon_t() = default;
 	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat) : pokedex(std::move(p)), nickname(std::move(nick)), nature(nat){}
-	void render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle dest);
+	void render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle dest, Camera3D* camera = nullptr);
 	const pokedex_entry_t& get_pokedex() const{
 		return pokedex;
 	}

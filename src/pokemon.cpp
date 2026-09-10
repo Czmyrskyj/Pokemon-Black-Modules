@@ -5,7 +5,7 @@
 constexpr float frame_width{153.0f};
 constexpr float frame_height{118.0f};
 
-void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle dest){
+void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle dest, Camera3D* camera){
 	auto tx = assets.get_tx(std::format("{}.png", static_cast<u16>(pokedex.id)));
 	float y = [&]() -> float{
 		switch(type){
@@ -39,5 +39,9 @@ void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Rectangle des
 		      (type != POKEMON_RENDER_TYPE::MENU) ? frame_width : 40.0f,
 		      (type != POKEMON_RENDER_TYPE::MENU) ? frame_height: 30.0f,
 	};
-	DrawTexturePro(tx, src, dest, {0.0f, 0.0f}, 0.0f, WHITE);
+	if (!camera){
+		DrawTexturePro(tx, src, dest, {0.0f, 0.0f}, 0.0f, WHITE);
+	} else {
+		DrawBillboardPro(*camera, tx, src, {dest.x, 0.0f, dest.y}, {0, 1, 0}, {dest.width, dest.height}, {0, 0}, 0, WHITE);
+	}
 }

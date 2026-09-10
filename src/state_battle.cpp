@@ -46,7 +46,6 @@ void battle_state_t::render(st_ctx_t& ctx){
 	auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
-	// TODO: fix floating, add shadow
 	if (anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {-0.2f, 0.08f, -0.9f}, &ctx.camera.camera, {foe_alpha, foe_alpha, foe_alpha, 255}, foe_alpha == 255) && !battle.finished_line()){
 		if (writer.finished){
 			battle.finish_line(true);
@@ -56,6 +55,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 			writer.set_text(current_line);
 		}
 	}
+	party.data()[battle.get_current_foe_pokemon_idx()].render(ctx.assets, POKEMON_RENDER_TYPE::FRONT, {0, 0, 1, 0.75f}, &ctx.camera.camera);
 	EndMode3D();
 	battle.write(ctx.assets, writer);
 }
