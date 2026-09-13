@@ -86,7 +86,7 @@ void dialog_t::draw_speaker(assets_t& assets){
 				return 0;
 			}()
 		};
-		DrawTexturePro(speaker_tx, {src_offset.x, src_offset.y * 78, 84, 78}, {10, txtbox_y - 10, 204, 190}, {0, 0}, 0, WHITE);
+		DrawTexturePro(speaker_tx, {src_offset.x, src_offset.y * 78, 84, 78}, {10, txtbox_y - 20, 204, 190}, {0, 0}, 0, WHITE);
 	} else {
 		
 	}

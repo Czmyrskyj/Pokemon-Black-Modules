@@ -46,7 +46,7 @@ void draw_text_seq(assets_t& assets, const writer_t& writer, float x, float y, u
 	draw_text(assets, writer.visible_buffer, x, y, size, tint, shadow_tint, 0, 0);
 }
 
-void writer_t::update(const Sound* char_sfx, const Sound* begin_sfx){
+void writer_t::update(const Sound* char_sfx, const Sound* begin_sfx, bool spaced){
 	if (finished || target.empty() || current_idx >= target.size()) return;
 	bool is_waiting = (target[current_idx] == '\x02');
 	float step_speed = is_waiting ? (speed * 10.0f) : speed;
@@ -63,10 +63,16 @@ void writer_t::update(const Sound* char_sfx, const Sound* begin_sfx){
 			GetCodepointNext(&target[current_idx], &bytes_proc);
 			usz step = bytes_proc > 0 ? bytes_proc : 1;
 			visible_buffer.append(target.substr(current_idx, step));
+			if (char_sfx){
+				if (spaced){
+					if (std::isspace(target[current_idx])){
+						PlaySound(*char_sfx);
+					}
+				} else {
+					PlaySound(*char_sfx);
+				}
+			}
 			current_idx += step;
-		}
-		if (char_sfx){
-			PlaySound(*char_sfx);
 		}
 		if (current_idx >= target.size()){
 			finished = true;

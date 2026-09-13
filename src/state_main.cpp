@@ -214,7 +214,7 @@ void main_state_t::render(st_ctx_t& ctx){
 		for (usz i = 0; i < party.size(); i++){
 			party.data()[i].render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000 + i * 80.0f, encounter_info_txtbox_y + 50, 160, 120});
 		}
-		anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {10, encounter_info_txtbox_y - 10, 0.0f});
+		anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {10, encounter_info_txtbox_y - 20, 0.0f});
 		draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, "FIGHT"), 1700, encounter_info_txtbox_y + 100, 50, WHITE);
 	}
 
