@@ -30,6 +30,9 @@ class party_t{
 	auto end() { return data_.begin() + size_; }
 	auto begin() const { return data_.begin(); }
 	auto end() const { return data_.begin() + size_; }
+	pokemon_t& operator[](usz idx){
+		return data_[idx];
+	}
 };
 
 enum class SEX : i8{

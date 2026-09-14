@@ -11,7 +11,7 @@ struct writer_t{
 	bool finished = false;
 	
 	void set_text(std::string_view txt, float char_speed = 0.01f);
-	void update(const Sound* char_sfx = nullptr, const Sound* begin_sfx = nullptr, bool spaced = false);
+	void update(const Sound* char_sfx = nullptr, const Sound* begin_sfx = nullptr);
 };
 
 extern void draw_text(assets_t& assets, std::string_view str, float x, float y, unsigned size, Color tint, Color shadow_tint = {150, 150, 150, 255}, usz spacing = 0, usz txtbox_id = 0);

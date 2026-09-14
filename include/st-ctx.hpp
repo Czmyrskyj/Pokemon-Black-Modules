@@ -161,6 +161,11 @@ struct st_ctx_t{
 			"PURRLOIN",
 			NATURE::IMPISH,
 		};
+		pokemon_t buizel{
+			pokedex.get_pokedex_entry(BUIZEL).value(),
+			"BUIZEL",
+			NATURE::CALM,
+		};
 		formatter.feed("[PLAYER]", std::string(player.get_name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
@@ -169,5 +174,6 @@ struct st_ctx_t{
 		cheren.push_pokemon(cherens);
 		bianca.push_pokemon(biancas);
 		bianca.push_pokemon(purrloin);
+		bianca.push_pokemon(buizel);
 	}
 };
