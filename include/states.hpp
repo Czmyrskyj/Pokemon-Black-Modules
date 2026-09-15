@@ -210,7 +210,6 @@ struct battle_vs_t{
 
 struct battle_state_t{
 	float bg_rotation = 0.0f;
-	u8 foe_alpha = 0;
 	std::string current_line;
 	dialog_t dialog;
 	writer_t writer;

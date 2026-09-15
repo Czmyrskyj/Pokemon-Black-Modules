@@ -36,6 +36,10 @@ class battle_t{
 	float __line_under_foe_pokeballs = -800.0f;
 	std::array<float, 6> __foe_pokeball_x{};
 	u8 __current_foe_pokeball = 0;
+	u8 __foe_accent_color = 0;
+	u8 __foe_alpha = 255;
+	float __foe_z = -0.9f;
+	bool __played_foe_cry = false;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
@@ -109,5 +113,32 @@ class battle_t{
 	}
 	u8 current_foe_pokeball() const{
 		return __current_foe_pokeball;
+	}
+	void pokemon_y_delta(float delta) {
+		__pokemon_y += delta;
+	}
+	u8 foe_accent_color() const{
+		return __foe_accent_color;
+	}
+	u8 foe_alpha() const{
+		return __foe_alpha;
+	}
+	void foe_alpha_delta(float delta){
+		__foe_alpha += delta;
+	}
+	void foe_accent_color_delta(float delta){
+		__foe_accent_color += delta;
+	}
+	float foe_z() const{
+		return __foe_z;
+	}
+	void foe_z_delta(float delta){
+		__foe_z += delta;
+	}
+	bool played_foe_cry() const{
+		return __played_foe_cry;
+	}
+	void set_played_foe_cry(bool p){
+		__played_foe_cry = p;
 	}
 };

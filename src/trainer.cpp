@@ -30,7 +30,7 @@ void trainer_t::draw_overworld_preview(assets_t& assets, Vector2 pos){
 }
 
 
-void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos){
+void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Color tint){
 
 	pos.y += 0.08f;
 
@@ -44,7 +44,7 @@ void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos){
 	float v1 = (src.y + src.height) / texture.height;
 
 	rlBegin(RL_QUADS);
-	rlColor4ub(0, 0, 0, 180);
+	rlColor4ub(tint.r, tint.g, tint.b, tint.a);
 	rlTexCoord2f(u0, v0); rlVertex3f(pos.x, pos.y, pos.z + trainer_scale);
 	rlTexCoord2f(u1, v0); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z + trainer_scale);
 	rlTexCoord2f(u1, v1); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z);
@@ -136,7 +136,7 @@ bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 	if (!camera){
 		DrawTexturePro(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift, pos.y - y_shift, 204, 190}, {0, 0}, 0, tint);
 	} else {
-		draw_shadow(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, 0.03f, pos.z + y_shift / 78.0f});
+		draw_shadow(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, 0.03f, pos.z + y_shift / 78.0f}, {0, 0, 0, std::min(static_cast<u8>(180), tint.a)});
 		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale}, {0, 0}, 0, tint);
 	}
 	return frame >= frameorder.size() - 1;

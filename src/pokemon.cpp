@@ -2,8 +2,41 @@
 #include "assets.hpp"
 #include <format>
 
+#include <rlgl.h>
+
 constexpr float frame_width{153.0f};
 constexpr float frame_height{118.0f};
+
+constexpr float pokemon_scale{1.0f};
+
+namespace {
+
+void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Color tint){
+
+	pos.y += 0.08f;
+
+	rlDisableDepthMask();
+	rlDisableBackfaceCulling();
+	rlSetTexture(texture.id);
+
+	float u0 = src.x / texture.width;
+	float v0 = src.y / texture.height;
+	float u1 = (src.x + src.width) / texture.width;
+	float v1 = (src.y + src.height) / texture.height;
+
+	rlBegin(RL_QUADS);
+	rlColor4ub(tint.r, tint.g, tint.b, tint.a);
+	rlTexCoord2f(u0, v0); rlVertex3f(pos.x, pos.y, pos.z + pokemon_scale);
+	rlTexCoord2f(u1, v0); rlVertex3f(pos.x + pokemon_scale, pos.y, pos.z + pokemon_scale);
+	rlTexCoord2f(u1, v1); rlVertex3f(pos.x + pokemon_scale, pos.y, pos.z);
+	rlTexCoord2f(u0, v1); rlVertex3f(pos.x, pos.y, pos.z);
+	rlEnd();
+
+	rlSetTexture(0);
+	rlEnableBackfaceCulling();
+	rlEnableDepthMask();
+}
+}
 
 void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Vector3 pos, Vector2 scale, Camera3D* camera){
 	auto tx = assets.get_tx(std::format("{}.png", static_cast<u16>(pokedex.id)));
@@ -42,6 +75,7 @@ void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Vector3 pos, 
 	if (!camera){
 		DrawTexturePro(tx, src, {pos.x, pos.y, scale.x, scale.y}, {0.0f, 0.0f}, 0.0f, WHITE);
 	} else {
+		draw_shadow(tx, src, {pos.x, 0.06f, pos.z - 0.2f}, {0, 0, 0, 180});
 		DrawBillboardPro(*camera, tx, src, pos, {0, 1, 0}, {scale.x, scale.y}, {0, 0}, 0, WHITE);
 	}
 }
