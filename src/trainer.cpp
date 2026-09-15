@@ -91,12 +91,19 @@ bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 				}
 				break;
 			case 1:
-				framerate = 3.0f;
+				framerate = 4.0f;
 				x_shift = 0.0f;
 				break;
 			case 2: 
-				framerate = 1.5f;
-				x_shift = std::sinf(GetTime() * 50.0) * 4.0f;
+				framerate = [&]() -> float{
+					switch (frame){
+						case 1: return 2.5f;
+						case 3: return 1.0f;
+						case 5: return 4.0f;
+						default: return 0.0f;
+					}
+				}();
+				x_shift = std::sinf(GetTime() * 60.0) * 2.0f;
 				break;
 		}
 	} else if (speaker == "N"){
