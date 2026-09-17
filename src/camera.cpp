@@ -10,7 +10,7 @@ camera_t::camera_t(){
 	};
 };
 
-void camera_t::set_camera_route(const std::vector<Vector3>& route, float speed){
+void camera_t::set_route(const std::vector<Vector3>& route, float speed){
 	if (camera_idx < route.size()){
 		if (camera.position.x < route[camera_idx].x){
 			camera.position.x += speed;

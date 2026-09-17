@@ -20,6 +20,13 @@ struct foe_t{
 	opp_entry_t entry;
 };
 
+enum class BATTLE_CAMERA_POS{
+	DEFAULT,
+	ALLY,
+	FOE,
+	TRAINER,
+};
+
 class battle_t{
 	trainer_t& player;
 	foe_t foe;
@@ -40,6 +47,8 @@ class battle_t{
 	u8 __foe_alpha = 255;
 	float __foe_z = -0.9f;
 	bool __played_foe_cry = false;
+	float __foe_hud_x = -620.0f;
+	BATTLE_CAMERA_POS __camera_pos = BATTLE_CAMERA_POS::DEFAULT;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
@@ -140,5 +149,17 @@ class battle_t{
 	}
 	void set_played_foe_cry(bool p){
 		__played_foe_cry = p;
+	}
+	float foe_hud_x() const{
+		return __foe_hud_x;
+	}
+	void foe_hud_x_delta(float delta){
+		__foe_hud_x += delta;
+	}
+	BATTLE_CAMERA_POS camera_pos(){
+		return __camera_pos;
+	}
+	void set_camera_pos(BATTLE_CAMERA_POS pos){
+		__camera_pos = pos;
 	}
 };
