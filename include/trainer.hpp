@@ -75,6 +75,7 @@ class trainer_t{
 		return party;
 	}
 };
+void draw_trainer(assets_t& assets, std::string_view prefix, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE);
 struct anim_trainer_render_t{
 	u8 frame{0};
 	float frametimer{0.0f};
@@ -83,7 +84,4 @@ struct anim_trainer_render_t{
 	float y_shift{0.0f};
 	bool draw(assets_t& assets, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE, bool allow_animated = true);
 	void draw_vs(assets_t& assets, std::string_view trainer, Vector2 pos, Color tint = WHITE);
-};
-struct gym_leader_t{
-	trainer_t trainer;
 };

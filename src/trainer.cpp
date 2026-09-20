@@ -30,7 +30,7 @@ void trainer_t::draw_overworld_preview(assets_t& assets, Vector2 pos){
 }
 
 
-void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Color tint){
+void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Color tint, float z_offset = 0.0f){
 
 	pos.y += 0.08f;
 
@@ -45,10 +45,10 @@ void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Color tint){
 
 	rlBegin(RL_QUADS);
 	rlColor4ub(tint.r, tint.g, tint.b, tint.a);
-	rlTexCoord2f(u0, v0); rlVertex3f(pos.x, pos.y, pos.z + trainer_scale);
-	rlTexCoord2f(u1, v0); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z + trainer_scale);
-	rlTexCoord2f(u1, v1); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z);
-	rlTexCoord2f(u0, v1); rlVertex3f(pos.x, pos.y, pos.z);
+	rlTexCoord2f(u0, v0); rlVertex3f(pos.x, pos.y, pos.z + trainer_scale + z_offset);
+	rlTexCoord2f(u1, v0); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z + trainer_scale + z_offset);
+	rlTexCoord2f(u1, v1); rlVertex3f(pos.x + trainer_scale, pos.y, pos.z + z_offset);
+	rlTexCoord2f(u0, v1); rlVertex3f(pos.x, pos.y, pos.z + z_offset);
 	rlEnd();
 
 	rlSetTexture(0);
@@ -181,4 +181,107 @@ void anim_trainer_render_t::draw_vs(assets_t& assets, std::string_view trainer, 
 	float ren_x = (idx % 6) * 128.0f;
 	float ren_y = (idx / 6) * 64.0f;
 	DrawTexturePro(tx, {ren_x, ren_y, vs_w, vs_h}, {pos.x, pos.y, vs_w*4.0f, vs_h*4.0f}, {0, 0}, 0, tint);
+}
+
+void draw_trainer(assets_t& assets, std::string_view prefix, std::string_view trainer, Vector3 pos, const Camera3D* camera, Color tint){
+	Texture2D speaker_tx = assets.get_tx("all-trainers.png");
+	Vector2 src_offset = [&]() -> Vector2{
+		if (trainer == "Hilbert") return Vector2{0, 0};
+		else if (trainer == "Hilda") return Vector2{1, 0};
+		else if (trainer == "Youngster") return Vector2{2, 0};
+		else if (prefix == "Lass") return Vector2{3, 0};
+		else if (prefix == "School Kid") return Vector2{4, 0};
+		else if (prefix == "School Kid") return Vector2{5, 0};
+		else if (prefix == "Lady") return Vector2{6, 0};
+		else if (prefix == "Linebacker") return Vector2{7, 0};
+		else if (prefix == "Waiter") return Vector2{0, 1};
+		else if (prefix == "Waitress") return Vector2{1, 1};
+		else if (trainer == "Chili") return Vector2{2, 1};
+		else if (trainer == "Cress") return Vector2{3, 1};
+		else if (trainer == "Cilan") return Vector2{4, 1};
+		else if (prefix == "Nursery") return Vector2{5, 1};
+		else if (prefix == "Preschooler") return Vector2{6, 1};
+		else if (prefix == "Preschooler") return Vector2{7, 1};
+		else if (prefix == "Twins") return Vector2{0, 2};
+		else if (prefix == "Janitor") return Vector2{1, 2};
+		else if (prefix == "Backpacker") return Vector2{2, 2};
+		else if (trainer == "Lenora") return Vector2{3, 2};
+		else if (trainer == "Elesa") return Vector2{5, 2};
+		else if (trainer == "Clay") return Vector2{6, 2};
+		else if (trainer == "Skyla") return Vector2{7, 2};
+		else if (prefix == "Hoopster") return Vector2{0, 3};
+		else if (prefix == "Clerk") return Vector2{1, 3};
+		else if (prefix == "Worker") return Vector2{2, 3};
+		else if (prefix == "Backpacker") return Vector2{3, 3};
+		else if (prefix == "Hiker") return Vector2{4, 3};
+		else if (prefix == "Fisherman") return Vector2{5, 3};
+		else if (prefix == "Musician") return Vector2{6, 3};
+		else if (prefix == "Breakdancer") return Vector2{7, 3};
+		else if (prefix == "Harlequin") return Vector2{0, 4};
+		else if (prefix == "Artist") return Vector2{1, 4};
+		else if (prefix == "Baker") return Vector2{2, 4};
+		else if (prefix == "Psychic Male") return Vector2{3, 4};
+		else if (prefix == "Psychic Female") return Vector2{4, 4};
+		else if (trainer == "Brycen") return Vector2{0, 5};
+		else if (prefix == "Team Plasma Grunt") return Vector2{3, 5};
+		else if (trainer == "Iris") return Vector2{4, 7};
+		else if (prefix == "Rich Boy") return Vector2{0, 6};
+		else if (prefix == "Depot Agent") return Vector2{1, 6};
+		else if (prefix == "Worker") return Vector2{2, 6};
+		else if (prefix == "Infielder") return Vector2{3, 6};
+		else if (prefix == "Scientist Male") return Vector2{4, 6};
+		else if (prefix == "Scientist Female") return Vector2{5, 6};
+		else if (prefix == "Ace Trainer Female") return Vector2{6, 6};
+		else if (prefix == "Ace Trainer Male") return Vector2{7, 6};
+		else if (prefix == "Black Belt") return Vector2{0, 7};
+		else if (prefix == "Doctor") return Vector2{1, 7};
+		else if (prefix == "Striker") return Vector2{2, 7};
+		else if (trainer == "Drayden") return Vector2{3, 7};
+		else if (trainer == "Shauntal") return Vector2{3, 10};
+		else if (trainer == "Marshal") return Vector2{5, 7};
+		else if (trainer == "Grimsley") return Vector2{6, 7};
+		else if (trainer == "Caitlin") return Vector2{7, 7};
+		else if (prefix == "Pokéfan Male (Child)") return Vector2{0, 8};
+		else if (prefix == "Pokéfan Female") return Vector2{1, 8};
+		else if (prefix == "Nurse") return Vector2{2, 8};
+		else if (prefix == "Nurse (Alternative)") return Vector2{3, 8};
+		else if (prefix == "Biker") return Vector2{4, 8};
+		else if (prefix == "Battle Girl") return Vector2{5, 8};
+		else if (prefix == "Parasol Lady") return Vector2{6, 8};
+		else if (prefix == "Clerk Male") return Vector2{7, 8};
+		else if (prefix == "Gentleman") return Vector2{0, 9};
+		else if (prefix == "Smuggler") return Vector2{1, 9};
+		else if (prefix == "Cheerleaders") return Vector2{2, 9};
+		else if (prefix == "Roughneck") return Vector2{3, 9};
+		else if (prefix == "Madame") return Vector2{4, 9};
+		else if (prefix == "Cyclist") return Vector2{5, 9};
+		else if (prefix == "Pitcher") return Vector2{6, 9};
+		else if (prefix == "Hiker") return Vector2{7, 9};
+		else if (prefix == "Socialite") return Vector2{0, 10};
+		else if (prefix == "Veteran Male") return Vector2{1, 10};
+		else if (prefix == "Veteran Female") return Vector2{2, 10};
+		else if (prefix == "Shadow Triad") return Vector2{3, 10};
+		else if (prefix == "Alder") return Vector2{4, 10};
+		else if (prefix == "Ingo") return Vector2{5, 10};
+		else if (prefix == "Ghetsis") return Vector2{6, 10};
+		else if (prefix == "Ghetsis (Battle)") return Vector2{7, 10};
+		else if (prefix == "Officer") return Vector2{0, 11};
+		else if (prefix == "Swimmer Male") return Vector2{1, 11};
+		else if (prefix == "Swimmer Female") return Vector2{2, 11};
+		else if (prefix == "Police Officer") return Vector2{3, 11};
+		else if (prefix == "Maid") return Vector2{4, 11};
+		else if (trainer == "Emmet") return Vector2{5, 11};
+		else if (trainer == "Alder") return Vector2{6, 11};
+		else if (prefix == "Cyclist Male") return Vector2{7, 11};
+		else if (prefix == "Cyclist Female") return Vector2{0, 12};
+		else if (trainer == "Cynthia") return Vector2{1, 12};
+		else if (trainer == "Colress") return Vector2{2, 12};
+		return Vector2{-1, -1};
+	}();
+	if (!camera){
+		DrawTexturePro(speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x , pos.y, 204, 303}, {0, 0}, 0, tint);
+	} else {
+		draw_shadow(speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x / 86.0f, 0.03f, pos.z / 64.0f}, {0, 0, 0, std::min(static_cast<u8>(180), tint.a)}, -1.0f);
+		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x  / 86.0f, pos.y / 128.0f + 0.1f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale * 1.5f}, {0, 0}, 0, tint);
+	}
 }

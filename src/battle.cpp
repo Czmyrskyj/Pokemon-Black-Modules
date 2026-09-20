@@ -9,9 +9,8 @@ std::string battle_t::get_dialog_intro(){
 			return "WILD_POKEMON_APPEARED";
 			} else if constexpr (std::is_same_v<T, legendary_t>){
 			return "LEGENDARY_POKEMON_APPEARED";
-			} else if constexpr (std::is_same_v<T, gym_leader_t>){
-			return "CHALLANGED_BY_GYM_LEADER";
 			}
+			return "";
 			}, foe.entry);
 }
 
@@ -23,8 +22,6 @@ std::string battle_t::get_dialog_trainer_sent_out(){
 			} else if constexpr (std::is_same_v<T, pokemon_t>){
 			return "GYM_LEADER_SENT_OUT";
 			} else if constexpr (std::is_same_v<T, legendary_t>){
-			return "";
-			} else if constexpr (std::is_same_v<T, gym_leader_t>){
 			return "";
 			}
 			}, foe.entry);

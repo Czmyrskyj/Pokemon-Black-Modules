@@ -16,6 +16,7 @@ std::string get_music_name(st_ctx_t& ctx){
 						if (nm == "N") return "Battle! N";
 					} else {
 						if (pf == "Team Plasma Grunt") return "Battle! Team Plasma";
+						if (pf == "Elite Four") return "Battle! Elite Four";
 						return "Battle! Trainer";
 					}
 				}

@@ -29,7 +29,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		return {};
 	}
 
-	in.seekg(table[total_index].offset);
+	in.seekg(table.at(total_index).offset);
 
 	OPPONENT battle_type;
 	in.read(reinterpret_cast<char*>(&battle_type), sizeof(OPPONENT));
@@ -39,7 +39,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 			case OPPONENT::TRAINER: return trainer_t{};			
 			case OPPONENT::WILD: return pokemon_t{};
 			case OPPONENT::LEGENDARY: return legendary_t{};
-			case OPPONENT::GYM_LEADER: return gym_leader_t{};
+			case OPPONENT::GYM_LEADER: return trainer_t{};
 		}
 		return {};
 	}();

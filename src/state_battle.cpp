@@ -2,6 +2,7 @@
 #include "st-ctx.hpp"
 #include "names.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 void draw_pokename(assets_t& assets, std::string_view text, float x, float y){
@@ -116,8 +117,18 @@ void battle_state_t::render(st_ctx_t& ctx){
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
 	auto& foep = party[battle.current_foe_pokemon_idx()];
-	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry) || std::holds_alternative<gym_leader_t>(ctx.bt_info.foe.entry)){
-		if (anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()}, battle.foe_accent_color() == 255) && !battle.finished_line()){
+	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry)){
+		bool animation_done = false;
+		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
+			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()}, battle.foe_accent_color() == 255);
+		} else {
+			draw_trainer(ctx.assets, ctx.bt_info.prefix, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()});
+			animation_timer ++;
+			if (animation_timer > 125){
+				animation_done = true;
+			}
+		}
+		if (animation_done && !battle.finished_line()){
 			if (writer.finished){
 				battle.finish_line(true);
 			}

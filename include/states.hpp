@@ -177,7 +177,7 @@ struct main_state_t{
 	bool ended_battle{false};
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
-	usz index = 2;
+	usz index = 3;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
@@ -210,6 +210,7 @@ struct battle_vs_t{
 
 struct battle_state_t{
 	float bg_rotation = 0.0f;
+	u8 animation_timer = 0;
 	std::string current_line;
 	dialog_t dialog;
 	writer_t writer;
