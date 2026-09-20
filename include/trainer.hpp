@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include "pokemon.hpp"
+#include "sex.hpp"
 #include <string>
 #include <cassert>
 #include <span>
@@ -35,11 +36,6 @@ class party_t{
 	}
 };
 
-enum class SEX : i8{
-	NONE = -1,
-	MALE = 0,
-	FEMALE = 1,
-};
 class assets_t;
 struct Vector2;
 

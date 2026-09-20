@@ -123,6 +123,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							players_entry.value(),
 							std::string(names[starters[selected_starter]]),
 							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+							SEX::MALE,
 						};
 						auto cherens_entry = ctx.pokedex.get_pokedex_entry(starters[cheren_selected_starter]);
 						if (!cherens_entry.has_value()){
@@ -133,6 +134,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							cherens_entry.value(),
 							"",
 							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+							SEX::MALE,
 						};
 						auto biancas_entry = ctx.pokedex.get_pokedex_entry(starters[bianca_selected_starter]);
 						if (!biancas_entry.has_value()){
@@ -143,6 +145,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							biancas_entry.value(),
 							"",
 							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+							SEX::MALE,
 						};
 						ctx.player.push_pokemon(players_chosen);
 						ctx.cheren.push_pokemon(cherens_chosen);

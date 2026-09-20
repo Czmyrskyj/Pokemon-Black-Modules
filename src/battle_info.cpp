@@ -97,6 +97,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 			pokeentry.value(),
 			"",
 			rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+			rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
 		};
 		party.push_back(pokemon);
 	}

@@ -139,6 +139,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 			char lvl_buf[4];
 			std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), foep.lvl());
 			DrawText(lvl_buf, battle.foe_hud_x() + 500, 300.0f, 40.0f,WHITE);
+			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.foe_hud_x() + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
 		}
 	}
 }

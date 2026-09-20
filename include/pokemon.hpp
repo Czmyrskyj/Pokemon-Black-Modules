@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include "pokedex.hpp"
+#include "sex.hpp"
 #include <string>
 
 enum class NATURE : u8{
@@ -51,9 +52,10 @@ class pokemon_t{
 	float __ev = 0.0f;
 	float __hp = 0.0f;
 	float __max_hp = 0.0f;
+	SEX __sex = SEX::NONE;
 	public:
 	pokemon_t() = default;
-	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat) : pokedex(std::move(p)), nickname(std::move(nick)), nature(nat){
+	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s) : pokedex(std::move(p)), nickname(std::move(nick)), nature(nat), __sex(s){
 		__hp = (((2 * pokedex.base_hp) + __iv + (__ev / 4)) * __lvl) / 100 + __lvl + 10;
 		__max_hp = __hp;
 	}
@@ -64,6 +66,7 @@ class pokemon_t{
 	float hp() const { return __hp; }
 	float max_hp() const { return __max_hp; }
 	u8 lvl() const { return __lvl; }
+	SEX sex() const { return __sex; }
 };
 
 

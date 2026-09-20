@@ -1,6 +1,5 @@
 #include "battle.hpp"
 #include "writer.hpp"
-#include "names.hpp"
 std::string battle_t::get_dialog_intro(){
 	return std::visit([&](auto&& arg) -> std::string{
 			using T = std::decay_t<decltype(arg)>;
