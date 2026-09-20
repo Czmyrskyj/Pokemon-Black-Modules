@@ -4,6 +4,27 @@
 
 #include <cmath>
 
+void draw_pokename(assets_t& assets, std::string_view text, float x, float y){
+	const auto& pokename_font = assets.get_tx("pokename-font.png");
+	float y_offset = 0.0f;
+	float x_offset = 0.0f;
+	float current_x = x;
+	for (char c : text){
+		current_x += 22.0f;
+		if (c >= 'A' && c <= 'Z'){
+			y_offset = 10;
+			x_offset = (c - 'A') * 6.0f;
+		} else if (c >= 'a' && c <= 'z'){
+			y_offset = 20;
+			x_offset = (c - 'a') * 6.0f;
+		} else {
+			y_offset = 0;
+			x_offset = (c - '0') * 6.0f;
+		}
+		DrawTexturePro(pokename_font, {x_offset, y_offset, 5, 9}, {current_x, y, 22, 40}, {0, 0}, 0, WHITE);
+	}
+}
+
 battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.foe){
 	ctx.camera.camera = {
 		.position = {0.4f, 0.6f, -2.0f},
@@ -131,14 +152,12 @@ void battle_state_t::render(st_ctx_t& ctx){
 					return 0;
 				}
 			}();
-			// TODO:
-			// implement normal font;
 			DrawTextureEx(ctx.assets.get_tx("foe-hud.png"), {battle.foe_hud_x(), 300.0f}, 0, 5, WHITE);
 			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {battle.foe_hud_x() + 220.0f, 345.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
-			DrawText(names[foep.get_pokedex().id].data(), battle.foe_hud_x() + 100, 300.0f, 40.0f,WHITE);
+			draw_pokename(ctx.assets, names[foep.get_pokedex().id].data(), battle.foe_hud_x() + 100, 295.0f);
 			char lvl_buf[4];
 			std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), foep.lvl());
-			DrawText(lvl_buf, battle.foe_hud_x() + 500, 300.0f, 40.0f,WHITE);
+			draw_pokename(ctx.assets, lvl_buf, battle.foe_hud_x() + 450, 295.0f);
 			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.foe_hud_x() + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
 		}
 	}
