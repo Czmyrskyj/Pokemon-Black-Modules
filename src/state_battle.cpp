@@ -49,7 +49,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 			[&]() -> Vector3{
 			switch (battle.camera_pos()){
 			case BATTLE_CAMERA_POS::DEFAULT: return {0.2f, 0.6f, 2.0f};
-			case BATTLE_CAMERA_POS::TRAINER: return {0.4f, 0.6f, 3.5f};
+			case BATTLE_CAMERA_POS::TRAINER: return {0.3f, 0.6f, 4.0f};
 			default: return {0.2f, 0.6f, 2.0f};
 			}
 			}()
@@ -111,8 +111,8 @@ void battle_state_t::render(st_ctx_t& ctx){
 	BeginMode3D(ctx.camera.camera);
 	DrawModelEx(ctx.assets.get_model("batt_bg01.glb"), {0, 0, 0}, {0, 0, 0}, 0, {0.2f, 0.2f, 0.2f}, WHITE);
 	DrawModelEx(ctx.assets.get_model("batt_bg01.glb"), {0, -1, 1}, {0, 1, 0}, bg_rotation, {0.2f, 0.2f, 0.2f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_stage01.glb"), {0.8f, 0.0f, -0.9f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_stage01.glb"), {-0.4f, 0.0f, 1.8f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
+	DrawModelEx(ctx.assets.get_model("batt_stage01.glb"), {0.9f, 0.0f, -0.9f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
+	DrawModelEx(ctx.assets.get_model("batt_stage01.glb"), {-0.3f, 0.0f, 1.8f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
 	auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
@@ -141,6 +141,9 @@ void battle_state_t::render(st_ctx_t& ctx){
 	}
 	if (battle.foe_sent_out_pokemon()){
 		foep.render(ctx.assets, POKEMON_RENDER_TYPE::FRONT, {0.6f, battle.pokemon_y(), 0}, {battle.pokemon_scale(), battle.pokemon_scale() * 0.75f}, &ctx.camera.camera);
+		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, battle.trainer_alpha()}) && battle.trainer_alpha() > 0){
+			battle.trainer_alpha_delta(-5);
+		}
 	}
 	EndMode3D();
 	battle.write(ctx.assets, writer);

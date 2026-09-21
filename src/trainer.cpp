@@ -2,6 +2,8 @@
 #include "assets.hpp"
 #include <raylib.h>
 #include <rlgl.h>
+#include <format>
+#include <algorithm>
 #include <cmath>
 
 constexpr u8 vs_w{128};
@@ -284,4 +286,44 @@ void draw_trainer(assets_t& assets, std::string_view prefix, std::string_view tr
 		draw_shadow(speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x / 86.0f, 0.03f, pos.z / 64.0f}, {0, 0, 0, std::min(static_cast<u8>(180), tint.a)}, -1.0f);
 		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x  / 86.0f, pos.y / 128.0f + 0.1f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale * 1.5f}, {0, 0}, 0, tint);
 	}
+}
+
+bool anim_trainer_render_t::draw_back(assets_t& assets, std::string_view name, Vector3 pos, const Camera3D& camera, Color tint){
+	static constexpr std::array<float, 3> framerates = {0.4f, 7.0f, 0.0f};
+	framerate = framerates[frame];
+	frametimer += GetFrameTime()*framerate;
+	if (frametimer > 1.0f){
+		frame++;
+		frametimer = 0.0f;
+	}
+	static constexpr std::array<float, 4> hand_framerates = {0.5f, 7.0f, 3.0f, 0.0f};
+	static constexpr std::array<float, 4> hand_rotations = {0.0f, 0.0f, 5.0f, -0.5f};
+	std::array<Vector2, 4> hand_offsets = {
+		{
+			{0, 0},
+			{-0.05f, 0.135f},
+			{-0.05f, 0.135f},
+			{-0.09f, -0.03f},
+		}
+	};
+	if (hand_framerate < hand_framerates[hand_frame]) hand_framerate += 0.1f;
+	if (hand_framerate > hand_framerates[hand_frame]) hand_framerate -= 0.1f;
+	hand_rotation = hand_rotations[hand_frame];
+	hand_frametimer += GetFrameTime()*hand_framerate;
+	if (hand_frametimer > 1.0f){
+		hand_frame++;
+		hand_frametimer = 0.0f;
+	}
+	const auto& back_tx = assets.get_tx(std::format("{}-back.png", name));
+	const auto& hand_tx = assets.get_tx(std::format("{}-back-hands.png", name));
+	float tx_third_w = back_tx.width / 3.0f;
+	if (hand_frame >= 1 && hand_frame <= 2){
+		x_shift -= 0.005f;
+	} else if (hand_frame > 2 && x_shift_timer < 10.0f){
+		x_shift += 0.02f;
+		x_shift_timer += 1.0f;
+	}
+	DrawBillboardPro(camera, back_tx, {frame * tx_third_w, 0.0f, tx_third_w, static_cast<float>(back_tx.height)}, {(pos.x / tx_third_w) + x_shift, pos.y / back_tx.height + 0.1f, pos.z}, {0, 1, 0}, {0.3f, 0.5f}, {0, 0}, 0, tint);
+	DrawBillboardPro(camera, hand_tx, {hand_frame * 46.0f, 0.0f, 46.0f, static_cast<float>(hand_tx.height)}, {(pos.x / 46.0f + 0.06f + hand_offsets[hand_frame].x) + x_shift, pos.y / hand_tx.height + 0.1f + hand_offsets[hand_frame].y, pos.z + 0.02f}, {0, 1, 0}, {0.2f, 0.3f}, {0, 0}, hand_rotation, tint);
+	return hand_frame == 3;
 }

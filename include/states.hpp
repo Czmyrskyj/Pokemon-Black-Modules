@@ -215,6 +215,7 @@ struct battle_state_t{
 	dialog_t dialog;
 	writer_t writer;
 	battle_t battle;
+	anim_trainer_render_t player_back;
 	anim_trainer_render_t anim_trainer_render;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);

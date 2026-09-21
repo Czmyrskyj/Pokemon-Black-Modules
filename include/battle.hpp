@@ -49,6 +49,7 @@ class battle_t{
 	bool __played_foe_cry = false;
 	float __foe_hud_x = -620.0f;
 	BATTLE_CAMERA_POS __camera_pos = BATTLE_CAMERA_POS::DEFAULT;
+	u8 __trainer_alpha = 255;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
@@ -161,5 +162,11 @@ class battle_t{
 	}
 	void set_camera_pos(BATTLE_CAMERA_POS pos){
 		__camera_pos = pos;
+	}
+	u8 trainer_alpha() const{
+		return __trainer_alpha;
+	}
+	void trainer_alpha_delta(float delta){
+		__trainer_alpha += delta;
 	}
 };

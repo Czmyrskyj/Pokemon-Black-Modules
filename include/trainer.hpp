@@ -82,6 +82,12 @@ struct anim_trainer_render_t{
 	float framerate{2.0f};
 	float x_shift{0.0f};
 	float y_shift{0.0f};
+	u8 hand_frame{0};
+	float hand_frametimer{0.0f};
+	float hand_framerate{2.0f};
+	float hand_rotation{0.0f};
+	float x_shift_timer{0.0f};
 	bool draw(assets_t& assets, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE, bool allow_animated = true);
 	void draw_vs(assets_t& assets, std::string_view trainer, Vector2 pos, Color tint = WHITE);
+	bool draw_back(assets_t& assets, std::string_view trainer, Vector3 pos, const Camera3D& camera, Color tint = WHITE);
 };
