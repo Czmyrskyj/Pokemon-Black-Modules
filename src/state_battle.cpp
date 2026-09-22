@@ -95,7 +95,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				PlaySound(cry);
 				battle.set_played_foe_cry(true);
 			}
-			if (battle.pokemon_scale() >= 1.0f && battle.pokemon_y() > -0.05f){
+			if (battle.pokemon_scale() >= 1.0f && battle.pokemon_y() > -0.1f){
 				battle.pokemon_y_delta(-0.05f);
 			} else if (battle.pokemon_y() <= -0.05f){
 				if (battle.foe_hud_x() < 0.0f){
@@ -122,7 +122,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()}, battle.foe_accent_color() == 255);
 		} else {
-			draw_trainer(ctx.assets, ctx.bt_info.prefix, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()});
+			draw_trainer(ctx.assets, ctx.bt_info.prefix, ctx.bt_info.name, {0.5f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()});
 			animation_timer ++;
 			if (animation_timer > 125){
 				animation_done = true;

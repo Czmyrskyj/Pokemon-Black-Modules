@@ -140,7 +140,7 @@ struct st_ctx_t{
 		current_state = STATE::MAIN;
 		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
-		player.set_sex(SEX::FEMALE);
+		player.set_sex(SEX::MALE);
 		pokemon_t players{
 			pokedex.get_pokedex_entry(OSHAWOTT).value(),
 			"OSHAWOTT",

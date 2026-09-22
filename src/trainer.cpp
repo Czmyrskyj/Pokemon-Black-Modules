@@ -283,8 +283,8 @@ void draw_trainer(assets_t& assets, std::string_view prefix, std::string_view tr
 	if (!camera){
 		DrawTexturePro(speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x , pos.y, 204, 303}, {0, 0}, 0, tint);
 	} else {
-		draw_shadow(speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x / 86.0f, 0.03f, pos.z / 64.0f}, {0, 0, 0, std::min(static_cast<u8>(180), tint.a)}, -1.0f);
-		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x  / 86.0f, pos.y / 128.0f + 0.1f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale * 1.5f}, {0, 0}, 0, tint);
+		draw_shadow(speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x, 0.03f, pos.z / 64.0f}, {0, 0, 0, std::min(static_cast<u8>(180), tint.a)}, -1.0f);
+		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 86, src_offset.y * 128, 86, 128}, {pos.x, pos.y / 128.0f + 0.1f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale * 1.5f}, {0, 0}, 0, tint);
 	}
 }
 
