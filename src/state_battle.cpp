@@ -79,6 +79,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 	if (play_foe_pokeball && (!IsSoundPlaying(absent) || !IsSoundPlaying(present))){
 		PlaySound(party[battle.current_foe_pokeball() - 1].get_pokedex().id == MISSINGNO ? absent : present);
 	}
+
 	if (battle.foe_sent_out_pokemon() && writer.finished){
 		if (writer.finished){
 			if (battle.foe_alpha() > 0){
@@ -103,6 +104,10 @@ void battle_state_t::update(st_ctx_t& ctx){
 					battle.set_camera_pos(BATTLE_CAMERA_POS::TRAINER);
 				}
 			}
+		}
+		bool play_trainer_pokeball = battle.control_trainer_pokeballs();
+		if (play_trainer_pokeball && (!IsSoundPlaying(absent) || !IsSoundPlaying(present))){
+			PlaySound(ctx.player.get_party()[battle.current_trainer_pokeball() - 1].get_pokedex().id == MISSINGNO ? absent : present);
 		}
 	}
 }
@@ -141,7 +146,8 @@ void battle_state_t::render(st_ctx_t& ctx){
 	}
 	if (battle.foe_sent_out_pokemon()){
 		foep.render(ctx.assets, POKEMON_RENDER_TYPE::FRONT, {0.6f, battle.pokemon_y(), 0}, {battle.pokemon_scale(), battle.pokemon_scale() * 0.75f}, &ctx.camera.camera);
-		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, battle.trainer_alpha()}) && battle.trainer_alpha() > 0){
+		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, battle.trainer_alpha()})) finished_drawing_back = true;
+		if (finished_drawing_back && battle.trainer_alpha() > 0){
 			battle.trainer_alpha_delta(-5);
 		}
 	}
@@ -174,5 +180,15 @@ void battle_state_t::render(st_ctx_t& ctx){
 			draw_pokename(ctx.assets, lvl_buf, battle.foe_hud_x() + 450, 295.0f);
 			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.foe_hud_x() + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
 		}
+		if (!finished_drawing_back){
+			battle.move_line_under_trainer_pokeballs();
+			const auto& ln_tx = ctx.assets.get_tx("line-under-foe-pokeballs.png");
+			DrawTexturePro(ln_tx, {0, 0, static_cast<float>(-ln_tx.width), static_cast<float>(ln_tx.height)}, {battle.line_under_trainer_pokeballs(), 600.0f, ln_tx.width * 8.0f, ln_tx.height * 8.0f}, {0, 0}, 0.0f, WHITE);
+			auto xs = battle.trainer_pokeball_x();
+			for (usz i = 0; i < 6; i++){
+				DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(party[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 500.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
+			}
+		}
+
 	}
 }

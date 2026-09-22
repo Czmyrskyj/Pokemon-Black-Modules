@@ -50,6 +50,9 @@ class battle_t{
 	float __foe_hud_x = -620.0f;
 	BATTLE_CAMERA_POS __camera_pos = BATTLE_CAMERA_POS::DEFAULT;
 	u8 __trainer_alpha = 255;
+	float __line_under_trainer_pokeballs = wnd_w;
+	u8 __current_trainer_pokeball = 0;
+	std::array<float, 6> __trainer_pokeball_x{};
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
@@ -57,6 +60,7 @@ class battle_t{
 			__pokemon_scale = 0.0f;
 			__pokemon_y = 0.0f;
 		}
+		__trainer_pokeball_x.fill(wnd_w);
 	};
 	~battle_t() = default;
 
@@ -168,5 +172,29 @@ class battle_t{
 	}
 	void trainer_alpha_delta(float delta){
 		__trainer_alpha += delta;
+	}
+	float line_under_trainer_pokeballs() const{
+		return __line_under_trainer_pokeballs;
+	}
+	void move_line_under_trainer_pokeballs() {
+		if (__line_under_trainer_pokeballs > 1120.0f) __line_under_trainer_pokeballs -= 40.0f;
+	}
+	bool control_trainer_pokeballs() {
+		if (__current_trainer_pokeball < 6){
+			if (__trainer_pokeball_x[__current_trainer_pokeball] > __current_trainer_pokeball* 72.0f + (wnd_w - 500.0f)){
+				__trainer_pokeball_x[__current_trainer_pokeball] -= 60.0f;
+			} else {
+				__trainer_pokeball_x[__current_trainer_pokeball] = __current_trainer_pokeball * 72.0f + (wnd_w - 500.0f);
+				__current_trainer_pokeball++;
+				return true;
+			}
+		}
+		return false;
+	}
+	std::span<const float> trainer_pokeball_x() const{
+		return __trainer_pokeball_x;
+	}
+	u8 current_trainer_pokeball() const{
+		return __current_trainer_pokeball;
 	}
 };
