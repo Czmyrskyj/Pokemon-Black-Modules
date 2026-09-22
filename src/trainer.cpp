@@ -242,7 +242,7 @@ void draw_trainer(assets_t& assets, std::string_view prefix, std::string_view tr
 		else if (trainer == "Shauntal") return Vector2{3, 10};
 		else if (trainer == "Marshal") return Vector2{5, 7};
 		else if (trainer == "Grimsley") return Vector2{6, 7};
-		else if (trainer == "Caitlin") return Vector2{7, 7};
+		else if (trainer == "Caitlin") return Vector2{6, 10};
 		else if (prefix == "Pokéfan Male (Child)") return Vector2{0, 8};
 		else if (prefix == "Pokéfan Female") return Vector2{1, 8};
 		else if (prefix == "Nurse") return Vector2{2, 8};
@@ -324,6 +324,6 @@ bool anim_trainer_render_t::draw_back(assets_t& assets, std::string_view name, V
 		x_shift_timer += 1.0f;
 	}
 	DrawBillboardPro(camera, back_tx, {frame * tx_third_w, 0.0f, tx_third_w, static_cast<float>(back_tx.height)}, {(pos.x / tx_third_w) + x_shift, pos.y / back_tx.height + 0.1f, pos.z}, {0, 1, 0}, {0.3f, 0.5f}, {0, 0}, 0, tint);
-	DrawBillboardPro(camera, hand_tx, {hand_frame * 46.0f, 0.0f, 46.0f, static_cast<float>(hand_tx.height)}, {(pos.x / 46.0f + 0.06f + hand_offsets[hand_frame].x) + x_shift, pos.y / hand_tx.height + 0.1f + hand_offsets[hand_frame].y, pos.z + 0.02f}, {0, 1, 0}, {0.2f, 0.3f}, {0, 0}, hand_rotation, tint);
+	DrawBillboardPro(camera, hand_tx, {hand_frame * 46.0f, 0.0f, 46.0f, static_cast<float>(hand_tx.height)}, {(pos.x / 46.0f + 0.06f + hand_offsets[hand_frame].x) + x_shift + ((name == "hilda") ? 0.06f : 0.0f), pos.y / hand_tx.height + 0.1f + hand_offsets[hand_frame].y, pos.z + 0.02f}, {0, 1, 0}, {0.2f, 0.3f}, {0, 0}, hand_rotation, tint);
 	return hand_frame == 3;
 }

@@ -138,9 +138,9 @@ struct st_ctx_t{
 	// WARN: only for debugging!
 	void set_temp_data(){
 		current_state = STATE::MAIN;
-		state_data = main_state_t{*this};
+		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
-		player.set_sex(SEX::MALE);
+		player.set_sex(SEX::FEMALE);
 		pokemon_t players{
 			pokedex.get_pokedex_entry(OSHAWOTT).value(),
 			"OSHAWOTT",
