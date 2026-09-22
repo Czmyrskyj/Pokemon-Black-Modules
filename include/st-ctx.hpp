@@ -146,30 +146,35 @@ struct st_ctx_t{
 			"OSHAWOTT",
 			NATURE::CALM,
 			SEX::MALE,
+			5
 		};
 		pokemon_t cherens{
 			pokedex.get_pokedex_entry(SNIVY).value(),
 			"SNIVY",
 			NATURE::TIMID,
 			SEX::MALE,
+			5
 		};
 		pokemon_t biancas{
 			pokedex.get_pokedex_entry(TEPIG).value(),
 			"TEPIG",
 			NATURE::LONELY,
 			SEX::MALE,
+			5
 		};
 		pokemon_t purrloin{
 			pokedex.get_pokedex_entry(PURRLOIN).value(),
 			"PURRLOIN",
 			NATURE::IMPISH,
 			SEX::MALE,
+			5
 		};
 		pokemon_t buizel{
 			pokedex.get_pokedex_entry(BUIZEL).value(),
 			"BUIZEL",
 			NATURE::CALM,
 			SEX::MALE,
+			5
 		};
 		formatter.feed("[PLAYER]", std::string(player.get_name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");

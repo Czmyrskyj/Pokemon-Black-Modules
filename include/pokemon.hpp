@@ -47,15 +47,15 @@ class pokemon_t{
 	pokedex_entry_t pokedex{};
 	std::string nickname	= "";
 	NATURE nature		= NATURE::NONE;
+	SEX __sex = SEX::NONE;
 	u8 __lvl = 1;
 	float __iv = 0.0f;
 	float __ev = 0.0f;
 	float __hp = 0.0f;
 	float __max_hp = 0.0f;
-	SEX __sex = SEX::NONE;
 	public:
 	pokemon_t() = default;
-	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s) : pokedex(std::move(p)), nickname(std::move(nick)), nature(nat), __sex(s){
+	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s, u8 lv) : pokedex(std::move(p)), nickname(std::move(nick)), nature(nat), __sex(s), __lvl(lv){
 		__hp = (((2 * pokedex.base_hp) + __iv + (__ev / 4)) * __lvl) / 100 + __lvl + 10;
 		__max_hp = __hp;
 	}

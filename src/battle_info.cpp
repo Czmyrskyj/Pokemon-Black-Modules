@@ -93,11 +93,14 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		if (!pokeentry.has_value()){
 			pokeentry = pokedex.get_pokedex_entry(MISSINGNO);
 		}
+		u8 lvl;
+		in.read(reinterpret_cast<char*>(&lvl), sizeof(u8));
 		pokemon_t pokemon{
 			pokeentry.value(),
 			"",
 			rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 			rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
+			lvl,
 		};
 		party.push_back(pokemon);
 	}
