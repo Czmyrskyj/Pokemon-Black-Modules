@@ -4,6 +4,7 @@
 #include "pokemon.hpp"
 #include "trainer.hpp"
 #include "dialog.hpp"
+#include "pokeball.hpp"
 #include <variant>
 
 enum class OPPONENT{
@@ -38,8 +39,8 @@ class battle_t{
 	u8 __current_foe_pokemon_idx = 0;
 	bool __finished_dialog = false;
 	bool __foe_sent_out_pokemon = false;
-	float __pokemon_scale = 0.0f;
-	float __pokemon_y = 0.5f;
+	float __foe_pokemon_scale = 0.0f;
+	float __foe_pokemon_y = 0.5f;
 	float __line_under_foe_pokeballs = -800.0f;
 	std::array<float, 6> __foe_pokeball_x{};
 	u8 __current_foe_pokeball = 0;
@@ -53,12 +54,16 @@ class battle_t{
 	float __line_under_trainer_pokeballs = wnd_w;
 	u8 __current_trainer_pokeball = 0;
 	std::array<float, 6> __trainer_pokeball_x{};
+	float __ally_pokemon_scale = 0.0f;
+	float __ally_pokemon_y = 0.5f;
+	bool __trainer_sent_out_pokemon = false;
+	u8 __current_trainer_pokemon_idx = 0;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
 			__foe_sent_out_pokemon = true;
-			__pokemon_scale = 0.0f;
-			__pokemon_y = 0.0f;
+			__foe_pokemon_scale = 0.0f;
+			__foe_pokemon_y = 0.0f;
 		}
 		__trainer_pokeball_x.fill(wnd_w);
 	};
@@ -95,14 +100,14 @@ class battle_t{
 	void set_foe_sent_out_pokemon(bool s = true){
 		__foe_sent_out_pokemon = s;
 	}
-	float pokemon_scale() const{
-		return __pokemon_scale;
+	float foe_pokemon_scale() const{
+		return __foe_pokemon_scale;
 	}
-	void inc_pokemon_scale() {
-		if (__pokemon_scale < 1.0f) __pokemon_scale += 0.05f;
+	void inc_foe_pokemon_scale() {
+		if (__foe_pokemon_scale < 1.0f) __foe_pokemon_scale += 0.05f;
 	}
-	float pokemon_y() const {
-		return __pokemon_y;
+	float foe_pokemon_y() const {
+		return __foe_pokemon_y;
 	}
 	float line_under_foe_pokeballs() const{
 		return __line_under_foe_pokeballs;
@@ -128,8 +133,8 @@ class battle_t{
 	u8 current_foe_pokeball() const{
 		return __current_foe_pokeball;
 	}
-	void pokemon_y_delta(float delta) {
-		__pokemon_y += delta;
+	void foe_pokemon_y_delta(float delta) {
+		__foe_pokemon_y += delta;
 	}
 	u8 foe_accent_color() const{
 		return __foe_accent_color;
@@ -196,5 +201,26 @@ class battle_t{
 	}
 	u8 current_trainer_pokeball() const{
 		return __current_trainer_pokeball;
+	}
+	float ally_pokemon_scale() const{
+		return __ally_pokemon_scale;
+	}
+	void inc_ally_pokemon_scale() {
+		if (__ally_pokemon_scale < 1.0f) __ally_pokemon_scale += 0.05f;
+	}
+	float ally_pokemon_y() const{
+		return __ally_pokemon_y;
+	}
+	void ally_pokemon_y_delta(float delta) {
+		__ally_pokemon_y += delta;
+	}
+	void set_trainer_sent_out_pokemon(bool s = true){
+		__trainer_sent_out_pokemon = s;
+	}
+	bool trainer_sent_out_pokemon() const{
+		return __trainer_sent_out_pokemon;
+	}
+	u8 current_trainer_pokemon_idx() const{
+		return __current_trainer_pokemon_idx;
 	}
 };

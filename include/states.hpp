@@ -218,6 +218,11 @@ struct battle_state_t{
 	battle_t battle;
 	anim_trainer_render_t player_back;
 	anim_trainer_render_t anim_trainer_render;
+	thrown_pokeball_renderer_t foe_thrown_pokeball_renderer; 
+	thrown_pokeball_renderer_t trainer_thrown_pokeball_renderer; 
+	float trainer_thrown_pokeball_y = 0.7f;
+	float trainer_thrown_pokeball_z = 3.0f;
+	float trainer_thrown_pokeball_y_vel = 0.05f;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	explicit battle_state_t(st_ctx_t& ctx);
