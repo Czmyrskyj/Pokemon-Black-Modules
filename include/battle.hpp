@@ -28,6 +28,12 @@ enum class BATTLE_CAMERA_POS{
 	TRAINER,
 };
 
+enum class BATTLE_PHASE{
+	INTRO,
+	FOE_SEND_OUT,
+	ALLY_SEND_OUT,
+};
+
 class battle_t{
 	trainer_t& player;
 	foe_t foe;
@@ -35,10 +41,8 @@ class battle_t{
 	u8 current_line = 0;
 	u8 txtbox_alpha = 0;
 	u8 txtbox_peak_alpha_timer = 0;
-	bool m_finished_line = false;
 	u8 m_current_foe_pokemon_idx = 0;
 	bool m_finished_dialog = false;
-	bool m_foe_sent_out_pokemon = false;
 	float m_foe_pokemon_scale = 0.0f;
 	float m_foe_pokemon_y = 0.5f;
 	float m_line_under_foe_pokeballs = -800.0f;
@@ -56,13 +60,12 @@ class battle_t{
 	std::array<float, 6> m_trainer_pokeball_x{};
 	float m_ally_pokemon_scale = 0.0f;
 	float m_ally_pokemon_y = 0.5f;
-	bool m_trainer_sent_out_pokemon = false;
 	u8 m_current_trainer_pokemon_idx = 0;
 	float m_ally_hud_x = wnd_w;
+	BATTLE_PHASE m_phase = BATTLE_PHASE::INTRO;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
-			m_foe_sent_out_pokemon = true;
 			m_foe_pokemon_scale = 0.0f;
 			m_foe_pokemon_y = 0.0f;
 		}
@@ -75,31 +78,18 @@ class battle_t{
 		current_line = 0;
 		txtbox_alpha = 0;
 		txtbox_peak_alpha_timer = 0;
-		m_finished_line = false;
 	}
 
 	std::string get_dialog_intro();
-	std::string get_dialog_trainer_sent_out();
+	std::string get_dialog_foe_sent_out();
 	std::string step_dialog(writer_t& writer, Locale::locale_t& locale);
 
 	void write(assets_t& assets, writer_t& writer);
-	void finish_line(bool f){
-		m_finished_line = f;
-	}
-	bool finished_line() const{
-		return m_finished_line;
-	}
 	bool finished_dialog() const{
 		return m_finished_dialog;
 	}
 	u8 current_foe_pokemon_idx() const {
 		return m_current_foe_pokemon_idx;
-	}
-	bool foe_sent_out_pokemon() const {
-		return m_foe_sent_out_pokemon;
-	}
-	void set_foe_sent_out_pokemon(bool s = true){
-		m_foe_sent_out_pokemon = s;
 	}
 	float foe_pokemon_scale() const{
 		return m_foe_pokemon_scale;
@@ -215,12 +205,6 @@ class battle_t{
 	void ally_pokemon_y_delta(float delta) {
 		m_ally_pokemon_y += delta;
 	}
-	void set_trainer_sent_out_pokemon(bool s = true){
-		m_trainer_sent_out_pokemon = s;
-	}
-	bool trainer_sent_out_pokemon() const{
-		return m_trainer_sent_out_pokemon;
-	}
 	u8 current_trainer_pokemon_idx() const{
 		return m_current_trainer_pokemon_idx;
 	}
@@ -229,6 +213,19 @@ class battle_t{
 	}
 	void ally_hud_x_delta(float delta){
 		m_ally_hud_x += delta;
+	}
+	BATTLE_PHASE phase() const {
+		return m_phase;
+	}
+	void set_phase(assets_t& assets, BATTLE_PHASE p){
+		m_phase = p;
+		switch (p){
+			case BATTLE_PHASE::FOE_SEND_OUT: 
+				{
+					PlaySound(assets.get_sfx("SEQ_SE_NAGERU.wav"));
+				}
+			default: break;
+		}
 	}
 
 };

@@ -4,7 +4,7 @@ std::string battle_t::get_dialog_intro(){
 	return std::visit([&](auto&& arg) -> std::string{
 			using T = std::decay_t<decltype(arg)>;
 			if constexpr (std::is_same_v<T, trainer_t>){
-			return "CHALLANGED_BY_TRAINER";
+			return "CHALLANGED_BY_FOE";
 			} else if constexpr (std::is_same_v<T, pokemon_t>){
 			return "WILD_POKEMON_APPEARED";
 			} else if constexpr (std::is_same_v<T, legendary_t>){
@@ -14,11 +14,11 @@ std::string battle_t::get_dialog_intro(){
 			}, foe.entry);
 }
 
-std::string battle_t::get_dialog_trainer_sent_out(){
+std::string battle_t::get_dialog_foe_sent_out(){
 	return std::visit([&](auto&& arg) -> std::string{
 			using T = std::decay_t<decltype(arg)>;
 			if constexpr (std::is_same_v<T, trainer_t>){
-			return "TRAINER_SENT_OUT";
+			return "FOE_SENT_OUT";
 			} else if constexpr (std::is_same_v<T, pokemon_t>){
 			return "GYM_LEADER_SENT_OUT";
 			} else if constexpr (std::is_same_v<T, legendary_t>){

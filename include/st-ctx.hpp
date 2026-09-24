@@ -142,8 +142,8 @@ struct st_ctx_t{
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{
-			pokedex.get_pokedex_entry(RESHIRAM).value(),
-			"RESHIRAM",
+			pokedex.get_pokedex_entry(OSHAWOTT).value(),
+			"OSHAWOTT",
 			NATURE::CALM,
 			SEX::MALE,
 			5
