@@ -45,7 +45,7 @@ void battle_t::write(assets_t& assets, writer_t& writer){
 
 std::string battle_t::step_dialog(writer_t& writer, Locale::locale_t& locale){
 	if (current_line >= lines.size()){
-		__finished_dialog = true;
+		m_finished_dialog = true;
 		return "";
 	}
 	auto buffer = std::string(locale.get(Locale::TYPE::UI, lines[current_line]));

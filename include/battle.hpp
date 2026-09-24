@@ -35,37 +35,38 @@ class battle_t{
 	u8 current_line = 0;
 	u8 txtbox_alpha = 0;
 	u8 txtbox_peak_alpha_timer = 0;
-	bool __finished_line = false;
-	u8 __current_foe_pokemon_idx = 0;
-	bool __finished_dialog = false;
-	bool __foe_sent_out_pokemon = false;
-	float __foe_pokemon_scale = 0.0f;
-	float __foe_pokemon_y = 0.5f;
-	float __line_under_foe_pokeballs = -800.0f;
-	std::array<float, 6> __foe_pokeball_x{};
-	u8 __current_foe_pokeball = 0;
-	u8 __foe_accent_color = 0;
-	u8 __foe_alpha = 255;
-	float __foe_z = -0.9f;
-	bool __played_foe_cry = false;
-	float __foe_hud_x = -620.0f;
-	BATTLE_CAMERA_POS __camera_pos = BATTLE_CAMERA_POS::DEFAULT;
-	u8 __trainer_alpha = 255;
-	float __line_under_trainer_pokeballs = wnd_w;
-	u8 __current_trainer_pokeball = 0;
-	std::array<float, 6> __trainer_pokeball_x{};
-	float __ally_pokemon_scale = 0.0f;
-	float __ally_pokemon_y = 0.5f;
-	bool __trainer_sent_out_pokemon = false;
-	u8 __current_trainer_pokemon_idx = 0;
+	bool m_finished_line = false;
+	u8 m_current_foe_pokemon_idx = 0;
+	bool m_finished_dialog = false;
+	bool m_foe_sent_out_pokemon = false;
+	float m_foe_pokemon_scale = 0.0f;
+	float m_foe_pokemon_y = 0.5f;
+	float m_line_under_foe_pokeballs = -800.0f;
+	std::array<float, 6> m_foe_pokeball_x{};
+	u8 m_current_foe_pokeball = 0;
+	u8 m_foe_accent_color = 0;
+	u8 m_foe_alpha = 255;
+	float m_foe_z = -0.9f;
+	bool m_played_foe_cry = false;
+	float m_foe_hud_x = -620.0f;
+	BATTLE_CAMERA_POS m_camera_pos = BATTLE_CAMERA_POS::DEFAULT;
+	u8 m_trainer_alpha = 255;
+	float m_line_under_trainer_pokeballs = wnd_w;
+	u8 m_current_trainer_pokeball = 0;
+	std::array<float, 6> m_trainer_pokeball_x{};
+	float m_ally_pokemon_scale = 0.0f;
+	float m_ally_pokemon_y = 0.5f;
+	bool m_trainer_sent_out_pokemon = false;
+	u8 m_current_trainer_pokemon_idx = 0;
+	float m_ally_hud_x = wnd_w;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
-			__foe_sent_out_pokemon = true;
-			__foe_pokemon_scale = 0.0f;
-			__foe_pokemon_y = 0.0f;
+			m_foe_sent_out_pokemon = true;
+			m_foe_pokemon_scale = 0.0f;
+			m_foe_pokemon_y = 0.0f;
 		}
-		__trainer_pokeball_x.fill(wnd_w);
+		m_trainer_pokeball_x.fill(wnd_w);
 	};
 	~battle_t() = default;
 
@@ -74,7 +75,7 @@ class battle_t{
 		current_line = 0;
 		txtbox_alpha = 0;
 		txtbox_peak_alpha_timer = 0;
-		__finished_line = false;
+		m_finished_line = false;
 	}
 
 	std::string get_dialog_intro();
@@ -83,144 +84,151 @@ class battle_t{
 
 	void write(assets_t& assets, writer_t& writer);
 	void finish_line(bool f){
-		__finished_line = f;
+		m_finished_line = f;
 	}
 	bool finished_line() const{
-		return __finished_line;
+		return m_finished_line;
 	}
 	bool finished_dialog() const{
-		return __finished_dialog;
+		return m_finished_dialog;
 	}
 	u8 current_foe_pokemon_idx() const {
-		return __current_foe_pokemon_idx;
+		return m_current_foe_pokemon_idx;
 	}
 	bool foe_sent_out_pokemon() const {
-		return __foe_sent_out_pokemon;
+		return m_foe_sent_out_pokemon;
 	}
 	void set_foe_sent_out_pokemon(bool s = true){
-		__foe_sent_out_pokemon = s;
+		m_foe_sent_out_pokemon = s;
 	}
 	float foe_pokemon_scale() const{
-		return __foe_pokemon_scale;
+		return m_foe_pokemon_scale;
 	}
 	void inc_foe_pokemon_scale() {
-		if (__foe_pokemon_scale < 1.0f) __foe_pokemon_scale += 0.05f;
+		if (m_foe_pokemon_scale < 1.0f) m_foe_pokemon_scale += 0.05f;
 	}
 	float foe_pokemon_y() const {
-		return __foe_pokemon_y;
+		return m_foe_pokemon_y;
 	}
 	float line_under_foe_pokeballs() const{
-		return __line_under_foe_pokeballs;
+		return m_line_under_foe_pokeballs;
 	}
 	void move_line_under_foe_pokeballs() {
-		if (__line_under_foe_pokeballs < 0.0f) __line_under_foe_pokeballs += 40.0f;
+		if (m_line_under_foe_pokeballs < 0.0f) m_line_under_foe_pokeballs += 40.0f;
 	}
 	bool control_foe_pokeballs() {
-		if (__current_foe_pokeball < 6){
-			if (__foe_pokeball_x[__current_foe_pokeball] < (5 - __current_foe_pokeball) * 72.0f + 30.0f){
-				__foe_pokeball_x[__current_foe_pokeball] += 60.0f;
+		if (m_current_foe_pokeball < 6){
+			if (m_foe_pokeball_x[m_current_foe_pokeball] < (5 - m_current_foe_pokeball) * 72.0f + 30.0f){
+				m_foe_pokeball_x[m_current_foe_pokeball] += 60.0f;
 			} else {
-				__foe_pokeball_x[__current_foe_pokeball] = (5 - __current_foe_pokeball) * 72.0f + 30.0f;
-				__current_foe_pokeball++;
+				m_foe_pokeball_x[m_current_foe_pokeball] = (5 - m_current_foe_pokeball) * 72.0f + 30.0f;
+				m_current_foe_pokeball++;
 				return true;
 			}
 		}
 		return false;
 	}
 	std::span<const float> foe_pokeball_x() const{
-		return __foe_pokeball_x;
+		return m_foe_pokeball_x;
 	}
 	u8 current_foe_pokeball() const{
-		return __current_foe_pokeball;
+		return m_current_foe_pokeball;
 	}
 	void foe_pokemon_y_delta(float delta) {
-		__foe_pokemon_y += delta;
+		m_foe_pokemon_y += delta;
 	}
 	u8 foe_accent_color() const{
-		return __foe_accent_color;
+		return m_foe_accent_color;
 	}
 	u8 foe_alpha() const{
-		return __foe_alpha;
+		return m_foe_alpha;
 	}
-	void foe_alpha_delta(float delta){
-		__foe_alpha += delta;
+	void foe_alpha_delta(u8 delta){
+		m_foe_alpha += delta;
 	}
-	void foe_accent_color_delta(float delta){
-		__foe_accent_color += delta;
+	void foe_accent_color_delta(u8 delta){
+		m_foe_accent_color += delta;
 	}
 	float foe_z() const{
-		return __foe_z;
+		return m_foe_z;
 	}
 	void foe_z_delta(float delta){
-		__foe_z += delta;
+		m_foe_z += delta;
 	}
 	bool played_foe_cry() const{
-		return __played_foe_cry;
+		return m_played_foe_cry;
 	}
 	void set_played_foe_cry(bool p){
-		__played_foe_cry = p;
+		m_played_foe_cry = p;
 	}
 	float foe_hud_x() const{
-		return __foe_hud_x;
+		return m_foe_hud_x;
 	}
 	void foe_hud_x_delta(float delta){
-		__foe_hud_x += delta;
+		m_foe_hud_x += delta;
 	}
 	BATTLE_CAMERA_POS camera_pos(){
-		return __camera_pos;
+		return m_camera_pos;
 	}
 	void set_camera_pos(BATTLE_CAMERA_POS pos){
-		__camera_pos = pos;
+		m_camera_pos = pos;
 	}
 	u8 trainer_alpha() const{
-		return __trainer_alpha;
+		return m_trainer_alpha;
 	}
-	void trainer_alpha_delta(float delta){
-		__trainer_alpha += delta;
+	void trainer_alpha_delta(u8 delta){
+		m_trainer_alpha += delta;
 	}
 	float line_under_trainer_pokeballs() const{
-		return __line_under_trainer_pokeballs;
+		return m_line_under_trainer_pokeballs;
 	}
 	void move_line_under_trainer_pokeballs() {
-		if (__line_under_trainer_pokeballs > 1120.0f) __line_under_trainer_pokeballs -= 40.0f;
+		if (m_line_under_trainer_pokeballs > 1120.0f) m_line_under_trainer_pokeballs -= 40.0f;
 	}
 	bool control_trainer_pokeballs() {
-		if (__current_trainer_pokeball < 6){
-			if (__trainer_pokeball_x[__current_trainer_pokeball] > __current_trainer_pokeball* 72.0f + (wnd_w - 500.0f)){
-				__trainer_pokeball_x[__current_trainer_pokeball] -= 60.0f;
+		if (m_current_trainer_pokeball < 6){
+			if (m_trainer_pokeball_x[m_current_trainer_pokeball] > m_current_trainer_pokeball* 72.0f + (wnd_w - 500.0f)){
+				m_trainer_pokeball_x[m_current_trainer_pokeball] -= 60.0f;
 			} else {
-				__trainer_pokeball_x[__current_trainer_pokeball] = __current_trainer_pokeball * 72.0f + (wnd_w - 500.0f);
-				__current_trainer_pokeball++;
+				m_trainer_pokeball_x[m_current_trainer_pokeball] = m_current_trainer_pokeball * 72.0f + (wnd_w - 500.0f);
+				m_current_trainer_pokeball++;
 				return true;
 			}
 		}
 		return false;
 	}
 	std::span<const float> trainer_pokeball_x() const{
-		return __trainer_pokeball_x;
+		return m_trainer_pokeball_x;
 	}
 	u8 current_trainer_pokeball() const{
-		return __current_trainer_pokeball;
+		return m_current_trainer_pokeball;
 	}
 	float ally_pokemon_scale() const{
-		return __ally_pokemon_scale;
+		return m_ally_pokemon_scale;
 	}
 	void inc_ally_pokemon_scale() {
-		if (__ally_pokemon_scale < 1.0f) __ally_pokemon_scale += 0.05f;
+		if (m_ally_pokemon_scale < 1.0f) m_ally_pokemon_scale += 0.05f;
 	}
 	float ally_pokemon_y() const{
-		return __ally_pokemon_y;
+		return m_ally_pokemon_y;
 	}
 	void ally_pokemon_y_delta(float delta) {
-		__ally_pokemon_y += delta;
+		m_ally_pokemon_y += delta;
 	}
 	void set_trainer_sent_out_pokemon(bool s = true){
-		__trainer_sent_out_pokemon = s;
+		m_trainer_sent_out_pokemon = s;
 	}
 	bool trainer_sent_out_pokemon() const{
-		return __trainer_sent_out_pokemon;
+		return m_trainer_sent_out_pokemon;
 	}
 	u8 current_trainer_pokemon_idx() const{
-		return __current_trainer_pokemon_idx;
+		return m_current_trainer_pokemon_idx;
 	}
+	float ally_hud_x() const{
+		return m_ally_hud_x;
+	}
+	void ally_hud_x_delta(float delta){
+		m_ally_hud_x += delta;
+	}
+
 };

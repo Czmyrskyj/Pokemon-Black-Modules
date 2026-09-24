@@ -2,7 +2,6 @@
 #include "st-ctx.hpp"
 #include "names.hpp"
 
-#include <print>
 #include <algorithm>
 #include <cmath>
 
@@ -77,7 +76,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 	Sound present = ctx.assets.get_sfx("SEQ_SE_TB_KON.wav");
 	bool play_foe_pokeball = battle.control_foe_pokeballs();
 	battle.move_line_under_foe_pokeballs();
-	if (play_foe_pokeball && (!IsSoundPlaying(absent) || !IsSoundPlaying(present))){
+	if (play_foe_pokeball){
 		PlaySound(party[battle.current_foe_pokeball() - 1].get_pokedex().id == MISSINGNO ? absent : present);
 	}
 
@@ -249,6 +248,38 @@ void battle_state_t::render(st_ctx_t& ctx){
 			for (usz i = 0; i < 6; i++){
 				DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(ctx.player.get_party()[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 500.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
 			}
+		} else {
+			if (battle.trainer_sent_out_pokemon()){
+				if (battle.ally_hud_x() > wnd_w - 120.0f * 5.0f){
+					battle.ally_hud_x_delta(-20.0f);
+				}
+			}
+			float hp_ratio = ally.hp() / ally.max_hp();
+			float hp_idx = [&]() -> float{
+				if (hp_ratio >= 0.7f){
+					return 2;
+				} else if (hp_ratio >= 0.4f){
+					return 1;
+				} else {
+					return 0;
+				}
+			}();
+			DrawTextureEx(ctx.assets.get_tx("ally-hud.png"), {battle.ally_hud_x(), 600.0f}, 0, 5, WHITE);
+			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {battle.ally_hud_x() + 280.0f, 645.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, ally.nickname(), battle.ally_hud_x() + 100, 595.0f);
+			char lvl_buf[4];
+			auto [lvl_ptr, _] = std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), ally.lvl());
+			
+			char hp_buf[4];
+			char max_hp_buf[4];
+			auto [hp_ptr, _] = std::to_chars(hp_buf, hp_buf + sizeof(hp_buf), ally.hp());
+			auto [max_hp_ptr, _] = std::to_chars(max_hp_buf, max_hp_buf + sizeof(max_hp_buf), ally.max_hp());
+			ally.calculate_exp_cap();
+			draw_pokename(ctx.assets, {lvl_buf, lvl_ptr}, battle.ally_hud_x() + 450, 595.0f);
+			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(ally.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.ally_hud_x() + 365.0f, 595.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, {hp_buf, hp_ptr}, battle.ally_hud_x() + 330, 660.0f);
+			draw_pokename(ctx.assets, {max_hp_buf, max_hp_ptr}, battle.ally_hud_x() + 420, 660.0f);
+			DrawRectangle(battle.ally_hud_x() + 160, 715.0f, (static_cast<float>(ally.exp()) / ally.exp_cap()) * 400.0f, 5, {0, 153, 148, 255});
 		}
 	}
 }
