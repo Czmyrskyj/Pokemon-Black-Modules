@@ -184,8 +184,18 @@ void battle_state_t::update(st_ctx_t& ctx){
 							battle.ally_pokemon_y_delta(-0.05f);
 						} else {
 							battle.set_camera_pos(BATTLE_CAMERA_POS::DEFAULT);
+							if (battle.ally_pokemon_scale() >= 1.0f && battle.ally_pokemon_y() <= -0.05f){
+								battle.set_phase(ctx.assets, BATTLE_PHASE::MENU);
+							}
 						}
 					}
+				}
+			}
+			break;
+		case BATTLE_PHASE::MENU:
+			{
+				if (battle_menu_y > wnd_h - 170.0f * 3.0f){
+					battle_menu_y -= 20.0f;
 				}
 			}
 			break;
@@ -224,7 +234,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		}
 	}
 	if (battle.phase() >= BATTLE_PHASE::ALLY_SEND_OUT){
-		ally.render(ctx.assets, POKEMON_RENDER_TYPE::BACK, {-0.4f, 0.0f, 1.7f}, {battle.ally_pokemon_scale(), battle.ally_pokemon_scale() * 0.75f}, &ctx.camera.camera);
+		ally.render(ctx.assets, POKEMON_RENDER_TYPE::BACK, {-0.4f, battle.ally_pokemon_y(), 1.7f}, {battle.ally_pokemon_scale(), battle.ally_pokemon_scale() * 0.75f}, &ctx.camera.camera);
 		if (finished_drawing_back && trainer_thrown_pokeball_renderer.spinned < 3){
 			trainer_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {-0.5f, trainer_thrown_pokeball_y, trainer_thrown_pokeball_z}, ctx.camera.camera);
 		}
@@ -275,9 +285,9 @@ void battle_state_t::render(st_ctx_t& ctx){
 					return 0;
 				}
 			}();
-			DrawTextureEx(ctx.assets.get_tx("ally-hud.png"), {battle.ally_hud_x(), 600.0f}, 0, 5, WHITE);
-			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {battle.ally_hud_x() + 280.0f, 645.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
-			draw_pokename(ctx.assets, ally.nickname(), battle.ally_hud_x() + 100, 595.0f);
+			DrawTextureEx(ctx.assets.get_tx("ally-hud.png"), {battle.ally_hud_x(), 540.0f}, 0, 5, WHITE);
+			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {battle.ally_hud_x() + 280.0f, 585.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, ally.nickname(), battle.ally_hud_x() + 100, 535.0f);
 			char lvl_buf[4];
 			auto [lvl_ptr, _] = std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), ally.lvl());
 			char hp_buf[4];
@@ -285,11 +295,14 @@ void battle_state_t::render(st_ctx_t& ctx){
 			auto [hp_ptr, _] = std::to_chars(hp_buf, hp_buf + sizeof(hp_buf), ally.hp());
 			auto [max_hp_ptr, _] = std::to_chars(max_hp_buf, max_hp_buf + sizeof(max_hp_buf), ally.max_hp());
 			ally.calculate_exp_cap();
-			draw_pokename(ctx.assets, {lvl_buf, lvl_ptr}, battle.ally_hud_x() + 450, 595.0f);
-			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(ally.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.ally_hud_x() + 365.0f, 595.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
-			draw_pokename(ctx.assets, {hp_buf, hp_ptr}, battle.ally_hud_x() + 330, 660.0f);
-			draw_pokename(ctx.assets, {max_hp_buf, max_hp_ptr}, battle.ally_hud_x() + 420, 660.0f);
-			DrawRectangle(battle.ally_hud_x() + 160, 715.0f, (static_cast<float>(ally.exp()) / ally.exp_cap()) * 400.0f, 5, {0, 153, 148, 255});
+			draw_pokename(ctx.assets, {lvl_buf, lvl_ptr}, battle.ally_hud_x() + 450, 535.0f);
+			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(ally.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.ally_hud_x() + 365.0f, 535.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, {hp_buf, hp_ptr}, battle.ally_hud_x() + 330, 600.0f);
+			draw_pokename(ctx.assets, {max_hp_buf, max_hp_ptr}, battle.ally_hud_x() + 420, 600.0f);
+			DrawRectangle(battle.ally_hud_x() + 160, 655.0f, (static_cast<float>(ally.exp()) / ally.exp_cap()) * 400.0f, 5, {0, 153, 148, 255});
 		}
+	}
+	if (battle.phase() == BATTLE_PHASE::MENU){
+		DrawTextureEx(ctx.assets.get_tx("battle-menu.png"), {0, battle_menu_y}, 0, 3, WHITE);
 	}
 }

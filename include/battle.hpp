@@ -32,6 +32,7 @@ enum class BATTLE_PHASE{
 	INTRO,
 	FOE_SEND_OUT,
 	ALLY_SEND_OUT,
+	MENU,
 };
 
 class battle_t{
@@ -224,6 +225,12 @@ class battle_t{
 				{
 					PlaySound(assets.get_sfx("SEQ_SE_NAGERU.wav"));
 				}
+				break;
+			case BATTLE_PHASE::MENU:
+				{
+					PlaySound(assets.get_sfx("SEQ_SE_OPEN2.wav"));
+				}
+				break;
 			default: break;
 		}
 	}
