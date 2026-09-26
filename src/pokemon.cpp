@@ -1,12 +1,9 @@
 #include "pokemon.hpp"
 #include "assets.hpp"
+#include "spritedex.hpp"
 #include <format>
 
 #include <rlgl.h>
-
-constexpr float frame_width{153.0f};
-constexpr float frame_height{118.0f};
-
 
 namespace {
 
@@ -37,44 +34,73 @@ void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Vector2 scale, C
 }
 }
 
-void pokemon_t::render(assets_t& assets, POKEMON_RENDER_TYPE type, Vector3 pos, Vector2 scale, Camera3D* camera){
+void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_TYPE type, Vector3 pos, Vector2 scale, Camera3D* camera){
 	auto tx = assets.get_tx(std::format("{}.png", static_cast<u16>(pokedex.id)));
-	float y = [&]() -> float{
-		switch(type){
-			case POKEMON_RENDER_TYPE::FRONT: return 0.0f;
-			case POKEMON_RENDER_TYPE::BACK: return frame_height;
-			case POKEMON_RENDER_TYPE::MENU: return 2.0f * frame_height;
-		}
-		return 0.0f;
-	}();
+	auto spritedex_entry = spritedex.get_spritedex_entry(pokedex.id);
+	if (!spritedex_entry.has_value()) return;
+
+	float frame_width = 0.0f;
+	float frame_height = 0.0f;
+	float y_offset = 0.0f;
+	float frame_count = 0.0f;
+
+
+	const auto& s_entry = spritedex_entry.value();
+
+	switch (type){
+		case POKEMON_RENDER_TYPE::FRONT:
+			frame_width = static_cast<float>(s_entry.front_w);
+			frame_height = static_cast<float>(s_entry.front_h);
+			y_offset = 0.0f;
+			frame_count = static_cast<float>(s_entry.front_frames);
+			break;
+		case POKEMON_RENDER_TYPE::BACK:
+			frame_width = static_cast<float>(s_entry.back_w);
+			frame_height = static_cast<float>(s_entry.back_h);
+			y_offset = static_cast<float>(s_entry.front_h);
+			frame_count = static_cast<float>(s_entry.back_frames);
+			break;
+		case POKEMON_RENDER_TYPE::MENU:
+			frame_width = 68.0f;
+			frame_height = 56.0f;
+			y_offset = static_cast<float>(s_entry.front_h + s_entry.back_h);
+			frame_count = 1.0f;
+			break;
+	}
+
 	frame_timer++;
 	if (type != POKEMON_RENDER_TYPE::MENU){
 		if (frame_timer >= 5.0f){
 			frame++;
 			frame_timer = 0.0f;
 		}
-		if (frame * frame_width >= tx.width){
+		if (frame >= frame_count){
 			frame = 0;
 		}
 	} else {
 		if (frame_timer >= 10.0f){
-			menu_y += 5.0f;
+			menu_y += 10.0f;
 			frame_timer = 0.0f;
 		}
-		if (menu_y >= 10.0f){
+		if (menu_y >= 20.0f){
 			menu_y = 0.0f;
 		}
 	}
 	Rectangle src {
 		frame * frame_width,
-		      y + menu_y,
-		      (type != POKEMON_RENDER_TYPE::MENU) ? frame_width : 40.0f,
-		      (type != POKEMON_RENDER_TYPE::MENU) ? frame_height: 30.0f,
+		      y_offset,
+		      frame_width,
+		      frame_height
 	};
 	if (!camera){
-		DrawTexturePro(tx, src, {pos.x, pos.y, scale.x, scale.y}, {0.0f, 0.0f}, 0.0f, WHITE);
+		DrawTexturePro(tx, src, {pos.x, pos.y - ((type == POKEMON_RENDER_TYPE::MENU) ? menu_y : 0.0f), scale.x, scale.y}, {0.0f, 0.0f}, 0.0f, WHITE);
 	} else {
-		draw_shadow(tx, src, {pos.x, 0.0f, pos.z - 0.6f}, scale, {0, 0, 0, 180});
-		DrawBillboardPro(*camera, tx, src, pos, {0, 1, 0}, scale, {0, 0}, 0, WHITE);
+		constexpr float pixels_per_unit = 128.0f;
+		Vector2 world_size = {
+			(frame_width / pixels_per_unit) * scale.x,
+			(frame_height / pixels_per_unit) * scale.y,
+		};
+		draw_shadow(tx, src, {pos.x, 0.0f, pos.z - 0.2f}, world_size, {0, 0, 0, 180});
+		DrawBillboardPro(*camera, tx, src, pos, {0, 1, 0}, world_size, {0, 0}, 0, WHITE);
 	}
 }

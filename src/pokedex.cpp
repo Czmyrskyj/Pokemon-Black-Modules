@@ -21,7 +21,6 @@ std::expected<void, std::string_view> pokedex_t::load_pokedex(){
 	u32 total_entries;
 	rd_memb(total_entries, u32);
 
-
 	for (u32 i = 0; i < total_entries; i++){
 		u32 id;
 		u32 offset;

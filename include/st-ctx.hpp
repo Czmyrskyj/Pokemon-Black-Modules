@@ -7,6 +7,7 @@
 #include "battle_info.hpp"
 #include "formatter.hpp"
 #include "camera.hpp"
+#include "spritedex.hpp"
 
 struct st_ctx_t;
 
@@ -20,6 +21,7 @@ struct st_ctx_t{
 	trainer_t bianca{"Bianca", "[PKMN_SIGN] Trainer"};
 	Locale::locale_t& locale;
 	pokedex_t& pokedex;
+	spritedex_t& spritedex;
 	Time::time_t& time;
 	battle_info_t& battle_info;
 	formatter_t& formatter;

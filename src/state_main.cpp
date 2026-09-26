@@ -213,7 +213,7 @@ void main_state_t::render(st_ctx_t& ctx){
 				(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 				ctx.bianca.get_party();
 		for (usz i = 0; i < party.size(); i++){
-			party[i].render(ctx.assets, POKEMON_RENDER_TYPE::MENU, {1000 + i * 80.0f, encounter_info_txtbox_y + 50, 0}, {160, 120});
+			party[i].render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::MENU, {1000 + i * 80.0f, encounter_info_txtbox_y - 20.0f, 0}, {242, 200});
 		}
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {10, encounter_info_txtbox_y - 20, 0.0f});

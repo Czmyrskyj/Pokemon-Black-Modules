@@ -58,12 +58,20 @@ int main(){
 			return -1;
 		}
 
+		spritedex_t spritedex;
+		auto spritedex_load_res = spritedex.load_spritedex();
+		if (!spritedex_load_res.has_value()){
+			std::println(stderr, "error: {}", spritedex_load_res.error());
+			return -1;
+		}
+
 		camera_t camera;
 
 		st_ctx_t ctx{
 			.assets = assets,
 			.locale = locale,
 			.pokedex = pokedex,
+			.spritedex = spritedex,
 			.time = time,
 			.battle_info = battle_info,
 			.formatter = formatter,

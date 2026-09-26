@@ -5,6 +5,9 @@
 #include <algorithm>
 #include <cmath>
 
+constexpr float pokemon_scale_dest{1.0f};
+constexpr float pokemon_y_dest{0.1f};
+
 void draw_pokename(assets_t& assets, std::string_view text, float x, float y){
 	const auto& pokename_font = assets.get_tx("pokename-font.png");
 	float y_offset = 0.0f;
@@ -51,6 +54,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 			switch (battle.camera_pos()){
 			case BATTLE_CAMERA_POS::DEFAULT: return {0.2f, 0.6f, 2.0f};
 			case BATTLE_CAMERA_POS::TRAINER: return {0.3f, 0.6f, 4.0f};
+			case BATTLE_CAMERA_POS::ALLY: return {0.0f, 0.5f, 3.0f};
 			default: return {0.2f, 0.6f, 2.0f};
 			}
 			}()
@@ -119,9 +123,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 				} else {
 					if (writer.finished){
 						battle.inc_foe_pokemon_scale();
-						if (battle.foe_pokemon_scale() >= 1.0f && battle.foe_pokemon_y() > -0.05f){
+						if (battle.foe_pokemon_scale() >= pokemon_scale_dest && battle.foe_pokemon_y() > pokemon_y_dest){
 							battle.foe_pokemon_y_delta(-0.05f);
-						} else if (battle.foe_pokemon_y() <= -0.05f){
+						} else if (battle.foe_pokemon_y() <= pokemon_y_dest){
 							if (battle.foe_hud_x() < 0.0f){
 								battle.foe_hud_x_delta(20.0f);
 								battle.set_camera_pos(BATTLE_CAMERA_POS::TRAINER);
@@ -180,11 +184,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 							trainer_thrown_pokeball_renderer.opened = true;
 						}
 						battle.inc_ally_pokemon_scale();
-						if (battle.ally_pokemon_scale() >= 1.0f && battle.ally_pokemon_y() > -0.05f){
+						if (battle.ally_pokemon_scale() >= pokemon_scale_dest && battle.ally_pokemon_y() > pokemon_y_dest){
 							battle.ally_pokemon_y_delta(-0.05f);
 						} else {
-							battle.set_camera_pos(BATTLE_CAMERA_POS::DEFAULT);
-							if (battle.ally_pokemon_scale() >= 1.0f && battle.ally_pokemon_y() <= -0.05f){
+							battle.set_camera_pos(BATTLE_CAMERA_POS::ALLY);
+							if (battle.ally_pokemon_scale() >= pokemon_scale_dest && battle.ally_pokemon_y() <= pokemon_y_dest){
 								battle.set_phase(ctx.assets, BATTLE_PHASE::MENU);
 							}
 						}
@@ -194,8 +198,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		case BATTLE_PHASE::MENU:
 			{
-				if (battle_menu_y > wnd_h - 170.0f * 3.0f){
-					battle_menu_y -= 20.0f;
+				if (battle_menu_y > wnd_h - 174.0f * 3.0f){
+					battle_menu_y -= 29.0f;
 				}
 			}
 			break;
@@ -227,14 +231,14 @@ void battle_state_t::render(st_ctx_t& ctx){
 	}
 	auto& ally = ctx.player.get_party()[battle.current_trainer_pokemon_idx()];
 	if (battle.phase() >= BATTLE_PHASE::FOE_SEND_OUT){
-		foep.render(ctx.assets, POKEMON_RENDER_TYPE::FRONT, {0.6f, battle.foe_pokemon_y(), -0.3f}, {battle.foe_pokemon_scale(), battle.foe_pokemon_scale() * 0.75f}, &ctx.camera.camera);
+		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, battle.foe_pokemon_y(), -0.3f}, {battle.foe_pokemon_scale(), battle.foe_pokemon_scale()}, &ctx.camera.camera);
 		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, battle.trainer_alpha()})) finished_drawing_back = true;
 		if (foe_thrown_pokeball_renderer.spinned < 3){
 			foe_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {0.7f, 0.5f, -0.5f}, ctx.camera.camera);
 		}
 	}
 	if (battle.phase() >= BATTLE_PHASE::ALLY_SEND_OUT){
-		ally.render(ctx.assets, POKEMON_RENDER_TYPE::BACK, {-0.4f, battle.ally_pokemon_y(), 1.7f}, {battle.ally_pokemon_scale(), battle.ally_pokemon_scale() * 0.75f}, &ctx.camera.camera);
+		ally.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::BACK, {-0.4f, battle.ally_pokemon_y(), 2.0f}, {battle.ally_pokemon_scale(), battle.ally_pokemon_scale()}, &ctx.camera.camera);
 		if (finished_drawing_back && trainer_thrown_pokeball_renderer.spinned < 3){
 			trainer_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {-0.5f, trainer_thrown_pokeball_y, trainer_thrown_pokeball_z}, ctx.camera.camera);
 		}
@@ -248,7 +252,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 			DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(party[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 200.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
 		}
 	} else {
-		if (battle.foe_pokemon_y() <= 0.0f){
+		if (battle.foe_pokemon_y() <= pokemon_y_dest){
 			float hp_ratio = foep.hp() / foep.max_hp();
 			float hp_idx = [&]() -> float{
 				if (hp_ratio >= 0.7f){

@@ -296,7 +296,7 @@ bool anim_trainer_render_t::draw_back(assets_t& assets, std::string_view name, V
 		frame++;
 		frametimer = 0.0f;
 	}
-	static constexpr std::array<float, 4> hand_framerates = {0.5f, 7.0f, 3.0f, 0.0f};
+	std::array<float, 4> hand_framerates = {0.5f, 7.0f, 3.0f, 0.0f};
 	static constexpr std::array<float, 4> hand_rotations = {0.0f, 0.0f, 5.0f, -0.5f};
 	std::array<Vector2, 4> hand_offsets = {
 		{
