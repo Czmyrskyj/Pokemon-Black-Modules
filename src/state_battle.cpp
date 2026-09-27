@@ -3,10 +3,16 @@
 #include "names.hpp"
 
 #include <algorithm>
+#include <format>
 #include <cmath>
 
 constexpr float pokemon_scale_dest{1.0f};
 constexpr float pokemon_y_dest{0.1f};
+
+
+Rectangle full_tx(const Texture2D& tx){
+	return Rectangle{0, 0, static_cast<float>(tx.width), static_cast<float>(tx.height)};
+}
 
 void draw_pokename(assets_t& assets, std::string_view text, float x, float y){
 	const auto& pokename_font = assets.get_tx("pokename-font.png");
@@ -59,7 +65,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 			}
 			}()
 			});
-	if (!ctx.set_state_meta && ctx.transition_alpha > 0){
+	if (!ctx.set_state_meta && ctx.transition_alpha > 0 && next_menu_state == BATTLE_MENU_STATE::NONE){
 		ctx.resume_state_alpha(ctx.transition_alpha);
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
@@ -77,6 +83,31 @@ void battle_state_t::update(st_ctx_t& ctx){
 	Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
 	
 	bg_rotation = std::sinf(GetTime()) * 15.0f;
+
+	auto& p_party = ctx.player.get_party();
+
+	if (next_menu_state != BATTLE_MENU_STATE::NONE){
+		float current_alpha = static_cast<float>(ctx.transition_alpha);
+		if (battle.menu_state() != next_menu_state){
+			current_alpha+=300.0f*GetFrameTime();
+			if (current_alpha >= 255.0f){
+				current_alpha = 255.0f;
+				for (usz i = 0; i < p_party.size(); i++){
+					ctx.player.get_party()[i].block_frames(false);
+				}
+				battle.set_menu_state(next_menu_state);
+				opt = 0;
+				sel_opt = -1;
+			}
+		} else {
+			current_alpha-=300.0f*GetFrameTime();
+			if (current_alpha <= 0.0f){
+				current_alpha = 0.0f;
+				next_menu_state = BATTLE_MENU_STATE::NONE;
+			}
+		}
+		ctx.transition_alpha = static_cast<unsigned char>(current_alpha);
+	}
 
 	switch (battle.phase()){
 		case BATTLE_PHASE::INTRO:
@@ -154,7 +185,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				if (!finished_drawing_back){
 					bool play_trainer_pokeball = battle.control_trainer_pokeballs();
 					if (play_trainer_pokeball){
-						PlaySound(ctx.player.get_party()[battle.current_trainer_pokeball() - 1].get_pokedex().id == MISSINGNO ? absent : present);
+						PlaySound(p_party[battle.current_trainer_pokeball() - 1].get_pokedex().id == MISSINGNO ? absent : present);
 					}
 					battle.move_line_under_trainer_pokeballs();
 				} else {
@@ -204,7 +235,43 @@ void battle_state_t::update(st_ctx_t& ctx){
 				if (battle_menu_y > wnd_h - 174.0f * 3.0f){
 					battle_menu_y -= 29.0f;
 				}
-				ctx.control_selection(opt, 3, sel_sfx, dec_sfx);
+				switch (battle.menu_state()){
+					case BATTLE_MENU_STATE::OPTIONS:
+						if (next_menu_state == BATTLE_MENU_STATE::NONE){
+							sel_opt = ctx.control_selection(opt, 3, sel_sfx, dec_sfx);
+						}
+						if (sel_opt != -1){
+							switch (sel_opt){
+								case 0:
+									battle.set_menu_state(BATTLE_MENU_STATE::MOVES);
+									break;
+								case 1:
+									next_menu_state = BATTLE_MENU_STATE::POKEMON;
+									break;
+								case 2:
+									next_menu_state = BATTLE_MENU_STATE::BAG;
+									break;
+								case 3:
+									break;
+							}
+						}
+						break;
+					case BATTLE_MENU_STATE::MOVES:
+						break;
+					case BATTLE_MENU_STATE::MODULES:
+						break;
+					case BATTLE_MENU_STATE::POKEMON:
+						for (usz i = 0; i < ctx.player.get_party().size(); i++){
+							p_party[i].block_frames(true);
+							if (IsKeyPressed(KEY_X)){
+								next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+							}
+						}
+						break;
+					case BATTLE_MENU_STATE::BAG:
+						break;
+					default: break;
+				}
 			}
 			break;
 		default: break;
@@ -222,6 +289,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
 	auto& foep = party[battle.current_foe_pokemon_idx()];
+	auto& p_party = ctx.player.get_party();
 	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry)){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()}, battle.foe_accent_color() == 255);
@@ -233,7 +301,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 			}
 		}
 	}
-	auto& ally = ctx.player.get_party()[battle.current_trainer_pokemon_idx()];
+	auto& ally = p_party[battle.current_trainer_pokemon_idx()];
 	if (battle.phase() >= BATTLE_PHASE::FOE_SEND_OUT){
 		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, battle.foe_pokemon_y(), -0.3f}, {battle.foe_pokemon_scale(), battle.foe_pokemon_scale()}, &ctx.camera.camera);
 		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, battle.trainer_alpha()})) finished_drawing_back = true;
@@ -280,7 +348,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 			DrawTexturePro(ln_tx, {0, 0, static_cast<float>(-ln_tx.width), static_cast<float>(ln_tx.height)}, {battle.line_under_trainer_pokeballs(), 600.0f, ln_tx.width * 8.0f, ln_tx.height * 8.0f}, {0, 0}, 0.0f, WHITE);
 			auto xs = battle.trainer_pokeball_x();
 			for (usz i = 0; i < 6; i++){
-				DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(ctx.player.get_party()[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 500.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
+				DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(p_party[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 500.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
 			}
 		} else {
 			float hp_ratio = ally.hp() / ally.max_hp();
@@ -312,7 +380,51 @@ void battle_state_t::render(st_ctx_t& ctx){
 	}
 	if (battle.phase() == BATTLE_PHASE::MENU){
 		DrawTextureEx(ctx.assets.get_tx("battle-menu.png"), {0, battle_menu_y}, 0, 3, WHITE);
-		DrawTextureEx(ctx.assets.get_tx("battle-menu-opts.png"), {1050, battle_menu_y + 225.0f}, 0, 3, WHITE);
-		DrawTextureEx(ctx.assets.get_tx("battle-menu-opt-sqbr.png"), {970, battle_menu_y + 225.0f + opt * 39.0f}, 0, 3, WHITE);
+		switch (battle.menu_state()){
+			case BATTLE_MENU_STATE::OPTIONS:
+				DrawTextureEx(ctx.assets.get_tx("battle-menu-opts.png"), {1050, battle_menu_y + 225.0f}, 0, 3, WHITE);
+				DrawTextureEx(ctx.assets.get_tx("battle-menu-opt-sqbr.png"), {970, battle_menu_y + 225.0f + opt * 39.0f}, 0, 3, WHITE);
+				break;
+			case BATTLE_MENU_STATE::MOVES:
+				break;
+			case BATTLE_MENU_STATE::POKEMON:
+				{
+					const auto& party_screen = ctx.assets.get_tx("party-screen.png");
+					DrawTexturePro(party_screen, full_tx(party_screen), {0, 0, wnd_w, 1440}, {0, 0}, 0, WHITE);
+					for (usz i = 0; i < 6; i++){
+						u8 banner_idx = 0;
+						if (p_party[i].get_pokedex().id == MISSINGNO){
+							banner_idx = 2;	
+						} else {
+							banner_idx = (i == opt) ? 1 : 0;
+						}
+						Vector2 banner_pos = {200.0f + (i % 2) * 710.0f, 100.0f + static_cast<u8>((i / 2)) * 254.0f + ((i % 2 != 0) ? 100.0f : 0.0f)};
+						DrawTexturePro(ctx.assets.get_tx("party-banner.png"), {0, banner_idx * 46.0f, 126, 46}, {banner_pos.x, banner_pos.y, 700, 244}, {0, 0}, 0, {255, 255, 255, 200});
+						if (p_party[i].get_pokedex().id != MISSINGNO){
+							p_party[i].render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::MENU, {banner_pos.x, banner_pos.y - 20.0f, 0.0f}, {242.0f, 200.0f});
+							draw_text(ctx.assets, names[p_party[i].get_pokedex().id], banner_pos.x + 200.0f, banner_pos.y + 50.0f, 50, WHITE);
+							DrawTexturePro(ctx.assets.get_tx("sex-sign.png"),{static_cast<float>(p_party[i].sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {750.0f + (i % 2) * 710.0f, 150.0f + static_cast<u8>((i / 2)) * 254.0f + ((i % 2 != 0) ? 100.0f : 0.0f), 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+							DrawTextureEx(ctx.assets.get_tx("hpbar.png"), {banner_pos.x + 200.0f, banner_pos.y + 120.0f}, 0, 5, WHITE);
+							float hp_ratio = p_party[i].hp() / p_party[i].max_hp();
+							float hp_idx = [&]() -> float{
+								if (hp_ratio >= 0.7f){
+									return 2;
+								} else if (hp_ratio >= 0.4f){
+									return 1;
+								} else {
+									return 0;
+								}
+							}();
+							DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {banner_pos.x + 285.0f, banner_pos.y + 135.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
+							draw_text(ctx.assets, std::format("Lv.{}", p_party[i].lvl()), banner_pos.x + 60.0f, banner_pos.y + 180.0f, 50, WHITE);
+							draw_text(ctx.assets, std::format("{}/{}", p_party[i].hp(), p_party[i].max_hp()), banner_pos.x + 400.0f, banner_pos.y + 180.0f, 50, WHITE);
+						}
+						continue;
+					}
+
+				}
+				break;
+			default: break;
+		}
 	}
 }

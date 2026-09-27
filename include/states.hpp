@@ -227,6 +227,7 @@ struct battle_state_t{
 	float battle_menu_y = wnd_h;
 	u8 opt = 0;
 	i8 sel_opt = -1;
+	BATTLE_MENU_STATE next_menu_state = BATTLE_MENU_STATE::NONE;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	explicit battle_state_t(st_ctx_t& ctx);

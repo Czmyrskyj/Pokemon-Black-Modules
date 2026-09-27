@@ -183,6 +183,9 @@ struct st_ctx_t{
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
 		formatter.feed("[CHEREN-STARTER]", "SNIVY");
 		player.push_pokemon(players);
+		player.push_pokemon(purrloin);
+		player.push_pokemon(purrloin);
+		player.push_pokemon(purrloin);
 		cheren.push_pokemon(cherens);
 		bianca.push_pokemon(biancas);
 		bianca.push_pokemon(purrloin);

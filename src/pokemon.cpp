@@ -7,31 +7,31 @@
 
 namespace {
 
-void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Vector2 scale, Color tint){
+	void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Vector2 scale, Color tint){
 
-	pos.y += 0.08f;
+		pos.y += 0.08f;
 
-	rlDisableDepthMask();
-	rlDisableBackfaceCulling();
-	rlSetTexture(texture.id);
+		rlDisableDepthMask();
+		rlDisableBackfaceCulling();
+		rlSetTexture(texture.id);
 
-	float u0 = src.x / texture.width;
-	float v0 = src.y / texture.height;
-	float u1 = (src.x + src.width) / texture.width;
-	float v1 = (src.y + src.height) / texture.height;
+		float u0 = src.x / texture.width;
+		float v0 = src.y / texture.height;
+		float u1 = (src.x + src.width) / texture.width;
+		float v1 = (src.y + src.height) / texture.height;
 
-	rlBegin(RL_QUADS);
-	rlColor4ub(tint.r, tint.g, tint.b, tint.a);
-	rlTexCoord2f(u0, v0); rlVertex3f(pos.x, pos.y, pos.z + scale.y);
-	rlTexCoord2f(u1, v0); rlVertex3f(pos.x + scale.x, pos.y, pos.z + scale.y);
-	rlTexCoord2f(u1, v1); rlVertex3f(pos.x + scale.x, pos.y, pos.z);
-	rlTexCoord2f(u0, v1); rlVertex3f(pos.x, pos.y, pos.z);
-	rlEnd();
+		rlBegin(RL_QUADS);
+		rlColor4ub(tint.r, tint.g, tint.b, tint.a);
+		rlTexCoord2f(u0, v0); rlVertex3f(pos.x, pos.y, pos.z + scale.y);
+		rlTexCoord2f(u1, v0); rlVertex3f(pos.x + scale.x, pos.y, pos.z + scale.y);
+		rlTexCoord2f(u1, v1); rlVertex3f(pos.x + scale.x, pos.y, pos.z);
+		rlTexCoord2f(u0, v1); rlVertex3f(pos.x, pos.y, pos.z);
+		rlEnd();
 
-	rlSetTexture(0);
-	rlEnableBackfaceCulling();
-	rlEnableDepthMask();
-}
+		rlSetTexture(0);
+		rlEnableBackfaceCulling();
+		rlEnableDepthMask();
+	}
 }
 
 void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_TYPE type, Vector3 pos, Vector2 scale, Camera3D* camera){
@@ -64,17 +64,21 @@ void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_
 			frame_width = 68.0f;
 			frame_height = 56.0f;
 			y_offset = static_cast<float>(s_entry.front_h + s_entry.back_h);
-			frame_count = 1.0f;
+			frame_count = 0.0f;
 			break;
 	}
 
 	frame_timer++;
 	if (type != POKEMON_RENDER_TYPE::MENU){
-		if (frame_timer >= 5.0f){
-			frame++;
-			frame_timer = 0.0f;
-		}
-		if (frame >= frame_count){
+		if (!frames_blocked){
+			if (frame_timer >= 5.0f){
+				frame++;
+				frame_timer = 0.0f;
+			}
+			if (frame >= frame_count){
+				frame = 0;
+			}
+		} else {
 			frame = 0;
 		}
 	} else {

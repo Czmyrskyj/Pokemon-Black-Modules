@@ -35,6 +35,15 @@ enum class BATTLE_PHASE{
 	MENU,
 };
 
+enum class BATTLE_MENU_STATE{
+	NONE,
+	OPTIONS,
+	MOVES,
+	MODULES,
+	BAG,
+	POKEMON,
+};
+
 class battle_t{
 	trainer_t& player;
 	foe_t foe;
@@ -64,6 +73,7 @@ class battle_t{
 	u8 m_current_trainer_pokemon_idx = 0;
 	float m_ally_hud_x = wnd_w;
 	BATTLE_PHASE m_phase = BATTLE_PHASE::INTRO;
+	BATTLE_MENU_STATE m_menu_state = BATTLE_MENU_STATE::OPTIONS;
 	public:
 	battle_t(trainer_t& p, foe_t& f) : player(p), foe(f){
 		if (f.opp == OPPONENT::WILD || f.opp == OPPONENT::LEGENDARY) {
@@ -234,5 +244,10 @@ class battle_t{
 			default: break;
 		}
 	}
-
+	BATTLE_MENU_STATE menu_state() const{
+		return m_menu_state;
+	}
+	void set_menu_state(BATTLE_MENU_STATE s){
+		m_menu_state = s;
+	}
 };
