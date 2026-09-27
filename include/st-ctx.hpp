@@ -178,10 +178,18 @@ struct st_ctx_t{
 			SEX::MALE,
 			5
 		};
+		pokemon_t serperior{
+			pokedex.get_pokedex_entry(SERPERIOR).value(),
+			"SERPERIOR",
+			NATURE::LONELY,
+			SEX::MALE,
+			5
+		};
 		formatter.feed("[PLAYER]", std::string(player.get_name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
 		formatter.feed("[CHEREN-STARTER]", "SNIVY");
+		player.push_pokemon(serperior);
 		player.push_pokemon(players);
 		player.push_pokemon(purrloin);
 		player.push_pokemon(purrloin);

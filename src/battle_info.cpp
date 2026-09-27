@@ -95,6 +95,10 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		}
 		u8 lvl;
 		in.read(reinterpret_cast<char*>(&lvl), sizeof(u8));
+
+		std::array<u16, 4> moves;
+		in.read(reinterpret_cast<char*>(moves.data()), moves.size()*sizeof(u16));
+
 		pokemon_t pokemon{
 			pokeentry.value(),
 			"",

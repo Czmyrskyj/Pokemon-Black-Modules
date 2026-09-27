@@ -419,7 +419,6 @@ void battle_state_t::render(st_ctx_t& ctx){
 							draw_text(ctx.assets, std::format("Lv.{}", p_party[i].lvl()), banner_pos.x + 60.0f, banner_pos.y + 180.0f, 50, WHITE);
 							draw_text(ctx.assets, std::format("{}/{}", p_party[i].hp(), p_party[i].max_hp()), banner_pos.x + 400.0f, banner_pos.y + 180.0f, 50, WHITE);
 						}
-						continue;
 					}
 
 				}
