@@ -225,6 +225,8 @@ struct battle_state_t{
 	float trainer_thrown_pokeball_z = 3.0f;
 	float trainer_thrown_pokeball_y_vel = 0.05f;
 	float battle_menu_y = wnd_h;
+	u8 opt = 0;
+	i8 sel_opt = -1;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	explicit battle_state_t(st_ctx_t& ctx);

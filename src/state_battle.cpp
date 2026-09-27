@@ -73,6 +73,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 	Sound absent = ctx.assets.get_sfx("SEQ_SE_TB_KARA.wav");
 	Sound present = ctx.assets.get_sfx("SEQ_SE_TB_KON.wav");
 
+	Sound sel_sfx = ctx.assets.get_sfx("SEQ_SE_SELECT1.wav");
+	Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
+	
 	bg_rotation = std::sinf(GetTime()) * 15.0f;
 
 	switch (battle.phase()){
@@ -201,6 +204,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				if (battle_menu_y > wnd_h - 174.0f * 3.0f){
 					battle_menu_y -= 29.0f;
 				}
+				ctx.control_selection(opt, 3, sel_sfx, dec_sfx);
 			}
 			break;
 		default: break;
@@ -308,5 +312,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 	}
 	if (battle.phase() == BATTLE_PHASE::MENU){
 		DrawTextureEx(ctx.assets.get_tx("battle-menu.png"), {0, battle_menu_y}, 0, 3, WHITE);
+		DrawTextureEx(ctx.assets.get_tx("battle-menu-opts.png"), {1050, battle_menu_y + 225.0f}, 0, 3, WHITE);
+		DrawTextureEx(ctx.assets.get_tx("battle-menu-opt-sqbr.png"), {970, battle_menu_y + 225.0f + opt * 39.0f}, 0, 3, WHITE);
 	}
 }
