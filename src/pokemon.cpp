@@ -70,7 +70,7 @@ void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_
 
 	frame_timer++;
 	if (type != POKEMON_RENDER_TYPE::MENU){
-		if (!frames_blocked){
+		if (!m_frames_blocked){
 			if (frame_timer >= 5.0f){
 				frame++;
 				frame_timer = 0.0f;
@@ -82,6 +82,7 @@ void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_
 			frame = 0;
 		}
 	} else {
+		frame = 0;
 		if (frame_timer >= 10.0f){
 			menu_y += 10.0f;
 			frame_timer = 0.0f;

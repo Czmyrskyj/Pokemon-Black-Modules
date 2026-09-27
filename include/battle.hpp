@@ -219,6 +219,9 @@ class battle_t{
 	u8 current_trainer_pokemon_idx() const{
 		return m_current_trainer_pokemon_idx;
 	}
+	void set_current_trainer_pokemon_idx(u8 idx) {
+		m_current_trainer_pokemon_idx = idx;
+	}
 	float ally_hud_x() const{
 		return m_ally_hud_x;
 	}
@@ -249,5 +252,10 @@ class battle_t{
 	}
 	void set_menu_state(BATTLE_MENU_STATE s){
 		m_menu_state = s;
+	}
+	void reset_ally_data(){
+	 	m_ally_pokemon_scale = 0.0f;
+		m_ally_pokemon_y = 0.5f;
+		m_ally_hud_x = wnd_w;
 	}
 };

@@ -57,7 +57,7 @@ class pokemon_t{
 	u8 m_ev = 0;
 	u32 m_exp = 0;
 	u32 m_exp_cap = 0;
-	bool frames_blocked = false;
+	bool m_frames_blocked = false;
 	public:
 	pokemon_t() = default;
 	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s, u8 lv) : pokedex(std::move(p)), m_nickname(std::move(nick)), m_nature(nat), m_sex(s), m_lvl(lv){
@@ -78,7 +78,7 @@ class pokemon_t{
 	void calculate_exp_cap(){
 		m_exp_cap = 3 * (m_lvl*m_lvl) + 3 * m_lvl + 1;
 	}
-	void block_frames(bool b) {frames_blocked = b; }
+	void block_frames(bool b) {m_frames_blocked = b; }
 };
 struct legendary_t{
 	pokemon_t pokemon;

@@ -93,13 +93,22 @@ void battle_state_t::update(st_ctx_t& ctx){
 			if (current_alpha >= 255.0f){
 				current_alpha = 255.0f;
 				for (usz i = 0; i < p_party.size(); i++){
-					ctx.player.get_party()[i].block_frames(false);
+					p_party[i].block_frames(false);
 				}
 				battle.set_menu_state(next_menu_state);
 				opt = 0;
 				sel_opt = -1;
 			}
 		} else {
+			if (next_pokemon != -1){
+				battle.reset_ally_data();
+				battle.set_current_trainer_pokemon_idx(next_pokemon);
+				battle.set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
+				trainer_thrown_pokeball_renderer.thrown = false;
+				trainer_thrown_pokeball_renderer.opened = false;
+				trainer_thrown_pokeball_renderer.spinned = 0;
+				next_pokemon = -1;
+			}
 			current_alpha-=300.0f*GetFrameTime();
 			if (current_alpha <= 0.0f){
 				current_alpha = 0.0f;
@@ -177,7 +186,6 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		case BATTLE_PHASE::ALLY_SEND_OUT:
 			{
-
 				if (battle.foe_hud_x() < 0.0f){
 					battle.foe_hud_x_delta(20.0f);
 				}
@@ -266,6 +274,45 @@ void battle_state_t::update(st_ctx_t& ctx){
 							if (IsKeyPressed(KEY_X)){
 								next_menu_state = BATTLE_MENU_STATE::OPTIONS;
 							}
+						}
+						if (IsKeyPressed(KEY_RIGHT)){
+							PlaySound(sel_sfx);
+							if (opt < p_party.size() - 1){
+								opt ++;
+							} else {
+								opt = 0;
+							}
+						}
+						if (IsKeyPressed(KEY_LEFT)){
+							PlaySound(sel_sfx);
+							if (opt > 0){
+								opt --;
+							} else {
+								opt = p_party.size() - 1;
+							}
+						}
+						if (IsKeyPressed(KEY_DOWN)){
+							PlaySound(sel_sfx);
+							if (opt < p_party.size() - 2){
+								opt += 2;
+							} else {
+								opt = (opt % 2) != 0;
+							}
+						}
+						if (IsKeyPressed(KEY_UP)){
+							PlaySound(sel_sfx);
+							if (opt > 1){
+								opt -= 2;
+							} else {
+								opt = (opt % 2 == 0) ? p_party.size() - 2 : p_party.size() - 1;
+							}
+						}
+						if (IsKeyPressed(KEY_Z)){
+							PlaySound(dec_sfx);
+							next_pokemon = opt;
+						}
+						if (next_pokemon != -1){
+							next_menu_state = BATTLE_MENU_STATE::OPTIONS;
 						}
 						break;
 					case BATTLE_MENU_STATE::BAG:

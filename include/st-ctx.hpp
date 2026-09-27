@@ -185,6 +185,13 @@ struct st_ctx_t{
 			SEX::MALE,
 			5
 		};
+		pokemon_t emolga{
+			pokedex.get_pokedex_entry(EMOLGA).value(),
+			"EMOLGA",
+			NATURE::CALM,
+			SEX::FEMALE,
+			5
+		};
 		formatter.feed("[PLAYER]", std::string(player.get_name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
@@ -192,8 +199,8 @@ struct st_ctx_t{
 		player.push_pokemon(serperior);
 		player.push_pokemon(players);
 		player.push_pokemon(purrloin);
-		player.push_pokemon(purrloin);
-		player.push_pokemon(purrloin);
+		player.push_pokemon(buizel);
+		player.push_pokemon(emolga);
 		cheren.push_pokemon(cherens);
 		bianca.push_pokemon(biancas);
 		bianca.push_pokemon(purrloin);
