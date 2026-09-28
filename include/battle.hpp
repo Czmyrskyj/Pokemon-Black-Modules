@@ -4,7 +4,6 @@
 #include "pokemon.hpp"
 #include "trainer.hpp"
 #include "dialog.hpp"
-#include "pokeball.hpp"
 #include <variant>
 
 enum class OPPONENT{
@@ -47,12 +46,10 @@ enum class BATTLE_MENU_STATE{
 class battle_t{
 	trainer_t& player;
 	foe_t foe;
-	std::vector<std::string> lines;
-	u8 current_line = 0;
-	u8 txtbox_alpha = 0;
-	u8 txtbox_peak_alpha_timer = 0;
+	u8 m_txtbox_alpha = 0;
+	u8 m_txtbox_peak_alpha_timer = 0;
 	u8 m_current_foe_pokemon_idx = 0;
-	bool m_finished_dialog = false;
+	bool m_txted = false;
 	float m_foe_pokemon_scale = 0.0f;
 	float m_foe_pokemon_y = 0.5f;
 	float m_line_under_foe_pokeballs = -800.0f;
@@ -84,21 +81,11 @@ class battle_t{
 	};
 	~battle_t() = default;
 
-	void init_dialog(std::vector<std::string> l){
-		lines = std::move(l);
-		current_line = 0;
-		txtbox_alpha = 0;
-		txtbox_peak_alpha_timer = 0;
-	}
 
 	std::string get_dialog_intro();
 	std::string get_dialog_foe_sent_out();
-	std::string step_dialog(writer_t& writer, Locale::locale_t& locale);
 
 	void write(assets_t& assets, writer_t& writer);
-	bool finished_dialog() const{
-		return m_finished_dialog;
-	}
 	u8 current_foe_pokemon_idx() const {
 		return m_current_foe_pokemon_idx;
 	}
@@ -257,5 +244,14 @@ class battle_t{
 	 	m_ally_pokemon_scale = 0.0f;
 		m_ally_pokemon_y = 0.5f;
 		m_ally_hud_x = wnd_w;
+	}
+	u8 txtbox_alpha() const{
+		return m_txtbox_alpha;
+	}
+	void set_txted(bool t){
+		m_txted = t;
+	}
+	bool txted() const{
+		return m_txted;
 	}
 };

@@ -43,14 +43,9 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 		.fovy = 65,
 		.projection = CAMERA_PERSPECTIVE,
 	};
-	battle.init_dialog({
-			battle.get_dialog_intro(),
-			battle.get_dialog_foe_sent_out(),
-			"TRAINER_SENT_OUT",
-			});
 	ctx.formatter.feed("[FOE_TYPE]", ctx.formatter.format((!ctx.bt_info.prefix.empty()) ? ctx.bt_info.prefix : "[PKMN_SIGN] Trainer"));
 	ctx.formatter.feed("[FOE]", ctx.bt_info.name);
-	current_line = ctx.formatter.format(battle.step_dialog(writer, ctx.locale));
+	current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, battle.get_dialog_intro()));
 	writer.set_text(current_line);
 }
 
@@ -71,7 +66,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
 		ctx.set_state_meta = true;
 	}
-	
+
 	auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
@@ -81,7 +76,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 
 	Sound sel_sfx = ctx.assets.get_sfx("SEQ_SE_SELECT1.wav");
 	Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
-	
+
 	bg_rotation = std::sinf(GetTime()) * 15.0f;
 
 	auto& p_party = ctx.player.get_party();
@@ -107,6 +102,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				trainer_thrown_pokeball_renderer.thrown = false;
 				trainer_thrown_pokeball_renderer.opened = false;
 				trainer_thrown_pokeball_renderer.spinned = 0;
+				battle.set_txted(false);
 				next_pokemon = -1;
 			}
 			current_alpha-=300.0f*GetFrameTime();
@@ -133,9 +129,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 				}
 				if (animation_done){
 					if (!party.empty()){
-						current_line = ctx.formatter.format(battle.step_dialog(writer, ctx.locale), party[battle.current_foe_pokemon_idx()].get_pokedex().id);
-						writer.set_text(current_line);
 						battle.set_phase(ctx.assets, BATTLE_PHASE::FOE_SEND_OUT);
+						battle.set_txted(false);
+						writer.finished = false;
 					}
 				}
 
@@ -143,6 +139,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		case BATTLE_PHASE::FOE_SEND_OUT:
 			{
+				if (!battle.txted()){
+					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_SENT_OUT"), party[battle.current_foe_pokemon_idx()].get_pokedex().id);
+					writer.set_text(current_line);
+					battle.set_txted(true);
+				}
 				if (battle.foe_alpha() > 0){
 					battle.foe_alpha_delta(-15);
 				}
@@ -169,10 +170,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 						if (battle.foe_pokemon_scale() >= pokemon_scale_dest && battle.foe_pokemon_y() > pokemon_y_dest){
 							battle.foe_pokemon_y_delta(-0.05f);
 						} else if (battle.foe_pokemon_y() <= pokemon_y_dest){
-							if (battle.foe_hud_x() < 0.0f){
+							if (battle.foe_hud_x() < 0.0f && battle.txtbox_alpha() == 0){
 								battle.foe_hud_x_delta(20.0f);
 								battle.set_camera_pos(BATTLE_CAMERA_POS::TRAINER);
 								battle.set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
+								battle.set_txted(false);
 							}
 						}
 					}
@@ -186,6 +188,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		case BATTLE_PHASE::ALLY_SEND_OUT:
 			{
+				if (!battle.txted()){
+					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "TRAINER_SENT_OUT"), p_party[battle.current_trainer_pokemon_idx()].get_pokedex().id);
+					writer.set_text(current_line);
+					battle.set_txted(true);
+				}
 				if (battle.foe_hud_x() < 0.0f){
 					battle.foe_hud_x_delta(20.0f);
 				}
@@ -230,7 +237,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 							battle.ally_pokemon_y_delta(-0.05f);
 						} else {
 							battle.set_camera_pos(BATTLE_CAMERA_POS::ALLY);
-							if (battle.ally_pokemon_scale() >= pokemon_scale_dest && battle.ally_pokemon_y() <= pokemon_y_dest){
+							if (battle.ally_pokemon_scale() >= pokemon_scale_dest && battle.ally_pokemon_y() <= pokemon_y_dest && battle.txtbox_alpha() == 0){
 								battle.set_phase(ctx.assets, BATTLE_PHASE::MENU);
 							}
 						}
@@ -265,6 +272,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						break;
 					case BATTLE_MENU_STATE::MOVES:
+						if (IsKeyPressed(KEY_X)){
+							battle.set_menu_state(BATTLE_MENU_STATE::OPTIONS);
+						}
 						break;
 					case BATTLE_MENU_STATE::MODULES:
 						break;
@@ -316,6 +326,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						break;
 					case BATTLE_MENU_STATE::BAG:
+						if (IsKeyPressed(KEY_X)){
+							next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+						}
 						break;
 					default: break;
 				}
@@ -328,10 +341,12 @@ void battle_state_t::update(st_ctx_t& ctx){
 
 void battle_state_t::render(st_ctx_t& ctx){
 	BeginMode3D(ctx.camera.camera);
-	DrawModelEx(ctx.assets.get_model("batt_bg01.glb"), {0, 0, 0}, {0, 0, 0}, 0, {0.2f, 0.2f, 0.2f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_bg01.glb"), {0, -1, 1}, {0, 1, 0}, bg_rotation, {0.2f, 0.2f, 0.2f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_stage01.glb"), {0.9f, 0.0f, -0.9f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_stage01.glb"), {-0.3f, 0.0f, 1.8f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
+
+	// TODO: DYNAMIC BATTLE STANGE 
+	DrawModelEx(ctx.assets.get_model("batt_bg15.glb"), {0, 0, 0}, {0, 0, 0}, 0, {0.2f, 0.2f, 0.2f}, WHITE);
+	DrawModelEx(ctx.assets.get_model("batt_bg15.glb"), {0, -1, 1}, {0, 1, 0}, bg_rotation, {0.2f, 0.2f, 0.2f}, WHITE);
+	DrawModelEx(ctx.assets.get_model("batt_stage15.glb"), {0.9f, 0.0f, -0.9f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
+	DrawModelEx(ctx.assets.get_model("batt_stage15.glb"), {-0.3f, 0.0f, 1.8f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
 	auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();

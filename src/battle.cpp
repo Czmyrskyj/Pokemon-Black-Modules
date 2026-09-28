@@ -29,27 +29,17 @@ std::string battle_t::get_dialog_foe_sent_out(){
 
 void battle_t::write(assets_t& assets, writer_t& writer){
 	if (!writer.finished){
-		if (txtbox_alpha < 255){
-			txtbox_alpha+=15;
+		if (m_txtbox_alpha < 255){
+			m_txtbox_alpha+=15;
 		}
 	} else {
-		txtbox_peak_alpha_timer++;
-		if (txtbox_alpha > 0 && txtbox_peak_alpha_timer > 50){
-			txtbox_alpha-=15;
-		} else if (txtbox_alpha <= 0){
-			txtbox_peak_alpha_timer = 0;
+		m_txtbox_peak_alpha_timer++;
+		if (m_txtbox_alpha > 0 && m_txtbox_peak_alpha_timer > 50){
+			m_txtbox_alpha-=15;
+		} else if (m_txtbox_alpha <= 0){
+			m_txtbox_peak_alpha_timer = 0;
 		}
 	}
-	draw_text_seq(assets, writer, 10, wnd_h - 200, 50, {255, 255, 255, txtbox_alpha}, 1, {150, 150, 150, txtbox_alpha});
+	draw_text_seq(assets, writer, 10, wnd_h - 200, 50, {255, 255, 255, m_txtbox_alpha}, 1, {150, 150, 150, m_txtbox_alpha});
 }
 
-std::string battle_t::step_dialog(writer_t& writer, Locale::locale_t& locale){
-	if (current_line >= lines.size()){
-		m_finished_dialog = true;
-		return "";
-	}
-	auto buffer = std::string(locale.get(Locale::TYPE::UI, lines[current_line]));
-	writer.set_text(buffer);
-	current_line++;
-	return buffer;
-}

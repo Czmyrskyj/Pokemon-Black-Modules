@@ -177,7 +177,8 @@ struct main_state_t{
 	bool ended_battle{false};
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
-	usz index = 2;
+	// WARN: [!!] AFTER DEBUGGING, SET TO 0
+	usz index = 3;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
@@ -207,6 +208,8 @@ struct battle_vs_t{
 	anim_trainer_render_t anim_trainer_render;
 	explicit battle_vs_t(st_ctx_t& ctx);
 };
+
+#include "pokeball.hpp"
 
 struct battle_state_t{
 	float bg_rotation = 0.0f;
