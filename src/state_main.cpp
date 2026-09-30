@@ -38,15 +38,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 	writer.set_text(current_line);
 }
 
-void main_state_t::update(st_ctx_t& ctx){
-	if (!ctx.set_state_meta && ctx.transition_alpha > 0){
-		ctx.resume_state_alpha(ctx.transition_alpha);
-	}
-	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
-		ctx.set_state_meta = true;
-	}
-	auto season = ctx.time.get_season();
-	auto hours = ctx.time.get_time().hours().count();
+auto get_time_palette = [](auto season, int hours, Color& sky_color, st_ctx_t& ctx) -> void{
 	switch (season) {
 		case Time::SEASON::SPRING: {
 						   if (hours >= 5 && hours <= 9) {
@@ -112,6 +104,18 @@ void main_state_t::update(st_ctx_t& ctx){
 						   }
 					   } break;
 	}
+};
+
+void main_state_t::update(st_ctx_t& ctx){
+	if (!ctx.set_state_meta && ctx.transition_alpha > 0){
+		ctx.resume_state_alpha(ctx.transition_alpha);
+	}
+	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
+		ctx.set_state_meta = true;
+	}
+	auto season = ctx.time.get_season();
+	auto hours = ctx.time.get_time().hours().count();
+	get_time_palette(season, hours, sky_color, ctx);
 	for (usz i = 0; i < clouds.size(); i++){
 		auto& c = clouds[i];
 		c.pos.x -= 0.05f + i * 0.05f;

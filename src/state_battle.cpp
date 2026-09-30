@@ -1,6 +1,7 @@
 #include "states.hpp"
 #include "st-ctx.hpp"
 #include "names.hpp"
+#include "battle-bg.hpp"
 
 #include <algorithm>
 #include <format>
@@ -342,11 +343,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 void battle_state_t::render(st_ctx_t& ctx){
 	BeginMode3D(ctx.camera.camera);
 
-	// TODO: DYNAMIC BATTLE STANGE 
-	DrawModelEx(ctx.assets.get_model("batt_bg15.glb"), {0, 0, 0}, {0, 0, 0}, 0, {0.2f, 0.2f, 0.2f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_bg15.glb"), {0, -1, 1}, {0, 1, 0}, bg_rotation, {0.2f, 0.2f, 0.2f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_stage15.glb"), {0.9f, 0.0f, -0.9f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
-	DrawModelEx(ctx.assets.get_model("batt_stage15.glb"), {-0.3f, 0.0f, 1.8f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
+	auto season = ctx.time.get_season();
+	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::BG)), {0, 0, 0}, {0, 0, 0}, 0, {0.2f, 0.2f, 0.2f}, WHITE);
+	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::BG)), {0, -1, 1}, {0, 1, 0}, bg_rotation, {0.2f, 0.2f, 0.2f}, WHITE);
+	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::STAGE)), {0.9f, 0.0f, -0.9f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
+	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::STAGE)), {-0.3f, 0.0f, 1.8f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
 	auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
@@ -448,6 +449,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 				DrawTextureEx(ctx.assets.get_tx("battle-menu-opt-sqbr.png"), {970, battle_menu_y + 225.0f + opt * 39.0f}, 0, 3, WHITE);
 				break;
 			case BATTLE_MENU_STATE::MOVES:
+				DrawTextureEx(ctx.assets.get_tx("move.png"), {1350, 800}, 0, 3, WHITE);
 				break;
 			case BATTLE_MENU_STATE::POKEMON:
 				{

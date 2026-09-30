@@ -4,6 +4,7 @@
 
 enum class REGION{
 	NUVEMA,
+	ROUTE_1,
 	ACCUMULA,
 	STRIATON,
 	NACREN,
@@ -17,7 +18,6 @@ enum class REGION{
 	LACUNOSA,
 	UNDELLA,
 	ANVILLE,
-	ROUTE_1,
 	ROUTE_2,
 	ROUTE_3,
 	ROUTE_4,
@@ -145,4 +145,5 @@ constexpr std::string_view get_region_str(REGION r) {
 
 constexpr std::array<usz, static_cast<u8>(REGION::UNITY_TOWER) + 1> encounters_count{
 	2,
+	5,
 };

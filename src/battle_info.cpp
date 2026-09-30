@@ -21,8 +21,16 @@ std::expected<void, std::string_view> battle_info_t::load_battle_info(){
 	return {};
 }
 
+constexpr usz battle_offset(REGION r){
+	usz sum = 0;
+	for (usz i = 0; i < static_cast<u8>(r); i++){
+		sum += encounters_count[i];
+	}
+	return sum;
+}
+
 battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t& pokedex){
-	u16 total_index = static_cast<u8>(region) + index;
+	u16 total_index = battle_offset(region) + index;
 	std::ifstream in("BATTLEINFO", std::ios::binary);
 	if (!in.is_open()){
 		std::println("failed to open BATTLEINFO");

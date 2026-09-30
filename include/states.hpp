@@ -178,7 +178,7 @@ struct main_state_t{
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
 	// WARN: [!!] AFTER DEBUGGING, SET TO 0
-	usz index = 3;
+	usz index = 0;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
