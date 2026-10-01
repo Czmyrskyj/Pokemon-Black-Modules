@@ -1,7 +1,6 @@
 #pragma once
 #include "common.hpp"
 #include "pokedex.hpp"
-#include <optional>
 
 #pragma pack(push, 1)
 struct spritedex_entry_t{
@@ -15,10 +14,12 @@ struct spritedex_entry_t{
 #pragma pack(pop)
 
 class spritedex_t{
-	std::array<u32, PK_COUNT> spritedex_registry{};
-	std::vector<std::optional<spritedex_entry_t>> spritedex_cache{};
+	std::vector<spritedex_entry_t> spritedex_registry{};
 	public:
+	spritedex_t(){
+		spritedex_registry.reserve(PK_COUNT);
+	};
 	std::expected<void, std::string_view> load_spritedex();
-	std::optional<spritedex_entry_t> get_spritedex_entry(POKEDEX ID);
+	spritedex_entry_t get_spritedex_entry(POKEDEX ID);
 };
 

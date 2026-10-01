@@ -36,8 +36,7 @@ namespace {
 
 void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_TYPE type, Vector3 pos, Vector2 scale, Camera3D* camera){
 	auto tx = assets.get_tx(std::format("{}.png", static_cast<u16>(pokedex.id)));
-	auto spritedex_entry = spritedex.get_spritedex_entry(pokedex.id);
-	if (!spritedex_entry.has_value()) return;
+	auto s_entry = spritedex.get_spritedex_entry(pokedex.id);
 
 	float frame_width = 0.0f;
 	float frame_height = 0.0f;
@@ -45,7 +44,6 @@ void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_
 	float frame_count = 0.0f;
 
 
-	const auto& s_entry = spritedex_entry.value();
 
 	switch (type){
 		case POKEMON_RENDER_TYPE::FRONT:
