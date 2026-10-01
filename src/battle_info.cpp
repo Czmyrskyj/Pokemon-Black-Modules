@@ -98,9 +98,6 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		POKEDEX id;
 		in.read(reinterpret_cast<char*>(&id), sizeof(u16));
 		auto pokeentry = pokedex.get_pokedex_entry(id);
-		if (!pokeentry.has_value()){
-			pokeentry = pokedex.get_pokedex_entry(MISSINGNO);
-		}
 		u8 lvl;
 		in.read(reinterpret_cast<char*>(&lvl), sizeof(u8));
 
@@ -108,7 +105,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		in.read(reinterpret_cast<char*>(moves.data()), moves.size()*sizeof(u16));
 
 		pokemon_t pokemon{
-			pokeentry.value(),
+			pokeentry,
 			"",
 			rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 			rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),

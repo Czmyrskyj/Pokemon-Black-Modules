@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include "pokedex.hpp"
+#include <optional>
 
 #pragma pack(push, 1)
 struct spritedex_entry_t{

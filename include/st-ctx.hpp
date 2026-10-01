@@ -146,7 +146,7 @@ struct st_ctx_t{
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{
-			pokedex.get_pokedex_entry(OSHAWOTT).value(),
+			pokedex.get_pokedex_entry(OSHAWOTT),
 			"OSHAWOTT",
 			NATURE::CALM,
 			SEX::MALE,
@@ -154,7 +154,7 @@ struct st_ctx_t{
 			{1, 0, 0, 0},
 		};
 		pokemon_t cherens{
-			pokedex.get_pokedex_entry(SNIVY).value(),
+			pokedex.get_pokedex_entry(SNIVY),
 			"SNIVY",
 			NATURE::TIMID,
 			SEX::MALE,
@@ -162,7 +162,7 @@ struct st_ctx_t{
 			{1, 0, 0, 0},
 		};
 		pokemon_t biancas{
-			pokedex.get_pokedex_entry(TEPIG).value(),
+			pokedex.get_pokedex_entry(TEPIG),
 			"TEPIG",
 			NATURE::LONELY,
 			SEX::MALE,
@@ -170,7 +170,7 @@ struct st_ctx_t{
 			{1, 0, 0, 0},
 		};
 		pokemon_t purrloin{
-			pokedex.get_pokedex_entry(PURRLOIN).value(),
+			pokedex.get_pokedex_entry(PURRLOIN),
 			"PURRLOIN",
 			NATURE::IMPISH,
 			SEX::MALE,
@@ -178,7 +178,7 @@ struct st_ctx_t{
 			{1, 0, 0, 0},
 		};
 		pokemon_t buizel{
-			pokedex.get_pokedex_entry(BUIZEL).value(),
+			pokedex.get_pokedex_entry(BUIZEL),
 			"BUIZEL",
 			NATURE::CALM,
 			SEX::MALE,
@@ -186,7 +186,7 @@ struct st_ctx_t{
 			{1, 0, 0, 0},
 		};
 		pokemon_t serperior{
-			pokedex.get_pokedex_entry(SERPERIOR).value(),
+			pokedex.get_pokedex_entry(SERPERIOR),
 			"SERPERIOR",
 			NATURE::LONELY,
 			SEX::MALE,
@@ -194,7 +194,7 @@ struct st_ctx_t{
 			{1, 0, 0, 0},
 		};
 		pokemon_t emolga{
-			pokedex.get_pokedex_entry(EMOLGA).value(),
+			pokedex.get_pokedex_entry(EMOLGA),
 			"EMOLGA",
 			NATURE::CALM,
 			SEX::FEMALE,

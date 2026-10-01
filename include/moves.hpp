@@ -36,6 +36,9 @@ struct move_t{
 class movedex_t{
 	std::vector<move_t> move_registry{};
 	public:
+	movedex_t(){
+		move_registry.reserve(559);
+	}
 	std::expected<void, std::string_view> load_movedex();
 	const move_t& get_move(u16 ID) const { return move_registry[ID]; }
 };

@@ -1,6 +1,7 @@
 #pragma once
+#include "common.hpp"
 
-enum class ABILITY{
+enum class ABILITY : u16 {
 	NONE,
 	PICKPOCKET,
 	SHEER_FORCE,

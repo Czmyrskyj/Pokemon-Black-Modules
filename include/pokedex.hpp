@@ -3,12 +3,11 @@
 #include "common.hpp"
 #include "types.hpp"
 #include "abilities.hpp"
-#include <optional>
 #include <string_view>
 #include <vector>
 #include <expected>
 
-enum POKEDEX{
+enum POKEDEX : u16{
 	MISSINGNO,
 	BULBASAUR,
 	IVYSAUR,
@@ -682,10 +681,13 @@ struct pokedex_entry_t{
 #pragma pack(pop)
 
 class pokedex_t{
-	std::array<u32, PK_COUNT> pokemon_registry{};
-	std::vector<std::optional<pokedex_entry_t>> pokemon_cache{};
+	std::vector<pokedex_entry_t> pokemon_registry;
 	public:
+	pokedex_t(){
+		pokemon_registry.reserve(PK_COUNT);
+	}
 	std::expected<void, std::string_view> load_pokedex();
-	std::optional<pokedex_entry_t> get_pokedex_entry(POKEDEX ID);
+	pokedex_entry_t get_pokedex_entry(POKEDEX ID);
 };
+
 
