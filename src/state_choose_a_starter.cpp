@@ -119,12 +119,17 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							std::println(stderr, "fatal error: could not fetch pokedex entry for: {}", names[starters[selected_starter]]);
 							std::abort();
 						}
+
+						// WARN:
+						// ALL MOVES ARE HARDCODED!
+
 						pokemon_t players_chosen{
 							players_entry.value(),
 							std::string(names[starters[selected_starter]]),
 							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 							SEX::MALE,
-							5
+							5,
+							{1, 0, 0, 0},
 						};
 						auto cherens_entry = ctx.pokedex.get_pokedex_entry(starters[cheren_selected_starter]);
 						if (!cherens_entry.has_value()){
@@ -136,7 +141,8 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							"",
 							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 							SEX::MALE,
-							5
+							5,
+							{1, 0, 0, 0},
 						};
 						auto biancas_entry = ctx.pokedex.get_pokedex_entry(starters[bianca_selected_starter]);
 						if (!biancas_entry.has_value()){
@@ -148,7 +154,8 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							"",
 							rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
 							SEX::MALE,
-							5
+							5,
+							{1, 0, 0, 0},
 						};
 						ctx.player.push_pokemon(players_chosen);
 						ctx.cheren.push_pokemon(cherens_chosen);

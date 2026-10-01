@@ -450,6 +450,14 @@ void battle_state_t::render(st_ctx_t& ctx){
 				break;
 			case BATTLE_MENU_STATE::MOVES:
 				DrawTextureEx(ctx.assets.get_tx("move.png"), {1350, 800}, 0, 3, WHITE);
+				for (usz i = 0; i < 4; i++){
+					move_t move = ctx.movedex.get_move(ally.moves()[i]);
+					draw_text(ctx.assets, move.name, 10, i * 100, 50, WHITE);
+		
+					move_t fmove = ctx.movedex.get_move(foep.moves()[i]);
+					draw_text(ctx.assets, fmove.name, 1000, i * 100, 50, RED);
+
+				}
 				break;
 			case BATTLE_MENU_STATE::POKEMON:
 				{

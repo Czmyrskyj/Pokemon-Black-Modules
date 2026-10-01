@@ -3,6 +3,8 @@
 #include "common.hpp"
 #include "pokedex.hpp"
 #include "sex.hpp"
+#include "moves.hpp"
+#include <span>
 #include <string>
 
 enum class NATURE : u8{
@@ -53,6 +55,7 @@ class pokemon_t{
 	u16 m_hp = 0;
 	u16 m_max_hp = 0;
 	u8 m_lvl = 1;
+	std::array<u16, 4> m_moves;
 	u8 m_iv = 0;
 	u8 m_ev = 0;
 	u32 m_exp = 0;
@@ -60,7 +63,7 @@ class pokemon_t{
 	bool m_frames_blocked = false;
 	public:
 	pokemon_t() = default;
-	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s, u8 lv) : pokedex(std::move(p)), m_nickname(std::move(nick)), m_nature(nat), m_sex(s), m_lvl(lv){
+	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s, u8 lv, std::array<u16, 4> m) : pokedex(std::move(p)), m_nickname(std::move(nick)), m_nature(nat), m_sex(s), m_lvl(lv), m_moves(std::move(m)){
 		m_hp = (((2 * pokedex.base_hp) + m_iv + (m_ev / 4)) * m_lvl) / 100 + m_lvl + 10;
 		m_max_hp = m_hp;
 	}
@@ -79,6 +82,7 @@ class pokemon_t{
 		m_exp_cap = 3 * (m_lvl*m_lvl) + 3 * m_lvl + 1;
 	}
 	void block_frames(bool b) {m_frames_blocked = b; }
+	std::span<const u16> moves() const{ return m_moves; }
 };
 struct legendary_t{
 	pokemon_t pokemon;

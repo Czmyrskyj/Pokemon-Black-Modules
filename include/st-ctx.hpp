@@ -22,6 +22,7 @@ struct st_ctx_t{
 	Locale::locale_t& locale;
 	pokedex_t& pokedex;
 	spritedex_t& spritedex;
+	movedex_t& movedex;
 	Time::time_t& time;
 	battle_info_t& battle_info;
 	formatter_t& formatter;
@@ -139,9 +140,9 @@ struct st_ctx_t{
 	}
 	// WARN: only for debugging!
 	void set_temp_data(){
-		current_state = STATE::WHICH_SEASON_AND_REGION;
-		region = REGION::NUVEMA;
-		state_data.emplace<which_season_and_region_t>(*this);
+		current_state = STATE::MAIN;
+		region = REGION::ROUTE_1;
+		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{
@@ -149,49 +150,56 @@ struct st_ctx_t{
 			"OSHAWOTT",
 			NATURE::CALM,
 			SEX::MALE,
-			5
+			5,
+			{1, 0, 0, 0},
 		};
 		pokemon_t cherens{
 			pokedex.get_pokedex_entry(SNIVY).value(),
 			"SNIVY",
 			NATURE::TIMID,
 			SEX::MALE,
-			5
+			5,
+			{1, 0, 0, 0},
 		};
 		pokemon_t biancas{
 			pokedex.get_pokedex_entry(TEPIG).value(),
 			"TEPIG",
 			NATURE::LONELY,
 			SEX::MALE,
-			5
+			5,
+			{1, 0, 0, 0},
 		};
 		pokemon_t purrloin{
 			pokedex.get_pokedex_entry(PURRLOIN).value(),
 			"PURRLOIN",
 			NATURE::IMPISH,
 			SEX::MALE,
-			5
+			5,
+			{1, 0, 0, 0},
 		};
 		pokemon_t buizel{
 			pokedex.get_pokedex_entry(BUIZEL).value(),
 			"BUIZEL",
 			NATURE::CALM,
 			SEX::MALE,
-			5
+			5,
+			{1, 0, 0, 0},
 		};
 		pokemon_t serperior{
 			pokedex.get_pokedex_entry(SERPERIOR).value(),
 			"SERPERIOR",
 			NATURE::LONELY,
 			SEX::MALE,
-			5
+			5,
+			{1, 0, 0, 0},
 		};
 		pokemon_t emolga{
 			pokedex.get_pokedex_entry(EMOLGA).value(),
 			"EMOLGA",
 			NATURE::CALM,
 			SEX::FEMALE,
-			5
+			5,
+			{1, 0, 0, 0},
 		};
 		formatter.feed("[PLAYER]", std::string(player.get_name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");

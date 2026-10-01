@@ -9,6 +9,7 @@
 #include "time.hpp"
 #include "formatter.hpp"
 #include "music-offset.hpp"
+#include "moves.hpp"
 
 #include <print>
 
@@ -65,6 +66,13 @@ int main(){
 			return -1;
 		}
 
+		movedex_t movedex;
+		auto movedex_load_res = movedex.load_movedex();
+		if (!movedex_load_res.has_value()){
+			std::println(stderr, "error: {}", movedex_load_res.error());
+			return -1;
+		}
+
 		camera_t camera;
 
 		st_ctx_t ctx{
@@ -72,6 +80,7 @@ int main(){
 			.locale = locale,
 			.pokedex = pokedex,
 			.spritedex = spritedex,
+			.movedex = movedex,
 			.time = time,
 			.battle_info = battle_info,
 			.formatter = formatter,

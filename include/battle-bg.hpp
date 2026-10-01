@@ -63,6 +63,6 @@ inline std::string get_battle_bg_name(REGION reg, Time::SEASON season, BAT_BG_NA
 	if (n == BAT_BG_NAME::BG){
 		return std::format("batt_bg{:02}{}.glb", idx, ssn);
 	} else {
-		return std::format("batt_stage{:02}.glb", idx);
+		return std::format("batt_stage{:02}{}.glb", idx, ssn);
 	}
 }
