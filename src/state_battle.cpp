@@ -449,14 +449,14 @@ void battle_state_t::render(st_ctx_t& ctx){
 				DrawTextureEx(ctx.assets.get_tx("battle-menu-opt-sqbr.png"), {970, battle_menu_y + 225.0f + opt * 39.0f}, 0, 3, WHITE);
 				break;
 			case BATTLE_MENU_STATE::MOVES:
-				DrawTextureEx(ctx.assets.get_tx("move.png"), {1350, 800}, 0, 3, WHITE);
 				for (usz i = 0; i < 4; i++){
 					move_t move = ctx.movedex.get_move(ally.moves()[i]);
-					draw_text(ctx.assets, move.name, 10, i * 100, 50, WHITE);
-		
-					move_t fmove = ctx.movedex.get_move(foep.moves()[i]);
-					draw_text(ctx.assets, fmove.name, 1000, i * 100, 50, RED);
-
+					DrawTextureEx(ctx.assets.get_tx("move.png"), {1330.0f + (i % 2) * 270.0f, 770.0f + static_cast<u8>((i / 2)) * 140.0f}, 0, 3.4f, get_type_color(move.type));
+					draw_text(ctx.assets, move.name, 1340.0f + (i % 2) * 270.0f, 785.0f + static_cast<u8>((i / 2)) * 140.0f, 35, WHITE);
+					if (move.id != 0){
+						draw_text(ctx.assets, std::format("PP:{}/{}", move.pp - ally.pp_used()[i], move.pp), 1340.0f + (i % 2) * 270.0f, 850.0f + static_cast<u8>((i / 2)) * 140.0f, 30, WHITE);
+						DrawTexturePro(ctx.assets.get_tx("type-icons.png"), {0, (static_cast<u8>(move.type) - 1) * 12.0f, 32, 12}, {1470.0f + (i % 2) * 270.0f, 840.0f + static_cast<u8>((i / 2)) * 140.0f, 100.0f, 38.0f}, {0, 0}, 0, WHITE);
+					}
 				}
 				break;
 			case BATTLE_MENU_STATE::POKEMON:

@@ -55,7 +55,8 @@ class pokemon_t{
 	u16 m_hp = 0;
 	u16 m_max_hp = 0;
 	u8 m_lvl = 1;
-	std::array<u16, 4> m_moves;
+	std::array<u16, 4> m_moves{};
+	std::array<u8, 4> m_pp_used{};
 	u8 m_iv = 0;
 	u8 m_ev = 0;
 	u32 m_exp = 0;
@@ -66,6 +67,7 @@ class pokemon_t{
 	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s, u8 lv, std::array<u16, 4> m) : pokedex(std::move(p)), m_nickname(std::move(nick)), m_nature(nat), m_sex(s), m_lvl(lv), m_moves(std::move(m)){
 		m_hp = (((2 * pokedex.base_hp) + m_iv + (m_ev / 4)) * m_lvl) / 100 + m_lvl + 10;
 		m_max_hp = m_hp;
+		m_pp_used.fill(0);
 	}
 	void render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_TYPE type, Vector3 pos, Vector2 scale, Camera3D* camera = nullptr);
 	const pokedex_entry_t& get_pokedex() const{
@@ -83,6 +85,8 @@ class pokemon_t{
 	}
 	void block_frames(bool b) {m_frames_blocked = b; }
 	std::span<const u16> moves() const{ return m_moves; }
+	std::span<const u8> pp_used() const{ return m_pp_used; }
+	std::array<u8, 4>& get_pp_used_array() { return m_pp_used; }
 };
 struct legendary_t{
 	pokemon_t pokemon;

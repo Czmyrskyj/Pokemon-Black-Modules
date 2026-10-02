@@ -151,7 +151,7 @@ struct st_ctx_t{
 			NATURE::CALM,
 			SEX::MALE,
 			5,
-			{1, 0, 0, 0},
+			{55, 56, 57, 0},
 		};
 		pokemon_t cherens{
 			pokedex.get_pokedex_entry(SNIVY),
@@ -175,7 +175,7 @@ struct st_ctx_t{
 			NATURE::IMPISH,
 			SEX::MALE,
 			5,
-			{1, 0, 0, 0},
+			{1, 228, 0, 0},
 		};
 		pokemon_t buizel{
 			pokedex.get_pokedex_entry(BUIZEL),
@@ -183,7 +183,7 @@ struct st_ctx_t{
 			NATURE::CALM,
 			SEX::MALE,
 			5,
-			{1, 0, 0, 0},
+			{55, 56, 57, 0},
 		};
 		pokemon_t serperior{
 			pokedex.get_pokedex_entry(SERPERIOR),
@@ -191,7 +191,7 @@ struct st_ctx_t{
 			NATURE::LONELY,
 			SEX::MALE,
 			5,
-			{1, 0, 0, 0},
+			{36, 24, 51, 32},
 		};
 		pokemon_t emolga{
 			pokedex.get_pokedex_entry(EMOLGA),
@@ -199,7 +199,7 @@ struct st_ctx_t{
 			NATURE::CALM,
 			SEX::FEMALE,
 			5,
-			{1, 0, 0, 0},
+			{84, 85, 86, 87},
 		};
 		formatter.feed("[PLAYER]", std::string(player.get_name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
