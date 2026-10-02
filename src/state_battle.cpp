@@ -162,6 +162,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 		ctx.transition_alpha = static_cast<unsigned char>(current_alpha);
 	}
 
+	const auto& ally = p_party[battle.current_trainer_pokemon_idx()];
+
 	switch (phase){
 		case BATTLE_PHASE::INTRO:
 			{
@@ -324,19 +326,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 						if (IsKeyPressed(KEY_X)){
 							menu_state = BATTLE_MENU_STATE::OPTIONS;
 						}
-						break;
-					case BATTLE_MENU_STATE::MODULES:
-						break;
-					case BATTLE_MENU_STATE::POKEMON:
-						for (usz i = 0; i < ctx.player.get_party().size(); i++){
-							p_party[i].block_frames(true);
-							if (IsKeyPressed(KEY_X)){
-								next_menu_state = BATTLE_MENU_STATE::OPTIONS;
-							}
-						}
 						if (IsKeyPressed(KEY_RIGHT)){
 							PlaySound(sel_sfx);
-							if (opt < p_party.size() - 1){
+							if (opt < ally.moves().size() - 1){
 								opt ++;
 							} else {
 								opt = 0;
@@ -347,12 +339,12 @@ void battle_state_t::update(st_ctx_t& ctx){
 							if (opt > 0){
 								opt --;
 							} else {
-								opt = p_party.size() - 1;
+								opt = ally.moves().size() - 1;
 							}
 						}
 						if (IsKeyPressed(KEY_DOWN)){
 							PlaySound(sel_sfx);
-							if (opt < p_party.size() - 2){
+							if (opt < 2){
 								opt += 2;
 							} else {
 								opt = (opt % 2) != 0;
@@ -363,15 +355,61 @@ void battle_state_t::update(st_ctx_t& ctx){
 							if (opt > 1){
 								opt -= 2;
 							} else {
-								opt = (opt % 2 == 0) ? p_party.size() - 2 : p_party.size() - 1;
+								opt = (opt % 2 == 0) ? ally.moves().size() - 2 : ally.moves().size() - 1;
 							}
 						}
-						if (IsKeyPressed(KEY_Z)){
-							PlaySound(dec_sfx);
-							next_pokemon = opt;
+						break;
+					case BATTLE_MENU_STATE::MODULES:
+						break;
+					case BATTLE_MENU_STATE::POKEMON:
+						for (usz i = 0; i < ctx.player.get_party().size(); i++){
+							p_party[i].block_frames(true);
+							if (IsKeyPressed(KEY_X)){
+								next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+							}
 						}
-						if (next_pokemon != -1){
-							next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+						if (next_menu_state == BATTLE_MENU_STATE::NONE){
+							if (IsKeyPressed(KEY_RIGHT)){
+								PlaySound(sel_sfx);
+								if (opt < p_party.size() - 1){
+									opt ++;
+								} else {
+									opt = 0;
+								}
+							}
+							if (IsKeyPressed(KEY_LEFT)){
+								PlaySound(sel_sfx);
+								if (opt > 0){
+									opt --;
+								} else {
+									opt = p_party.size() - 1;
+								}
+							}
+							if (IsKeyPressed(KEY_DOWN)){
+								PlaySound(sel_sfx);
+								if (opt < p_party.size() - 2){
+									opt += 2;
+								} else {
+									opt = (opt % 2) != 0;
+								}
+							}
+							if (IsKeyPressed(KEY_UP)){
+								PlaySound(sel_sfx);
+								if (opt > 1){
+									opt -= 2;
+								} else {
+									opt = (opt % 2 == 0) ? p_party.size() - 2 : p_party.size() - 1;
+								}
+							}
+							if (IsKeyPressed(KEY_Z)){
+								PlaySound(dec_sfx);
+								if (opt != battle.current_trainer_pokemon_idx()){
+									next_pokemon = opt;
+								}
+							}
+							if (next_pokemon != -1){
+								next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+							}
 						}
 						break;
 					case BATTLE_MENU_STATE::BAG:
@@ -386,7 +424,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 		default: break;
 	}
 	if (running_from_tr_batt){
-		if (ctx.bt_info.foe.opp == OPPONENT::TRAINER){
+		if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry)){
 			if (no_run_from_tr_batt_scrn_alpha < 200 && no_run_from_tr_batt_scrn_alpha_tim < 100){
 				no_run_from_tr_batt_scrn_alpha += 10;
 			} else {
@@ -419,7 +457,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		ctx.bianca.get_party();
 	auto& foep = party[battle.current_foe_pokemon_idx()];
 	auto& p_party = ctx.player.get_party();
-	if (ctx.bt_info.foe.opp == OPPONENT::TRAINER){
+	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry)){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha}, foe_accent_color == 255);
 		} else {
@@ -517,11 +555,13 @@ void battle_state_t::render(st_ctx_t& ctx){
 			case BATTLE_MENU_STATE::MOVES:
 				for (usz i = 0; i < 4; i++){
 					move_t move = ctx.movedex.get_move(ally.moves()[i]);
-					DrawTextureEx(ctx.assets.get_tx("move.png"), {1330.0f + (i % 2) * 270.0f, 770.0f + static_cast<u8>((i / 2)) * 140.0f}, 0, 3.4f, get_type_color(move.type));
-					draw_text(ctx.assets, move.name, 1340.0f + (i % 2) * 270.0f, 785.0f + static_cast<u8>((i / 2)) * 140.0f, 35, WHITE);
+					u8 col = (opt == i) ? 255 : 150;
+					Color typ_col = get_type_color(move.type);
+					DrawTextureEx(ctx.assets.get_tx("move.png"), {1330.0f + (i % 2) * 270.0f, 770.0f + static_cast<u8>((i / 2)) * 140.0f}, 0, 3.4f, {static_cast<u8>(typ_col.r * (col / 255.0f)), static_cast<u8>(typ_col.g * (col / 255.0f)), static_cast<u8>(typ_col.b * (col / 255.0f)), 255});
+					draw_text(ctx.assets, move.name, 1340.0f + (i % 2) * 270.0f, 785.0f + static_cast<u8>((i / 2)) * 140.0f, 35, {col, col, col, 255}, {static_cast<u8>(col - 105), static_cast<u8>(col - 105), static_cast<u8>(col - 105), 255});
 					if (move.id != 0){
-						draw_text(ctx.assets, std::format("PP:{}/{}", move.pp - ally.pp_used()[i], move.pp), 1340.0f + (i % 2) * 270.0f, 850.0f + static_cast<u8>((i / 2)) * 140.0f, 30, WHITE);
-						DrawTexturePro(ctx.assets.get_tx("type-icons.png"), {0, (static_cast<u8>(move.type) - 1) * 12.0f, 32, 12}, {1470.0f + (i % 2) * 270.0f, 840.0f + static_cast<u8>((i / 2)) * 140.0f, 100.0f, 38.0f}, {0, 0}, 0, WHITE);
+						draw_text(ctx.assets, std::format("PP:{}/{}", move.pp - ally.pp_used()[i], move.pp), 1340.0f + (i % 2) * 270.0f, 850.0f + static_cast<u8>((i / 2)) * 140.0f, 30, {col, col, col, 255}, {static_cast<u8>(col - 105), static_cast<u8>(col - 105), static_cast<u8>(col - 105), 255});
+						DrawTexturePro(ctx.assets.get_tx("type-icons.png"), {0, (static_cast<u8>(move.type) - 1) * 12.0f, 32, 12}, {1470.0f + (i % 2) * 270.0f, 840.0f + static_cast<u8>((i / 2)) * 140.0f, 100.0f, 38.0f}, {0, 0}, 0, {col, col, col, 255});
 					}
 				}
 				break;
