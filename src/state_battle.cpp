@@ -253,7 +253,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				}
 				switch (battle.menu_state()){
 					case BATTLE_MENU_STATE::OPTIONS:
-						if (next_menu_state == BATTLE_MENU_STATE::NONE){
+						if (next_menu_state == BATTLE_MENU_STATE::NONE && !running_from_tr_batt){
 							sel_opt = ctx.control_selection(opt, 3, sel_sfx, dec_sfx);
 						}
 						if (sel_opt != -1){
@@ -268,6 +268,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 									next_menu_state = BATTLE_MENU_STATE::BAG;
 									break;
 								case 3:
+									running_from_tr_batt = true;
 									break;
 							}
 						}
@@ -337,6 +338,24 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		default: break;
 	}
+	if (running_from_tr_batt){
+		if (ctx.bt_info.foe.opp == OPPONENT::TRAINER){
+			if (no_run_from_tr_batt_scrn_alpha < 200 && no_run_from_tr_batt_scrn_alpha_tim < 100){
+				no_run_from_tr_batt_scrn_alpha += 10;
+			} else {
+				if (no_run_from_tr_batt_scrn_alpha_tim < 100){
+					no_run_from_tr_batt_scrn_alpha_tim++;
+				} else {
+					no_run_from_tr_batt_scrn_alpha -= 10;
+				}
+			}
+			if (no_run_from_tr_batt_scrn_alpha == 0 && no_run_from_tr_batt_scrn_alpha_tim >= 100){
+				running_from_tr_batt = false;
+				no_run_from_tr_batt_scrn_alpha = 0;
+				no_run_from_tr_batt_scrn_alpha_tim = 0;
+			}
+		}
+	}
 	writer.update();
 }
 
@@ -353,7 +372,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		ctx.bianca.get_party();
 	auto& foep = party[battle.current_foe_pokemon_idx()];
 	auto& p_party = ctx.player.get_party();
-	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry)){
+	if (ctx.bt_info.foe.opp == OPPONENT::TRAINER){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()}, battle.foe_accent_color() == 255);
 		} else {
@@ -496,6 +515,10 @@ void battle_state_t::render(st_ctx_t& ctx){
 				}
 				break;
 			default: break;
+		}
+		if (running_from_tr_batt){
+			DrawRectangle(0, 0, wnd_w, wnd_h, Color{0, 0, 0, no_run_from_tr_batt_scrn_alpha});
+			draw_text(ctx.assets, "No! There's no running from Trainer battle!", wnd_w / 2.0f - 400.0f, wnd_h / 2.0f, 50, Color{255, 255, 255, no_run_from_tr_batt_scrn_alpha});
 		}
 	}
 }

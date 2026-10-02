@@ -231,6 +231,9 @@ struct battle_state_t{
 	u8 opt = 0;
 	i8 sel_opt = -1;
 	i8 next_pokemon = -1;
+	bool running_from_tr_batt = false;
+	u8 no_run_from_tr_batt_scrn_alpha = 0;
+	u8 no_run_from_tr_batt_scrn_alpha_tim = 0;
 	BATTLE_MENU_STATE next_menu_state = BATTLE_MENU_STATE::NONE;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
