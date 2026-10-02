@@ -36,6 +36,49 @@ void draw_pokename(assets_t& assets, std::string_view text, float x, float y){
 	}
 }
 
+bool battle_state_t::control_foe_pokeballs() {
+	if (current_foe_pokeball < 6){
+		if (foe_pokeball_x[current_foe_pokeball] < (5 - current_foe_pokeball) * 72.0f + 30.0f){
+			foe_pokeball_x[current_foe_pokeball] += 60.0f;
+		} else {
+			foe_pokeball_x[current_foe_pokeball] = (5 - current_foe_pokeball) * 72.0f + 30.0f;
+			current_foe_pokeball++;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool battle_state_t::control_ally_pokeballs() {
+	if (current_trainer_pokeball < 6){
+		if (trainer_pokeball_x[current_trainer_pokeball] > current_trainer_pokeball * 72.0f + (wnd_w - 500.0f)){
+			trainer_pokeball_x[current_trainer_pokeball] -= 60.0f;
+		} else {
+			trainer_pokeball_x[current_trainer_pokeball] = current_trainer_pokeball * 72.0f + (wnd_w - 500.0f);
+			current_trainer_pokeball++;
+			return true;
+		}
+	}
+	return false;
+}
+
+void battle_state_t::set_phase(assets_t& assets, BATTLE_PHASE p){
+	phase = p;
+	switch (p){
+		case BATTLE_PHASE::FOE_SEND_OUT: 
+			{
+				PlaySound(assets.get_sfx("SEQ_SE_NAGERU.wav"));
+			}
+			break;
+		case BATTLE_PHASE::MENU:
+			{
+				PlaySound(assets.get_sfx("SEQ_SE_OPEN2.wav"));
+			}
+			break;
+		default: break;
+	}
+}
+
 battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.foe){
 	ctx.camera.camera = {
 		.position = {0.4f, 0.6f, -2.0f},
@@ -47,13 +90,15 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 	ctx.formatter.feed("[FOE_TYPE]", ctx.formatter.format((!ctx.bt_info.prefix.empty()) ? ctx.bt_info.prefix : "[PKMN_SIGN] Trainer"));
 	ctx.formatter.feed("[FOE]", ctx.bt_info.name);
 	current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, battle.get_dialog_intro()));
+	foe_pokeball_x.fill(0.0f);
+	trainer_pokeball_x.fill(wnd_w);
 	writer.set_text(current_line);
 }
 
 void battle_state_t::update(st_ctx_t& ctx){
 	ctx.camera.set_route({
 			[&]() -> Vector3{
-			switch (battle.camera_pos()){
+			switch (camera_pos){
 			case BATTLE_CAMERA_POS::DEFAULT: return {0.2f, 0.6f, 2.0f};
 			case BATTLE_CAMERA_POS::TRAINER: return {0.3f, 0.6f, 4.0f};
 			case BATTLE_CAMERA_POS::ALLY: return {0.0f, 0.5f, 3.0f};
@@ -84,26 +129,28 @@ void battle_state_t::update(st_ctx_t& ctx){
 
 	if (next_menu_state != BATTLE_MENU_STATE::NONE){
 		float current_alpha = static_cast<float>(ctx.transition_alpha);
-		if (battle.menu_state() != next_menu_state){
+		if (menu_state != next_menu_state){
 			current_alpha+=300.0f*GetFrameTime();
 			if (current_alpha >= 255.0f){
 				current_alpha = 255.0f;
 				for (usz i = 0; i < p_party.size(); i++){
 					p_party[i].block_frames(false);
 				}
-				battle.set_menu_state(next_menu_state);
+				menu_state = next_menu_state;
 				opt = 0;
 				sel_opt = -1;
 			}
 		} else {
 			if (next_pokemon != -1){
-				battle.reset_ally_data();
+				ally_pokemon_scale = 0.0f;
+				ally_pokemon_y = 0.5f;
+				ally_hud_x = wnd_w;
 				battle.set_current_trainer_pokemon_idx(next_pokemon);
-				battle.set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
+				set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
 				trainer_thrown_pokeball_renderer.thrown = false;
 				trainer_thrown_pokeball_renderer.opened = false;
 				trainer_thrown_pokeball_renderer.spinned = 0;
-				battle.set_txted(false);
+				txted = false;
 				next_pokemon = -1;
 			}
 			current_alpha-=300.0f*GetFrameTime();
@@ -115,23 +162,23 @@ void battle_state_t::update(st_ctx_t& ctx){
 		ctx.transition_alpha = static_cast<unsigned char>(current_alpha);
 	}
 
-	switch (battle.phase()){
+	switch (phase){
 		case BATTLE_PHASE::INTRO:
 			{
 				if (ctx.set_state_meta){
-					if (battle.foe_accent_color() < 255){
-						battle.foe_accent_color_delta(15);
+					if (foe_accent_color < 255){
+						foe_accent_color += 15;
 					}
 				}
-				bool play_foe_pokeball = battle.control_foe_pokeballs();
-				battle.move_line_under_foe_pokeballs();
+				bool play_foe_pokeball = control_foe_pokeballs();
+				if (line_under_foe_pokeballs < 0.0f) line_under_foe_pokeballs += 40.0f;
 				if (play_foe_pokeball){
-					PlaySound(party[battle.current_foe_pokeball() - 1].get_pokedex().id == MISSINGNO ? absent : present);
+					PlaySound(party[current_foe_pokeball - 1].get_pokedex().id == MISSINGNO ? absent : present);
 				}
 				if (animation_done){
 					if (!party.empty()){
-						battle.set_phase(ctx.assets, BATTLE_PHASE::FOE_SEND_OUT);
-						battle.set_txted(false);
+						set_phase(ctx.assets, BATTLE_PHASE::FOE_SEND_OUT);
+						txted = false;
 						writer.finished = false;
 					}
 				}
@@ -140,21 +187,18 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		case BATTLE_PHASE::FOE_SEND_OUT:
 			{
-				if (!battle.txted()){
+				if (!txted){
 					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_SENT_OUT"), party[battle.current_foe_pokemon_idx()].get_pokedex().id);
 					writer.set_text(current_line);
-					battle.set_txted(true);
+					txted = true;
 				}
-				if (battle.foe_alpha() > 0){
-					battle.foe_alpha_delta(-15);
+				if (foe_alpha > 0){
+					foe_alpha -= 15;
 				}
-				if (battle.foe_z() > -3.5f){
-					battle.foe_z_delta(-0.05f);
+				if (foe_z > -3.5f){
+					foe_z -= 0.05f;
 				}
 
-				if (finished_drawing_back && battle.trainer_alpha() > 0){
-					battle.trainer_alpha_delta(-5);
-				}
 				if (foe_thrown_pokeball_renderer.spinned < 3){
 					foe_thrown_pokeball_renderer.frame_timer += 1.0f;
 					if (foe_thrown_pokeball_renderer.frame_timer > 1.0f){
@@ -167,15 +211,15 @@ void battle_state_t::update(st_ctx_t& ctx){
 					}
 				} else {
 					if (writer.finished){
-						battle.inc_foe_pokemon_scale();
-						if (battle.foe_pokemon_scale() >= pokemon_scale_dest && battle.foe_pokemon_y() > pokemon_y_dest){
-							battle.foe_pokemon_y_delta(-0.05f);
-						} else if (battle.foe_pokemon_y() <= pokemon_y_dest){
-							if (battle.foe_hud_x() < 0.0f && battle.txtbox_alpha() == 0){
-								battle.foe_hud_x_delta(20.0f);
-								battle.set_camera_pos(BATTLE_CAMERA_POS::TRAINER);
-								battle.set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
-								battle.set_txted(false);
+						if (foe_pokemon_scale < 1.0f) foe_pokemon_scale += 0.05f;
+						if (foe_pokemon_scale >= pokemon_scale_dest && foe_pokemon_y > pokemon_y_dest){
+							foe_pokemon_y -= 0.05f;
+						} else if (foe_pokemon_y <= pokemon_y_dest){
+							if (foe_hud_x < 0.0f && battle.txtbox_alpha() == 0){
+								foe_hud_x += 20.0f;
+								camera_pos = BATTLE_CAMERA_POS::TRAINER;
+								set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
+								txted = false;
 							}
 						}
 					}
@@ -189,24 +233,24 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		case BATTLE_PHASE::ALLY_SEND_OUT:
 			{
-				if (!battle.txted()){
+				if (!txted){
 					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "TRAINER_SENT_OUT"), p_party[battle.current_trainer_pokemon_idx()].get_pokedex().id);
 					writer.set_text(current_line);
-					battle.set_txted(true);
+					txted = true;
 				}
-				if (battle.foe_hud_x() < 0.0f){
-					battle.foe_hud_x_delta(20.0f);
+				if (foe_hud_x < 0.0f){
+					foe_hud_x += 20.0f;
 				}
 
 				if (!finished_drawing_back){
-					bool play_trainer_pokeball = battle.control_trainer_pokeballs();
+					bool play_trainer_pokeball = control_ally_pokeballs();
 					if (play_trainer_pokeball){
-						PlaySound(p_party[battle.current_trainer_pokeball() - 1].get_pokedex().id == MISSINGNO ? absent : present);
+						PlaySound(p_party[current_trainer_pokeball - 1].get_pokedex().id == MISSINGNO ? absent : present);
 					}
-					battle.move_line_under_trainer_pokeballs();
+					if (line_under_trainer_pokeballs > 1120.0f) line_under_trainer_pokeballs -= 40.0f;
 				} else {
-					if (battle.ally_hud_x() > wnd_w - 120.0f * 5.0f){
-						battle.ally_hud_x_delta(-20.0f);
+					if (ally_hud_x > wnd_w - 120.0f * 5.0f){
+						ally_hud_x -= 20.0f;
 					}
 					if (!trainer_thrown_pokeball_renderer.thrown){
 						PlaySound(ctx.assets.get_sfx("SEQ_SE_NAGERU.wav"));
@@ -233,16 +277,19 @@ void battle_state_t::update(st_ctx_t& ctx){
 							PlaySound(ctx.assets.get_cry(ctx.player.get_party()[battle.current_trainer_pokemon_idx()].get_pokedex().id));
 							trainer_thrown_pokeball_renderer.opened = true;
 						}
-						battle.inc_ally_pokemon_scale();
-						if (battle.ally_pokemon_scale() >= pokemon_scale_dest && battle.ally_pokemon_y() > pokemon_y_dest){
-							battle.ally_pokemon_y_delta(-0.05f);
+						if (ally_pokemon_scale < 1.0f) ally_pokemon_scale += 0.05f;
+						if (ally_pokemon_scale >= pokemon_scale_dest && ally_pokemon_y > pokemon_y_dest){
+							ally_pokemon_y -= 0.05f;
 						} else {
-							battle.set_camera_pos(BATTLE_CAMERA_POS::ALLY);
-							if (battle.ally_pokemon_scale() >= pokemon_scale_dest && battle.ally_pokemon_y() <= pokemon_y_dest && battle.txtbox_alpha() == 0){
-								battle.set_phase(ctx.assets, BATTLE_PHASE::MENU);
+							camera_pos = BATTLE_CAMERA_POS::ALLY;
+							if (ally_pokemon_scale >= pokemon_scale_dest && ally_pokemon_y <= pokemon_y_dest && battle.txtbox_alpha() == 0){
+								set_phase(ctx.assets, BATTLE_PHASE::MENU);
 							}
 						}
 					}
+				}
+				if (finished_drawing_back && trainer_alpha > 0){
+					trainer_alpha -= 5;
 				}
 			}
 			break;
@@ -251,7 +298,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				if (battle_menu_y > wnd_h - 174.0f * 3.0f){
 					battle_menu_y -= 29.0f;
 				}
-				switch (battle.menu_state()){
+				switch (menu_state){
 					case BATTLE_MENU_STATE::OPTIONS:
 						if (next_menu_state == BATTLE_MENU_STATE::NONE && !running_from_tr_batt){
 							sel_opt = ctx.control_selection(opt, 3, sel_sfx, dec_sfx);
@@ -259,7 +306,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						if (sel_opt != -1){
 							switch (sel_opt){
 								case 0:
-									battle.set_menu_state(BATTLE_MENU_STATE::MOVES);
+									menu_state = BATTLE_MENU_STATE::MOVES;
 									break;
 								case 1:
 									next_menu_state = BATTLE_MENU_STATE::POKEMON;
@@ -275,7 +322,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						break;
 					case BATTLE_MENU_STATE::MOVES:
 						if (IsKeyPressed(KEY_X)){
-							battle.set_menu_state(BATTLE_MENU_STATE::OPTIONS);
+							menu_state = BATTLE_MENU_STATE::OPTIONS;
 						}
 						break;
 					case BATTLE_MENU_STATE::MODULES:
@@ -374,9 +421,9 @@ void battle_state_t::render(st_ctx_t& ctx){
 	auto& p_party = ctx.player.get_party();
 	if (ctx.bt_info.foe.opp == OPPONENT::TRAINER){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
-			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()}, battle.foe_accent_color() == 255);
+			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha}, foe_accent_color == 255);
 		} else {
-			draw_trainer(ctx.assets, ctx.bt_info.prefix, ctx.bt_info.name, {0.5f, 0.08f, battle.foe_z()}, &ctx.camera.camera, {battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_accent_color(), battle.foe_alpha()});
+			draw_trainer(ctx.assets, ctx.bt_info.prefix, ctx.bt_info.name, {0.5f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha});
 			animation_timer ++;
 			if (animation_timer > 125){
 				animation_done = true;
@@ -384,29 +431,29 @@ void battle_state_t::render(st_ctx_t& ctx){
 		}
 	}
 	auto& ally = p_party[battle.current_trainer_pokemon_idx()];
-	if (battle.phase() >= BATTLE_PHASE::FOE_SEND_OUT){
-		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, battle.foe_pokemon_y(), -0.3f}, {battle.foe_pokemon_scale(), battle.foe_pokemon_scale()}, &ctx.camera.camera);
-		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, battle.trainer_alpha()})) finished_drawing_back = true;
+	if (phase >= BATTLE_PHASE::FOE_SEND_OUT){
+		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, foe_pokemon_y, -0.3f}, {foe_pokemon_scale, foe_pokemon_scale}, &ctx.camera.camera);
+		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, trainer_alpha})) finished_drawing_back = true;
 		if (foe_thrown_pokeball_renderer.spinned < 3){
 			foe_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {0.7f, 0.5f, -0.5f}, ctx.camera.camera);
 		}
 	}
-	if (battle.phase() >= BATTLE_PHASE::ALLY_SEND_OUT){
-		ally.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::BACK, {-0.4f, battle.ally_pokemon_y(), 2.0f}, {battle.ally_pokemon_scale(), battle.ally_pokemon_scale()}, &ctx.camera.camera);
+	if (phase >= BATTLE_PHASE::ALLY_SEND_OUT){
+		ally.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::BACK, {-0.4f, ally_pokemon_y, 2.0f}, {ally_pokemon_scale, ally_pokemon_scale}, &ctx.camera.camera);
 		if (finished_drawing_back && trainer_thrown_pokeball_renderer.spinned < 3){
 			trainer_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {-0.5f, trainer_thrown_pokeball_y, trainer_thrown_pokeball_z}, ctx.camera.camera);
 		}
 	}
 	EndMode3D();
 	battle.write(ctx.assets, writer);
-	if (battle.phase() < BATTLE_PHASE::FOE_SEND_OUT){
-		DrawTextureEx(ctx.assets.get_tx("line-under-foe-pokeballs.png"), {battle.line_under_foe_pokeballs(), 300.0f}, 0.0f, 8.0f, WHITE);
-		auto xs = battle.foe_pokeball_x();
+	if (phase < BATTLE_PHASE::FOE_SEND_OUT){
+		DrawTextureEx(ctx.assets.get_tx("line-under-foe-pokeballs.png"), {line_under_foe_pokeballs, 300.0f}, 0.0f, 8.0f, WHITE);
+		auto xs = foe_pokeball_x;
 		for (usz i = 0; i < 6; i++){
 			DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(party[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 200.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
 		}
 	} else {
-		if (battle.foe_pokemon_y() <= pokemon_y_dest){
+		if (foe_pokemon_y <= pokemon_y_dest){
 			float hp_ratio = foep.hp() / foep.max_hp();
 			float hp_idx = [&]() -> float{
 				if (hp_ratio >= 0.7f){
@@ -417,18 +464,18 @@ void battle_state_t::render(st_ctx_t& ctx){
 					return 0;
 				}
 			}();
-			DrawTextureEx(ctx.assets.get_tx("foe-hud.png"), {battle.foe_hud_x(), 300.0f}, 0, 5, WHITE);
-			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {battle.foe_hud_x() + 220.0f, 345.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
-			draw_pokename(ctx.assets, names[foep.get_pokedex().id].data(), battle.foe_hud_x() + 100, 295.0f);
+			DrawTextureEx(ctx.assets.get_tx("foe-hud.png"), {foe_hud_x, 300.0f}, 0, 5, WHITE);
+			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {foe_hud_x + 220.0f, 345.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, names[foep.get_pokedex().id].data(), foe_hud_x + 100, 295.0f);
 			char lvl_buf[4];
 			std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), foep.lvl());
-			draw_pokename(ctx.assets, lvl_buf, battle.foe_hud_x() + 450, 295.0f);
-			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.foe_hud_x() + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, lvl_buf, foe_hud_x + 450, 295.0f);
+			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {foe_hud_x + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
 		}
 		if (!finished_drawing_back){
 			const auto& ln_tx = ctx.assets.get_tx("line-under-foe-pokeballs.png");
-			DrawTexturePro(ln_tx, {0, 0, static_cast<float>(-ln_tx.width), static_cast<float>(ln_tx.height)}, {battle.line_under_trainer_pokeballs(), 600.0f, ln_tx.width * 8.0f, ln_tx.height * 8.0f}, {0, 0}, 0.0f, WHITE);
-			auto xs = battle.trainer_pokeball_x();
+			DrawTexturePro(ln_tx, {0, 0, static_cast<float>(-ln_tx.width), static_cast<float>(ln_tx.height)}, {line_under_trainer_pokeballs, 600.0f, ln_tx.width * 8.0f, ln_tx.height * 8.0f}, {0, 0}, 0.0f, WHITE);
+			auto xs = trainer_pokeball_x;
 			for (usz i = 0; i < 6; i++){
 				DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(p_party[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 500.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
 			}
@@ -443,9 +490,9 @@ void battle_state_t::render(st_ctx_t& ctx){
 					return 0;
 				}
 			}();
-			DrawTextureEx(ctx.assets.get_tx("ally-hud.png"), {battle.ally_hud_x(), 540.0f}, 0, 5, WHITE);
-			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {battle.ally_hud_x() + 280.0f, 585.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
-			draw_pokename(ctx.assets, ally.nickname(), battle.ally_hud_x() + 100, 535.0f);
+			DrawTextureEx(ctx.assets.get_tx("ally-hud.png"), {ally_hud_x, 540.0f}, 0, 5, WHITE);
+			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {ally_hud_x + 280.0f, 585.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, ally.nickname(), ally_hud_x + 100, 535.0f);
 			char lvl_buf[4];
 			auto [lvl_ptr, _] = std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), ally.lvl());
 			char hp_buf[4];
@@ -453,16 +500,16 @@ void battle_state_t::render(st_ctx_t& ctx){
 			auto [hp_ptr, _] = std::to_chars(hp_buf, hp_buf + sizeof(hp_buf), ally.hp());
 			auto [max_hp_ptr, _] = std::to_chars(max_hp_buf, max_hp_buf + sizeof(max_hp_buf), ally.max_hp());
 			ally.calculate_exp_cap();
-			draw_pokename(ctx.assets, {lvl_buf, lvl_ptr}, battle.ally_hud_x() + 450, 535.0f);
-			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(ally.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {battle.ally_hud_x() + 365.0f, 535.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
-			draw_pokename(ctx.assets, {hp_buf, hp_ptr}, battle.ally_hud_x() + 330, 600.0f);
-			draw_pokename(ctx.assets, {max_hp_buf, max_hp_ptr}, battle.ally_hud_x() + 420, 600.0f);
-			DrawRectangle(battle.ally_hud_x() + 160, 655.0f, (static_cast<float>(ally.exp()) / ally.exp_cap()) * 400.0f, 5, {0, 153, 148, 255});
+			draw_pokename(ctx.assets, {lvl_buf, lvl_ptr}, ally_hud_x + 450, 535.0f);
+			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(ally.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {ally_hud_x + 365.0f, 535.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			draw_pokename(ctx.assets, {hp_buf, hp_ptr}, ally_hud_x + 330, 600.0f);
+			draw_pokename(ctx.assets, {max_hp_buf, max_hp_ptr}, ally_hud_x + 420, 600.0f);
+			DrawRectangle(ally_hud_x + 160, 655.0f, (static_cast<float>(ally.exp()) / ally.exp_cap()) * 400.0f, 5, {0, 153, 148, 255});
 		}
 	}
-	if (battle.phase() == BATTLE_PHASE::MENU){
+	if (phase == BATTLE_PHASE::MENU){
 		DrawTextureEx(ctx.assets.get_tx("battle-menu.png"), {0, battle_menu_y}, 0, 3, WHITE);
-		switch (battle.menu_state()){
+		switch (menu_state){
 			case BATTLE_MENU_STATE::OPTIONS:
 				DrawTextureEx(ctx.assets.get_tx("battle-menu-opts.png"), {1050, battle_menu_y + 225.0f}, 0, 3, WHITE);
 				DrawTextureEx(ctx.assets.get_tx("battle-menu-opt-sqbr.png"), {970, battle_menu_y + 225.0f + opt * 39.0f}, 0, 3, WHITE);

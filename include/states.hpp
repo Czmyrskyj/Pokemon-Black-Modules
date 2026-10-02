@@ -178,7 +178,7 @@ struct main_state_t{
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
 	// WARN: [!!] AFTER DEBUGGING, SET TO 0
-	usz index = 0;
+	usz index = 1;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
@@ -211,11 +211,41 @@ struct battle_vs_t{
 
 #include "pokeball.hpp"
 
+
+enum class BATTLE_CAMERA_POS{
+	DEFAULT,
+	ALLY,
+	FOE,
+	TRAINER,
+};
+
+enum class BATTLE_PHASE{
+	INTRO,
+	FOE_SEND_OUT,
+	ALLY_SEND_OUT,
+	MENU,
+};
+
+enum class BATTLE_MENU_STATE{
+	NONE,
+	OPTIONS,
+	MOVES,
+	MODULES,
+	BAG,
+	POKEMON,
+};
+
 struct battle_state_t{
 	float bg_rotation = 0.0f;
 	u8 animation_timer = 0;
 	bool animation_done = false;
 	bool finished_drawing_back = false;
+	bool txted = false;
+	float foe_pokemon_scale = 0.0f;
+	float foe_pokemon_y = 0.5f;
+	float line_under_foe_pokeballs = -800.0f;
+	std::array<float, 6> foe_pokeball_x{};
+	u8 current_foe_pokeball = 0;
 	std::string current_line;
 	dialog_t dialog;
 	writer_t writer;
@@ -228,15 +258,32 @@ struct battle_state_t{
 	float trainer_thrown_pokeball_z = 3.0f;
 	float trainer_thrown_pokeball_y_vel = 0.05f;
 	float battle_menu_y = wnd_h;
+	float foe_z = -0.9f;
+	float foe_hud_x = -620.0f;
+	float line_under_trainer_pokeballs = wnd_w;
+	float ally_pokemon_scale = 0.0f;
+	float ally_pokemon_y = 0.5f;
+	float ally_hud_x = wnd_w;
+	BATTLE_CAMERA_POS camera_pos = BATTLE_CAMERA_POS::DEFAULT;
+	BATTLE_PHASE phase = BATTLE_PHASE::INTRO;
+	BATTLE_MENU_STATE menu_state = BATTLE_MENU_STATE::OPTIONS;
+	BATTLE_MENU_STATE next_menu_state = BATTLE_MENU_STATE::NONE;
+	u8 foe_accent_color = 0;
+	u8 foe_alpha = 255;
+	u8 trainer_alpha = 255;
+	u8 current_trainer_pokeball = 0;
+	std::array<float, 6> trainer_pokeball_x{};
 	u8 opt = 0;
 	i8 sel_opt = -1;
 	i8 next_pokemon = -1;
 	bool running_from_tr_batt = false;
 	u8 no_run_from_tr_batt_scrn_alpha = 0;
 	u8 no_run_from_tr_batt_scrn_alpha_tim = 0;
-	BATTLE_MENU_STATE next_menu_state = BATTLE_MENU_STATE::NONE;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
+	bool control_foe_pokeballs();
+	bool control_ally_pokeballs();
+	void set_phase(assets_t& assets, BATTLE_PHASE p);
 	explicit battle_state_t(st_ctx_t& ctx);
 };
 
