@@ -11,7 +11,7 @@ std::string battle_t::get_dialog_intro(){
 			return "LEGENDARY_POKEMON_APPEARED";
 			}
 			return "";
-			}, foe.entry);
+			}, foe);
 }
 
 std::string battle_t::get_dialog_foe_sent_out(){
@@ -24,7 +24,7 @@ std::string battle_t::get_dialog_foe_sent_out(){
 			} else if constexpr (std::is_same_v<T, legendary_t>){
 			return "";
 			}
-			}, foe.entry);
+			}, foe);
 }
 
 void battle_t::write(assets_t& assets, writer_t& writer){

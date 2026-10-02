@@ -16,9 +16,9 @@ struct st_ctx_t;
 constexpr float alpha_delta{300.0f};
 struct st_ctx_t{
 	assets_t& assets;
-	trainer_t player{"nodata", ""};
-	trainer_t cheren{"Cheren", "[PKMN_SIGN] Trainer"};
-	trainer_t bianca{"Bianca", "[PKMN_SIGN] Trainer"};
+	trainer_t player{"nodata", TRAINER_TYPE::PKMN_TRAINER};
+	trainer_t cheren{"Cheren", TRAINER_TYPE::PKMN_TRAINER};
+	trainer_t bianca{"Bianca", TRAINER_TYPE::PKMN_TRAINER};
 	Locale::locale_t& locale;
 	pokedex_t& pokedex;
 	spritedex_t& spritedex;
@@ -201,7 +201,7 @@ struct st_ctx_t{
 			5,
 			{84, 85, 86, 87},
 		};
-		formatter.feed("[PLAYER]", std::string(player.get_name()));
+		formatter.feed("[PLAYER]", std::string(player.name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
 		formatter.feed("[CHEREN-STARTER]", "SNIVY");

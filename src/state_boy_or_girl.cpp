@@ -28,12 +28,12 @@ void boy_or_girl_t::update(st_ctx_t& ctx){
 	Sound sel_sfx = ctx.assets.get_sfx("SEQ_SE_SELECT1.wav");
 	Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
 
-	if (writer.finished && ctx.player.get_sex() == SEX::NONE){
+	if (writer.finished && ctx.player.sex() == SEX::NONE){
 		opt = ctx.control_selection(ctx.selected_option, 1, sel_sfx, dec_sfx, true);
 	}
 
 	if (opt != -1){
-		if (ctx.player.get_sex() == SEX::NONE){
+		if (ctx.player.sex() == SEX::NONE){
 			ctx.player.set_sex(static_cast<SEX>(opt));
 		} else {
 			ctx.switch_state(STATE::WHATS_YOUR_NAME);
@@ -55,14 +55,14 @@ void boy_or_girl_t::render(st_ctx_t& ctx){
 		auto hilda = ctx.assets.get_tx("hilda.png");
 
 		Rectangle hilbert_src = {
-			ctx.selected_option == 0 && ctx.player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
+			ctx.selected_option == 0 && ctx.player.sex() == SEX::NONE ? char_frame * 32.0f : 0,
 			0,
 			32,
 			static_cast<float>(hilbert.height)
 
 		};
 		Rectangle hilda_src = {
-			ctx.selected_option == 1 && ctx.player.get_sex() == SEX::NONE ? char_frame * 32.0f : 0,
+			ctx.selected_option == 1 && ctx.player.sex() == SEX::NONE ? char_frame * 32.0f : 0,
 			0,
 			32,
 			static_cast<float>(hilda.height)

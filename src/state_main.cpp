@@ -156,10 +156,10 @@ void main_state_t::update(st_ctx_t& ctx){
 				std::format(
 					"{}.ogg",
 					[&]() -> std::string{
-					if (ctx.bt_info.prefix.empty()){
+					if (ctx.bt_info.trainer_type == TRAINER_TYPE::PKMN_TRAINER){
 					return ctx.bt_info.name;
 					}
-					return ctx.bt_info.prefix;
+					return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
 					}()
 					)
 			     );
@@ -222,7 +222,7 @@ void main_state_t::render(st_ctx_t& ctx){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {10, encounter_info_txtbox_y - 20, 0.0f});
 		} else {
-			draw_trainer(ctx.assets, ctx.bt_info.prefix, ctx.bt_info.name, {10, encounter_info_txtbox_y - 120, 0.0f});
+			draw_trainer(ctx.assets, ctx.bt_info.trainer_type, ctx.bt_info.name, {10, encounter_info_txtbox_y - 120, 0.0f});
 		}
 		draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, "FIGHT"), 1700, encounter_info_txtbox_y + 100, 50, WHITE);
 	}

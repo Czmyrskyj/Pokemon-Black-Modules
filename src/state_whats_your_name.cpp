@@ -21,7 +21,7 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
 		ctx.set_state_meta = true;
 	}
-	if (ctx.player.get_name() == "nodata" && (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_RIGHT))){
+	if (ctx.player.name() == "nodata" && (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_RIGHT))){
 		char_cursor_blinker = 0;
 		PlaySound(sel_sfx);
 	}
@@ -41,16 +41,16 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 				} else {
 					PlaySound(bep_sfx);
 				}
-			} else if (selected_char == 74 && (!entered_name.empty() && entered_name != "nodata" && ctx.player.get_name() == "nodata")){
+			} else if (selected_char == 74 && (!entered_name.empty() && entered_name != "nodata" && ctx.player.name() == "nodata")){
 				ctx.player.set_name(entered_name);
-				ctx.formatter.feed("[PLAYER]", std::string(ctx.player.get_name()));
+				ctx.formatter.feed("[PLAYER]", std::string(ctx.player.name()));
 				PlaySound(dec2_sfx);
 			}
 		}
 	}
 
 	if (IsKeyPressed(KEY_X)){
-		if (!entered_name.empty() && ctx.player.get_name() == "nodata"){
+		if (!entered_name.empty() && ctx.player.name() == "nodata"){
 			entered_name.pop_back();
 			PlaySound(can_sfx);
 		} else {
@@ -65,7 +65,7 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 	if (screen_x >= 1416) screen_x = 0;
 
 
-	if (ctx.player.get_name() == "nodata"){
+	if (ctx.player.name() == "nodata"){
 		if (IsKeyPressed(KEY_DOWN)){
 			if (selected_char < 52){
 				if (selected_char < 52){
@@ -108,7 +108,7 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 	}
 
 	SetMusicVolume(ctx.current_music, ctx.music_volume);
-	if (ctx.player.get_name() != "nodata"){
+	if (ctx.player.name() != "nodata"){
 		ctx.switch_state(STATE::JUNIPER_LETTER, 100);
 		if (ctx.music_volume > 0.0f){
 			ctx.music_volume -= GetFrameTime()*0.5f;

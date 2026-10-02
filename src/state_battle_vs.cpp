@@ -6,27 +6,26 @@
 
 std::string get_music_name(st_ctx_t& ctx){
 	auto& nm = ctx.bt_info.name;
-	auto& pf = ctx.bt_info.prefix;
-	auto ms = [&]() -> std::string{
-		switch (ctx.bt_info.foe.opp){
-			case OPPONENT::TRAINER:
-				{
-					if (ctx.bt_info.prefix.empty()){
+	TRAINER_TYPE tt = ctx.bt_info.trainer_type;
+	auto ms = std::visit([&](auto&& arg) -> std::string {
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, trainer_t>){
+					if (tt == TRAINER_TYPE::PKMN_TRAINER){
 						if (nm == "Bianca" || nm == "Cheren") return "Battle! Cheren A Belle";
 						if (nm == "N") return "Battle! N";
 					} else {
-						if (pf == "Team Plasma Grunt") return "Battle! Team Plasma";
-						if (pf == "Elite Four") return "Battle! Elite Four";
+						if (tt == TRAINER_TYPE::TEAM_PLASMA_GRUNT) return "Battle! Team Plasma";
+						if (tt == TRAINER_TYPE::ELITE_FOUR) return "Battle! Elite Four";
+						if (tt == TRAINER_TYPE::GYM_LEADER) return "Battle! Gym Leader";
 						return "Battle! Trainer";
 					}
+				} else if constexpr (std::is_same_v<T, pokemon_t>){
+					return "Battle! Wild Pokemon";
+				} else if constexpr (std::is_same_v<T, legendary_t>){
+					return "Battle! Legendary Pokemon";
 				}
-				break;
-			case OPPONENT::WILD: return "Battle! Wild Pokemon";
-			case OPPONENT::LEGENDARY: return "Battle! Legendary Pokemon";
-			case OPPONENT::GYM_LEADER: return "Battle! Gym Leader";
-		}
-		return "";
-	}();
+				return "";
+			}, ctx.bt_info.foe);
 	return std::format("{}.ogg", ms);
 }
 
@@ -122,10 +121,10 @@ constexpr float vs_h{54.0f};
 void battle_vs_t::render(st_ctx_t& ctx){
 	DrawTexturePro(ctx.assets.get_tx("banner1.png"), {source_x, 0, bn_w, bn_h}, {wnd_w - bn_w*7.5f - banner_x, 400 + (!flashed_last_time ? shake.y : 0.0f), bn_w * 8.0f, bn_h * 4.0f}, {0, 0}, 0, WHITE);
 	DrawTexturePro(ctx.assets.get_tx("banner0.png"), {-source_x, 0, bn_w, bn_h}, {banner_x, 400 + (!flashed_last_time ? shake.y : 0.0f), bn_w * 7.5f, bn_h * 4.0f}, {0, 0}, 0, WHITE);
-	anim_trainer_render.draw_vs(ctx.assets, ctx.player.get_sex() == SEX::MALE ? "Hilbert" : "Hilda", {portrait_x, 400}, WHITE);
+	anim_trainer_render.draw_vs(ctx.assets, ctx.player.sex() == SEX::MALE ? "Hilbert" : "Hilda", {portrait_x, 400}, WHITE);
 	anim_trainer_render.draw_vs(ctx.assets, ctx.bt_info.name, {wnd_w - portrait_x - bn_w*4.0f, 400}, flashed_last_time ? WHITE : BLACK);
 	if (flashed_last_time){
-		draw_text(ctx.assets, ctx.player.get_name(), portrait_x + ((bn_w*4.0f) / 2.0f), 400 + bn_h*4.0f + 5.0f, 50, WHITE, BLACK);
+		draw_text(ctx.assets, ctx.player.name(), portrait_x + ((bn_w*4.0f) / 2.0f), 400 + bn_h*4.0f + 5.0f, 50, WHITE, BLACK);
 		draw_text(ctx.assets, ctx.bt_info.name, wnd_w - portrait_x - ((bn_w*4.0f) / 2.0f), 400 + bn_h*4.0f + 5.0f, 50, WHITE, BLACK);
 		DrawTextureEx(ctx.assets.get_tx("vs.png"), {wnd_w / 2.0f - vs_w*vs_scale / 2.0f + shake.x, (400 - vs_h*vs_scale / 2.0f) + 150.0f + shake.y}, 0, vs_scale, WHITE);
 	}

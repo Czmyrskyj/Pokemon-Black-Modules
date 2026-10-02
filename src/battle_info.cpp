@@ -39,15 +39,14 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 
 	in.seekg(table.at(total_index).offset);
 
-	OPPONENT battle_type;
-	in.read(reinterpret_cast<char*>(&battle_type), sizeof(OPPONENT));
+	u8 battle_type;
+	in.read(reinterpret_cast<char*>(&battle_type), sizeof(u8));
 
-	opp_entry_t opp = [&]() -> opp_entry_t{
+	foe_t foe = [&]() -> foe_t{
 		switch (battle_type){
-			case OPPONENT::TRAINER: return trainer_t{};			
-			case OPPONENT::WILD: return pokemon_t{};
-			case OPPONENT::LEGENDARY: return legendary_t{};
-			case OPPONENT::GYM_LEADER: return trainer_t{};
+			case 0: return trainer_t{};			
+			case 1: return pokemon_t{};
+			case 2: return legendary_t{};
 		}
 		return {};
 	}();
@@ -85,11 +84,8 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		}
 	}
 
-	u32 prefix_len;
-	in.read(reinterpret_cast<char*>(&prefix_len), sizeof(u32));
-
-	std::string prefix(prefix_len, '\0');
-	in.read(prefix.data(), prefix_len);
+	TRAINER_TYPE trainer_type;
+	in.read(reinterpret_cast<char*>(&trainer_type), sizeof(TRAINER_TYPE));
 
 	u8 party_len;
 	in.read(reinterpret_cast<char*>(&party_len), sizeof(u8));
@@ -116,16 +112,13 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 	}
 
 	battle_entry_t battle_entry = {
-		.foe = {
-			battle_type,
-			opp,
-		},
+		.foe = foe,
 		.name = name,
 		.meet_msg = meet_msg,
 		.defeat_msg = def_msg,
 		.reward = reward,
 		.dialog = dialog,
-		.prefix = prefix,
+		.trainer_type = trainer_type,
 		.party = party,
 	};
 	return battle_entry;

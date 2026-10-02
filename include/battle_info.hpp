@@ -12,7 +12,7 @@ struct battle_entry_t{
 	std::string defeat_msg{};
 	u16 reward;
 	std::vector<std::string> dialog;
-	std::string prefix{};
+	TRAINER_TYPE trainer_type;
 	party_t party;
 };
 

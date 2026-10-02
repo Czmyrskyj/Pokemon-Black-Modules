@@ -87,7 +87,7 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 		.fovy = 65,
 		.projection = CAMERA_PERSPECTIVE,
 	};
-	ctx.formatter.feed("[FOE_TYPE]", ctx.formatter.format((!ctx.bt_info.prefix.empty()) ? ctx.bt_info.prefix : "[PKMN_SIGN] Trainer"));
+	ctx.formatter.feed("[FOE_TYPE]", ctx.formatter.format(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]));
 	ctx.formatter.feed("[FOE]", ctx.bt_info.name);
 	current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, battle.get_dialog_intro()));
 	foe_pokeball_x.fill(0.0f);
@@ -424,7 +424,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 		default: break;
 	}
 	if (running_from_tr_batt){
-		if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry)){
+		if (std::holds_alternative<trainer_t>(ctx.bt_info.foe)){
 			if (no_run_from_tr_batt_scrn_alpha < 200 && no_run_from_tr_batt_scrn_alpha_tim < 100){
 				no_run_from_tr_batt_scrn_alpha += 10;
 			} else {
@@ -457,11 +457,11 @@ void battle_state_t::render(st_ctx_t& ctx){
 		ctx.bianca.get_party();
 	auto& foep = party[battle.current_foe_pokemon_idx()];
 	auto& p_party = ctx.player.get_party();
-	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe.entry)){
+	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe)){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha}, foe_accent_color == 255);
 		} else {
-			draw_trainer(ctx.assets, ctx.bt_info.prefix, ctx.bt_info.name, {0.5f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha});
+			draw_trainer(ctx.assets, ctx.bt_info.trainer_type, ctx.bt_info.name, {0.5f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha});
 			animation_timer ++;
 			if (animation_timer > 125){
 				animation_done = true;
@@ -471,7 +471,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 	auto& ally = p_party[battle.current_trainer_pokemon_idx()];
 	if (phase >= BATTLE_PHASE::FOE_SEND_OUT){
 		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, foe_pokemon_y, -0.3f}, {foe_pokemon_scale, foe_pokemon_scale}, &ctx.camera.camera);
-		if (player_back.draw_back(ctx.assets, (ctx.player.get_sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, trainer_alpha})) finished_drawing_back = true;
+		if (player_back.draw_back(ctx.assets, (ctx.player.sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, trainer_alpha})) finished_drawing_back = true;
 		if (foe_thrown_pokeball_renderer.spinned < 3){
 			foe_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {0.7f, 0.5f, -0.5f}, ctx.camera.camera);
 		}

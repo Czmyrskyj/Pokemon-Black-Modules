@@ -6,19 +6,8 @@
 #include "dialog.hpp"
 #include <variant>
 
-enum class OPPONENT{
-	TRAINER,
-	WILD,
-	LEGENDARY,
-	GYM_LEADER,
-};
 
-using opp_entry_t = std::variant<trainer_t, pokemon_t, legendary_t>;
-
-struct foe_t{
-	OPPONENT opp;
-	opp_entry_t entry;
-};
+using foe_t = std::variant<trainer_t, pokemon_t, legendary_t>;
 
 struct attack_action_t{
 	u8 move_slot;

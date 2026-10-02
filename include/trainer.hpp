@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "pokemon.hpp"
 #include "sex.hpp"
+#include "trainer_type_prefixes.hpp"
 #include <string>
 #include <cassert>
 #include <span>
@@ -40,28 +41,31 @@ class assets_t;
 struct Vector2;
 
 class trainer_t{
-	std::string name = "nodata";
-	std::string prefix = "";
-	SEX sex = SEX::NONE;
+	std::string m_name = "nodata";
+	TRAINER_TYPE m_trainer_type = TRAINER_TYPE::NONE;
+	SEX m_sex = SEX::NONE;
 	party_t party{};
 	std::vector <pokemon_t> pc_party{};
 	public:
 	trainer_t() = default;
-	trainer_t(std::string n, std::string p) : name(std::move(n)), prefix(std::move(p)) {}
-	std::string_view get_name() const{
-		return name;
+	trainer_t(std::string n, TRAINER_TYPE t) : m_name(std::move(n)), m_trainer_type(t) {}
+	std::string_view name() const{
+		return m_name;
 	}
 	std::string_view get_prefix() const{
-		return prefix;
+		return trainer_type_prefixes[static_cast<u8>(m_trainer_type)];
 	}
 	void set_sex(SEX s){
-		sex = s;
+		m_sex = s;
 	}
-	SEX get_sex() const{
-		return sex;
+	SEX sex() const{
+		return m_sex;
 	}
 	void set_name(std::string n){
-		name = std::move(n);
+		m_name = std::move(n);
+	}
+	TRAINER_TYPE trainer_type() const {
+		return m_trainer_type;
 	}
 	void draw_overworld_preview(assets_t& assets, Vector2 pos);
 	void push_pokemon(pokemon_t pokemon){
@@ -75,7 +79,7 @@ class trainer_t{
 		return party;
 	}
 };
-void draw_trainer(assets_t& assets, std::string_view prefix, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE);
+void draw_trainer(assets_t& assets, TRAINER_TYPE trainer_type, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE);
 struct anim_trainer_render_t{
 	u8 frame{0};
 	float frametimer{0.0f};
