@@ -8,6 +8,7 @@
 #include <variant>
 #include <format>
 #include <algorithm>
+#include <print>
 
 using foe_t = std::variant<trainer_t, pokemon_t, legendary_t>;
 
@@ -50,6 +51,8 @@ class battle_t{
 	u8 m_current_trainer_pokemon_idx = 0;
 	turn_action_t m_foe_turn_action = none_action_t{};
 	turn_action_t m_trainer_turn_action = none_action_t{};
+
+	BATTLE_TURN m_attack_turn = BATTLE_TURN::TRAINER;
 	public:
 	battle_t(trainer_t& p, foe_t& f, party_t& party) : player(p), foe(f), foe_party(&party){};
 	~battle_t() = default;
@@ -98,7 +101,7 @@ class battle_t{
 	
 				float hp_ratio = cur_pokemon.hp() / cur_pokemon.max_hp();
 				if (hp_ratio > 0.2f){
-					set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.moves().size() - 1), 0);
+					set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.move_count() - 1), 0);
 				} else {
 					set_action(TURN_ACTION::ITEM, BATTLE_TURN::FOE, 0, 0);
 				}
@@ -108,7 +111,7 @@ class battle_t{
 			/*  WARN:
 			 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
 			 */
-				set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.moves().size() - 1), 0);
+				set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.move_count() - 1), 0);
 			}
 		} else {
 
@@ -118,13 +121,13 @@ class battle_t{
 			 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
 			 */
 			const auto& p = std::get<pokemon_t>(foe);
-			set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, p.moves().size()), 0);
+			set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, p.move_count() - 1), 0);
 		}
 	}
 	void execute_action(movedex_t& movedex, assets_t& assets){
+		auto& foe_pokemon = (*foe_party)[m_current_foe_pokemon_idx];
+		auto& ally_pokemon = player.get_party()[m_current_trainer_pokemon_idx];
 		if (std::holds_alternative<trainer_t>(foe)){
-			auto& foe_pokemon = (*foe_party)[m_current_foe_pokemon_idx];
-			auto& ally_pokemon = player.get_party()[m_current_trainer_pokemon_idx];
 			if (!std::holds_alternative<attack_action_t>(m_trainer_turn_action)){
 				m_trainer_turn_action = none_action_t{};
 			} else {
@@ -134,6 +137,15 @@ class battle_t{
 				foe_pokemon.hp_damage(power, ally_pokemon.lvl(), ally_pokemon.get_pokedex().base_attack);
 				m_trainer_turn_action = none_action_t{};
 			}
+		}
+		if (!std::holds_alternative<attack_action_t>(m_foe_turn_action)){
+			m_foe_turn_action = none_action_t{};
+		} else {
+			move_t used_move = movedex.get_move((*foe_party)[m_current_foe_pokemon_idx].moves()[std::get<attack_action_t>(m_foe_turn_action).move_slot]);
+			auto power = used_move.power;
+			PlaySound(assets.get_sfx(std::format("{}.wav", used_move.name)));
+			ally_pokemon.hp_damage(power, foe_pokemon.lvl(), foe_pokemon.get_pokedex().base_attack);
+			m_foe_turn_action = none_action_t{};
 		}
 	}
 	turn_action_t trainer_turn_action() const{

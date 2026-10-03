@@ -259,9 +259,6 @@ void battle_state_t::update(st_ctx_t& ctx){
 					}
 					if (line_under_trainer_pokeballs > 1120.0f) line_under_trainer_pokeballs -= 40.0f;
 				} else {
-					if (ally_hud_x > wnd_w - 120.0f * 5.0f){
-						ally_hud_x -= 20.0f;
-					}
 					if (!trainer_thrown_pokeball_renderer.thrown){
 						PlaySound(ctx.assets.get_sfx("SEQ_SE_NAGERU.wav"));
 						trainer_thrown_pokeball_renderer.thrown = true;
@@ -285,7 +282,12 @@ void battle_state_t::update(st_ctx_t& ctx){
 						if (!trainer_thrown_pokeball_renderer.opened){
 							PlaySound(ctx.assets.get_sfx("SEQ_SE_BOWA2.wav"));
 							PlaySound(ctx.assets.get_cry(ally.get_pokedex().id));
+							ally_hp_render = ally.hp();
 							trainer_thrown_pokeball_renderer.opened = true;
+						} else {
+							if (ally_hud_x > wnd_w - 120.0f * 5.0f){
+								ally_hud_x -= 20.0f;
+							}
 						}
 						if (ally_pokemon_scale < 1.0f) ally_pokemon_scale += 0.05f;
 						if (ally_pokemon_scale >= pokemon_scale_dest && ally_pokemon_y > pokemon_y_dest){
@@ -336,7 +338,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						if (IsKeyPressed(KEY_RIGHT)){
 							PlaySound(sel_sfx);
-							if (opt < ally.moves().size() - 1){
+							if (opt < ally.move_count() - 1){
 								opt ++;
 							} else {
 								opt = 0;
@@ -347,7 +349,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 							if (opt > 0){
 								opt --;
 							} else {
-								opt = ally.moves().size() - 1;
+								opt = ally.move_count() - 1;
 							}
 						}
 						if (IsKeyPressed(KEY_DOWN)){
@@ -363,7 +365,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 							if (opt > 1){
 								opt -= 2;
 							} else {
-								opt = (opt % 2 == 0) ? ally.moves().size() - 2 : ally.moves().size() - 1;
+								opt = (opt % 2 == 0) ? ally.move_count() - 2 : ally.move_count() - 1;
 							}
 						}
 						if (IsKeyPressed(KEY_Z)){
@@ -443,6 +445,12 @@ void battle_state_t::update(st_ctx_t& ctx){
 				foe_hp_render--;
 			}
 			if (foe_hp_render < foep.hp()){
+				foe_hp_render++;
+			}
+			if (ally_hp_render > ally.hp()){
+				ally_hp_render--;
+			}
+			if (ally_hp_render < ally.hp()){
 				foe_hp_render++;
 			}
 			break;
@@ -551,7 +559,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 				DrawTexturePro(ctx.assets.get_tx("foe-pokeball.png"), {(p_party[i].get_pokedex().id == MISSINGNO) ? 0.0f : 13.0f, 0, 13, 14}, {xs[i], 500.0f, 70.0f, 75.0f}, {0, 0}, 0, WHITE);
 			}
 		} else {
-			float hp_ratio = ally.hp() / ally.max_hp();
+			float hp_ratio = ally_hp_render / ally.max_hp();
 			float hp_idx = [&]() -> float{
 				if (hp_ratio >= 0.7f){
 					return 2;

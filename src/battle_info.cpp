@@ -2,6 +2,7 @@
 #include "random.hpp"
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include <print>
 
 namespace fs = std::filesystem;
@@ -90,6 +91,8 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 	u8 party_len;
 	in.read(reinterpret_cast<char*>(&party_len), sizeof(u8));
 	party_t party;
+
+
 	while (party.size() < party_len){
 		POKEDEX id;
 		in.read(reinterpret_cast<char*>(&id), sizeof(u16));
@@ -100,13 +103,19 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		std::array<u16, 4> moves;
 		in.read(reinterpret_cast<char*>(moves.data()), moves.size()*sizeof(u16));
 
+
+		u8 move_count = std::ranges::count_if(moves, [](u16 move_id){
+				return move_id != 0;
+				});
+
 		pokemon_t pokemon{
 			pokeentry,
-			"",
-			rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
-			rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
-			lvl,
-			moves,
+				"",
+				rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+				rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
+				lvl,
+				moves,
+				move_count,
 		};
 		party.push_back(pokemon);
 	}

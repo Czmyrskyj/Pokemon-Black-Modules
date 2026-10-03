@@ -152,6 +152,7 @@ struct st_ctx_t{
 			SEX::MALE,
 			5,
 			{55, 56, 57, 0},
+			3
 		};
 		pokemon_t cherens{
 			pokedex.get_pokedex_entry(SNIVY),
@@ -160,6 +161,7 @@ struct st_ctx_t{
 			SEX::MALE,
 			5,
 			{1, 0, 0, 0},
+			1
 		};
 		pokemon_t biancas{
 			pokedex.get_pokedex_entry(TEPIG),
@@ -168,6 +170,7 @@ struct st_ctx_t{
 			SEX::MALE,
 			5,
 			{1, 0, 0, 0},
+			1
 		};
 		pokemon_t purrloin{
 			pokedex.get_pokedex_entry(PURRLOIN),
@@ -176,6 +179,7 @@ struct st_ctx_t{
 			SEX::MALE,
 			5,
 			{1, 228, 0, 0},
+			2
 		};
 		pokemon_t buizel{
 			pokedex.get_pokedex_entry(BUIZEL),
@@ -184,6 +188,7 @@ struct st_ctx_t{
 			SEX::MALE,
 			5,
 			{55, 56, 57, 0},
+			3
 		};
 		pokemon_t serperior{
 			pokedex.get_pokedex_entry(SERPERIOR),
@@ -192,6 +197,7 @@ struct st_ctx_t{
 			SEX::MALE,
 			5,
 			{36, 24, 51, 32},
+			4
 		};
 		pokemon_t emolga{
 			pokedex.get_pokedex_entry(EMOLGA),
@@ -200,6 +206,7 @@ struct st_ctx_t{
 			SEX::FEMALE,
 			5,
 			{84, 85, 86, 87},
+			4
 		};
 		formatter.feed("[PLAYER]", std::string(player.name()));
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");

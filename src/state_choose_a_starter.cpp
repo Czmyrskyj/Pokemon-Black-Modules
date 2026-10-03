@@ -126,6 +126,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							SEX::MALE,
 							5,
 							{1, 0, 0, 0},
+							1
 						};
 						auto cherens_entry = ctx.pokedex.get_pokedex_entry(starters[cheren_selected_starter]);
 						pokemon_t cherens_chosen{
@@ -135,6 +136,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							SEX::MALE,
 							5,
 							{1, 0, 0, 0},
+							1
 						};
 						auto biancas_entry = ctx.pokedex.get_pokedex_entry(starters[bianca_selected_starter]);
 						pokemon_t biancas_chosen{
@@ -144,6 +146,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 							SEX::MALE,
 							5,
 							{1, 0, 0, 0},
+							1
 						};
 						ctx.player.push_pokemon(players_chosen);
 						ctx.cheren.push_pokemon(cherens_chosen);
