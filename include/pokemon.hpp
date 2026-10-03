@@ -6,6 +6,7 @@
 #include "moves.hpp"
 #include <span>
 #include <string>
+#include <cmath>
 
 enum class NATURE : u8{
 	NONE,
@@ -84,6 +85,13 @@ class pokemon_t{
 		m_exp_cap = 3 * (m_lvl*m_lvl) + 3 * m_lvl + 1;
 	}
 	void block_frames(bool b) {m_frames_blocked = b; }
+	void hp_damage(u16 power, u8 attacker_lvl, u8 attacker_attack) { 
+		u16 final_power =  std::floor(std::floor(std::floor(2 * attacker_lvl / 5 + 2) * power * attacker_attack / pokedex.base_defense) / 50) + 2;
+		m_hp -= final_power;
+		if (static_cast<i16>(m_hp - final_power) <= 0) {
+			m_hp = 0;
+		}
+	}
 	std::span<const u16> moves() const{ return m_moves; }
 	std::span<const u8> pp_used() const{ return m_pp_used; }
 	std::array<u8, 4>& get_pp_used_array() { return m_pp_used; }

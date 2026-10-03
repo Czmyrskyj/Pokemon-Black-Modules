@@ -178,7 +178,7 @@ struct main_state_t{
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
 	// WARN: [!!] AFTER DEBUGGING, SET TO 0
-	usz index = 3;
+	usz index = 1;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
@@ -224,6 +224,7 @@ enum class BATTLE_PHASE{
 	FOE_SEND_OUT,
 	ALLY_SEND_OUT,
 	MENU,
+	FIGHT,
 };
 
 enum class BATTLE_MENU_STATE{
@@ -264,6 +265,8 @@ struct battle_state_t{
 	float ally_pokemon_scale = 0.0f;
 	float ally_pokemon_y = 0.5f;
 	float ally_hud_x = wnd_w;
+	u16 foe_hp_render = 0;
+	u16 ally_hp_render = 0;
 	BATTLE_CAMERA_POS camera_pos = BATTLE_CAMERA_POS::DEFAULT;
 	BATTLE_PHASE phase = BATTLE_PHASE::INTRO;
 	BATTLE_MENU_STATE menu_state = BATTLE_MENU_STATE::OPTIONS;

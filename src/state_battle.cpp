@@ -79,7 +79,13 @@ void battle_state_t::set_phase(assets_t& assets, BATTLE_PHASE p){
 	}
 }
 
-battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.foe){
+static party_t& pick_party(st_ctx_t& ctx){
+	return (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
+		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
+		ctx.bianca.get_party();
+}
+
+battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.foe, pick_party(ctx)){
 	ctx.camera.camera = {
 		.position = {0.4f, 0.6f, -2.0f},
 		.target = {-0.3f, 0, 0},
@@ -163,6 +169,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 	}
 
 	const auto& ally = p_party[battle.current_trainer_pokemon_idx()];
+	const auto& foep = party[battle.current_foe_pokemon_idx()];
 
 	switch (phase){
 		case BATTLE_PHASE::INTRO:
@@ -190,7 +197,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 		case BATTLE_PHASE::FOE_SEND_OUT:
 			{
 				if (!txted){
-					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_SENT_OUT"), party[battle.current_foe_pokemon_idx()].get_pokedex().id);
+					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_SENT_OUT"), foep.get_pokedex().id);
 					writer.set_text(current_line);
 					txted = true;
 				}
@@ -227,7 +234,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 					}
 					if (!foe_thrown_pokeball_renderer.opened){
 						PlaySound(ctx.assets.get_sfx("SEQ_SE_BOWA2.wav"));
-						PlaySound(ctx.assets.get_cry(party[battle.current_foe_pokemon_idx()].get_pokedex().id));
+						PlaySound(ctx.assets.get_cry(foep.get_pokedex().id));
+						foe_hp_render = foep.hp();
 						foe_thrown_pokeball_renderer.opened = true;
 					}
 				}
@@ -236,7 +244,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 		case BATTLE_PHASE::ALLY_SEND_OUT:
 			{
 				if (!txted){
-					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "TRAINER_SENT_OUT"), p_party[battle.current_trainer_pokemon_idx()].get_pokedex().id);
+					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "TRAINER_SENT_OUT"), ally.get_pokedex().id);
 					writer.set_text(current_line);
 					txted = true;
 				}
@@ -276,7 +284,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 					} else {
 						if (!trainer_thrown_pokeball_renderer.opened){
 							PlaySound(ctx.assets.get_sfx("SEQ_SE_BOWA2.wav"));
-							PlaySound(ctx.assets.get_cry(ctx.player.get_party()[battle.current_trainer_pokemon_idx()].get_pokedex().id));
+							PlaySound(ctx.assets.get_cry(ally.get_pokedex().id));
 							trainer_thrown_pokeball_renderer.opened = true;
 						}
 						if (ally_pokemon_scale < 1.0f) ally_pokemon_scale += 0.05f;
@@ -358,6 +366,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 								opt = (opt % 2 == 0) ? ally.moves().size() - 2 : ally.moves().size() - 1;
 							}
 						}
+						if (IsKeyPressed(KEY_Z)){
+							battle.set_action(TURN_ACTION::ATTACK, BATTLE_TURN::TRAINER, opt, 0);
+							current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "PKMN_USED"), ally.get_pokedex().id, ctx.movedex.get_move(ally.moves()[opt]).name);
+							writer.set_text(current_line);
+						}
 						break;
 					case BATTLE_MENU_STATE::MODULES:
 						break;
@@ -409,6 +422,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 							}
 							if (next_pokemon != -1){
 								next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+								battle.set_action(TURN_ACTION::SWITCH, BATTLE_TURN::TRAINER, next_pokemon);
 							}
 						}
 						break;
@@ -421,7 +435,26 @@ void battle_state_t::update(st_ctx_t& ctx){
 				}
 			}
 			break;
-		default: break;
+		case BATTLE_PHASE::FIGHT:
+			if (writer.finished){
+				battle.execute_action(ctx.movedex, ctx.assets);
+			}
+			if (foe_hp_render > foep.hp()){
+				foe_hp_render--;
+			}
+			if (foe_hp_render < foep.hp()){
+				foe_hp_render++;
+			}
+			break;
+	}
+	if (!std::holds_alternative<none_action_t>(battle.trainer_turn_action()) &&
+			(ally_pokemon_y <= pokemon_y_dest &&
+			 ally_pokemon_scale >= pokemon_scale_dest &&
+			 next_menu_state == BATTLE_MENU_STATE::NONE
+			) && phase != BATTLE_PHASE::FIGHT){
+		battle.set_ai_action();
+		phase = BATTLE_PHASE::FIGHT;
+		camera_pos = BATTLE_CAMERA_POS::DEFAULT;
 	}
 	if (running_from_tr_batt){
 		if (std::holds_alternative<trainer_t>(ctx.bt_info.foe)){
@@ -492,7 +525,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		}
 	} else {
 		if (foe_pokemon_y <= pokemon_y_dest){
-			float hp_ratio = foep.hp() / foep.max_hp();
+			float hp_ratio = foe_hp_render / foep.max_hp();
 			float hp_idx = [&]() -> float{
 				if (hp_ratio >= 0.7f){
 					return 2;
