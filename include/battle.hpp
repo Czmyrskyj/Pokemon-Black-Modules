@@ -171,9 +171,12 @@ class battle_t{
 		auto& def = is_trainer ? foep : ally;
 		
 		if (atk.hp() > 0 && std::holds_alternative<attack_action_t>(action)){
-			const move_t& mv = movedex.get_move(atk.moves()[std::get<attack_action_t>(action).move_slot]);
+			u8 slot = std::get<attack_action_t>(action).move_slot;
+			const move_t& mv = movedex.get_move(atk.moves()[slot]);
 			PlaySound(assets.get_sfx(std::format("{}.wav", mv.name)));
 			def.hp_damage(mv.power, atk.lvl(), atk.get_pokedex().base_attack);
+			auto& used = atk.get_pp_used_array()[slot];
+			if (used < mv.pp) used++;
 		}
 		action = none_action_t{};
 
