@@ -5,6 +5,7 @@
 enum class REGION{
 	NUVEMA,
 	ROUTE_1,
+	STRIATON_GYM,
 	ACCUMULA,
 	STRIATON,
 	NACREN,
@@ -139,11 +140,15 @@ constexpr std::string_view get_region_str(REGION r) {
 		case REGION::ENTRALINK:            return "Entralink";
 		case REGION::ENTREE_FOREST:        return "Entree Forest";
 		case REGION::UNITY_TOWER:          return "Unity Tower";
+		case REGION::STRIATON_GYM:	   return "Striaton City Gym";
 	}
 	return "Unknown";
 }
 
+
+
 constexpr std::array<usz, static_cast<u8>(REGION::UNITY_TOWER) + 1> encounters_count{
 	2,
-	5,
+	4,
+	1,
 };

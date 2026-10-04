@@ -202,6 +202,9 @@ void draw_trainer(assets_t& assets, TRAINER_TYPE tt, std::string_view name, Vect
 			if (name == "Grimsley")          return { 5, 11 };
 			if (name == "Caitlin")           return { 6, 10 };
 			if (name == "Marshal")           return { 4, 10 };
+			if (name == "Chili")           return { 2, 1 };
+			if (name == "Cilan")           return { 3, 1 };
+			if (name == "Cress")           return { 4, 1 };
 			if (name == "Ingo" || name == "Emmet") return { 5, 11 };
 		}
 		switch (tt) {

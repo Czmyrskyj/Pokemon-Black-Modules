@@ -156,10 +156,12 @@ void main_state_t::update(st_ctx_t& ctx){
 				std::format(
 					"{}.ogg",
 					[&]() -> std::string{
-					if (ctx.bt_info.trainer_type == TRAINER_TYPE::PKMN_TRAINER){
-					return ctx.bt_info.name;
+					auto tt = ctx.bt_info.trainer_type;
+					switch (tt){
+					case TRAINER_TYPE::PKMN_TRAINER: return ctx.bt_info.name;
+					case TRAINER_TYPE::GYM_LEADER: return "Gym";
+					default: return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
 					}
-					return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
 					}()
 					)
 			     );
@@ -214,8 +216,8 @@ void main_state_t::render(st_ctx_t& ctx){
 		}
 		draw_text_seq(ctx.assets, writer, 200, encounter_info_txtbox_y, 50, WHITE, 1);
 		auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
-				(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
-				ctx.bianca.get_party();
+			(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
+			ctx.bianca.get_party();
 		for (usz i = 0; i < party.size(); i++){
 			party[i].render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::MENU, {1000 + i * 80.0f, encounter_info_txtbox_y - 20.0f, 0}, {242, 200});
 		}

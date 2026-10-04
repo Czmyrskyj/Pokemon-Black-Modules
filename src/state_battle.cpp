@@ -497,6 +497,14 @@ void battle_state_t::update(st_ctx_t& ctx){
 			if (ally_hp_render < ally.hp()){
 				ally_hp_render++;
 			}
+			if (ally_hp_render == ally.hp()){
+				float hp_ratio = ally.hp() / ally.max_hp();	
+				if (hp_ratio < 0.4f && hp_ratio > 0.0f){
+					if (!IsMusicStreamPlaying(ctx.assets.get_mus("Battle Trouble!.ogg"))){
+						ctx.set_music("Battle Trouble!.ogg");
+					}
+				}
+			}
 			break;
 	}
 	if (!std::holds_alternative<none_action_t>(battle.trainer_turn_action()) &&
@@ -536,7 +544,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 
 	auto season = ctx.time.get_season();
 	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::BG)), {0, 0, 0}, {0, 0, 0}, 0, {0.2f, 0.2f, 0.2f}, WHITE);
-	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::BG)), {0, -1, 1}, {0, 1, 0}, bg_rotation, {0.2f, 0.2f, 0.2f}, WHITE);
+	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::BG)), {0, -1, 2}, {0, 1, 0}, bg_rotation, {0.2f, 0.2f, 0.2f}, WHITE);
 	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::STAGE)), {0.9f, 0.0f, -0.9f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
 	DrawModelEx(ctx.assets.get_model(get_battle_bg_name(ctx.region, season, BAT_BG_NAME::STAGE)), {-0.3f, 0.0f, 1.8f}, {0, 0, 0}, 0.0f, {0.15f, 0.15f, 0.15f}, WHITE);
 	auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :

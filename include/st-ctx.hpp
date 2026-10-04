@@ -140,9 +140,9 @@ struct st_ctx_t{
 	}
 	// WARN: only for debugging!
 	void set_temp_data(){
-		current_state = STATE::MAIN;
-		region = REGION::ROUTE_1;
-		state_data.emplace<main_state_t>(*this);
+		current_state = STATE::WHICH_SEASON_AND_REGION;
+		region = REGION::STRIATON_GYM;
+		state_data.emplace<which_season_and_region_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{

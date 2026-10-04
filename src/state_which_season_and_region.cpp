@@ -33,7 +33,14 @@ void which_season_and_region_t::update(st_ctx_t& ctx){
 		ctx.resume_state_alpha(ctx.transition_alpha);
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
-		ctx.set_music(std::format("{}.ogg", get_region_str(ctx.region)));
+		std::string_view region_music = [&]() -> std::string_view{
+			auto reg_str = get_region_str(ctx.region);
+			if (reg_str.ends_with("Gym")){
+				return "Gym";
+			}
+			return reg_str;
+		}();
+		ctx.set_music(std::format("{}.ogg", region_music));
 		ctx.set_state_meta = true;
 	}
 	Sound char_sfx = ctx.assets.get_sfx("SEQ_SE_TB_KARA.wav");
