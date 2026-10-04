@@ -9,6 +9,7 @@
 
 constexpr float pokemon_scale_dest{1.0f};
 constexpr float pokemon_y_dest{0.1f};
+constexpr float turn_timer_dest{25};
 
 
 Rectangle full_tx(const Texture2D& tx){
@@ -107,7 +108,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 			switch (camera_pos){
 			case BATTLE_CAMERA_POS::DEFAULT: return {0.2f, 0.6f, 2.0f};
 			case BATTLE_CAMERA_POS::TRAINER: return {0.3f, 0.6f, 4.0f};
-			case BATTLE_CAMERA_POS::ALLY: return {0.0f, 0.5f, 3.0f};
+			case BATTLE_CAMERA_POS::ALLY: return {0.0f, 0.6f, 3.0f};
+			case BATTLE_CAMERA_POS::FOE: return {0.4f, 0.5f, 1.5f};
 			default: return {0.2f, 0.6f, 2.0f};
 			}
 			}()
@@ -370,8 +372,6 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						if (IsKeyPressed(KEY_Z)){
 							battle.set_action(TURN_ACTION::ATTACK, BATTLE_TURN::TRAINER, opt, 0);
-							current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "PKMN_USED"), ally.get_pokedex().id, ctx.movedex.get_move(ally.moves()[opt]).name);
-							writer.set_text(current_line);
 						}
 						break;
 					case BATTLE_MENU_STATE::MODULES:
@@ -438,8 +438,41 @@ void battle_state_t::update(st_ctx_t& ctx){
 			}
 			break;
 		case BATTLE_PHASE::FIGHT:
-			if (writer.finished){
-				battle.execute_action(ctx.movedex, ctx.assets);
+			if (writer.finished && foe_hp_render == foep.hp() && ally_hp_render == ally.hp()){
+				if (auto next = battle.next_turn()){
+					if (!txted){
+						const bool is_trainer = (*next == BATTLE_TURN::TRAINER);
+						const pokemon_t& cur = is_trainer ? ally : foep;
+						const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
+						camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
+						const auto* atk = std::get_if<attack_action_t>(&act);
+						
+						if (atk && cur.hp() > 0){
+							current_line = ctx.formatter.format(
+									ctx.locale.get(Locale::TYPE::UI, "PKMN_USED"), 
+									cur.get_pokedex().id, 
+									ctx.movedex.get_move(cur.moves()[atk->move_slot]).name);
+							writer.set_text(current_line);
+							txted = true;
+							turn_timer = 0;
+						} else {
+							if (++turn_timer >= turn_timer_dest){
+								battle.execute_action(ctx.movedex, ctx.assets);
+								turn_timer = 0;
+							}
+						}
+					} else {
+						if (++turn_timer >= turn_timer_dest){
+							battle.execute_action(ctx.movedex, ctx.assets);
+							txted = false;
+							turn_timer = 0;
+						}
+					}
+				} else {
+					set_phase(ctx.assets, BATTLE_PHASE::MENU);
+					camera_pos = BATTLE_CAMERA_POS::ALLY;
+					menu_state = BATTLE_MENU_STATE::OPTIONS;
+				}
 			}
 			if (foe_hp_render > foep.hp()){
 				foe_hp_render--;
@@ -451,7 +484,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				ally_hp_render--;
 			}
 			if (ally_hp_render < ally.hp()){
-				foe_hp_render++;
+				ally_hp_render++;
 			}
 			break;
 	}
@@ -461,8 +494,10 @@ void battle_state_t::update(st_ctx_t& ctx){
 			 next_menu_state == BATTLE_MENU_STATE::NONE
 			) && phase != BATTLE_PHASE::FIGHT){
 		battle.set_ai_action();
+		battle.determine_order(ctx.movedex);
+		turn_timer = 0;
+		txted = false;
 		phase = BATTLE_PHASE::FIGHT;
-		camera_pos = BATTLE_CAMERA_POS::DEFAULT;
 	}
 	if (running_from_tr_batt){
 		if (std::holds_alternative<trainer_t>(ctx.bt_info.foe)){

@@ -178,7 +178,7 @@ struct main_state_t{
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
 	// WARN: [!!] AFTER DEBUGGING, SET TO 0
-	usz index = 1;
+	usz index = 0;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
@@ -275,6 +275,7 @@ struct battle_state_t{
 	u8 foe_alpha = 255;
 	u8 trainer_alpha = 255;
 	u8 current_trainer_pokeball = 0;
+	u8 turn_timer = 0;
 	std::array<float, 6> trainer_pokeball_x{};
 	u8 opt = 0;
 	i8 sel_opt = -1;

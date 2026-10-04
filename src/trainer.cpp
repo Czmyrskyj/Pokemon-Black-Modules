@@ -278,14 +278,14 @@ void draw_trainer(assets_t& assets, TRAINER_TYPE tt, std::string_view name, Vect
 }
 
 bool anim_trainer_render_t::draw_back(assets_t& assets, std::string_view name, Vector3 pos, const Camera3D& camera, Color tint){
-	static constexpr std::array<float, 3> framerates = {0.4f, 7.0f, 0.0f};
+	static constexpr std::array<float, 3> framerates = {0.3f, 7.0f, 0.0f};
 	framerate = framerates[frame];
 	frametimer += GetFrameTime()*framerate;
 	if (frametimer > 1.0f){
 		frame++;
 		frametimer = 0.0f;
 	}
-	std::array<float, 4> hand_framerates = {0.5f, 7.0f, 3.0f, 0.0f};
+	std::array<float, 4> hand_framerates = {0.3f, 7.0f, 3.0f, 0.0f};
 	static constexpr std::array<float, 4> hand_rotations = {0.0f, 0.0f, 5.0f, -0.5f};
 	std::array<Vector2, 4> hand_offsets = {
 		{

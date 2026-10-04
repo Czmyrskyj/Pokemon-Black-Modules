@@ -8,6 +8,7 @@
 #include <variant>
 #include <format>
 #include <algorithm>
+#include <optional>
 #include <print>
 
 using foe_t = std::variant<trainer_t, pokemon_t, legendary_t>;
@@ -52,7 +53,8 @@ class battle_t{
 	turn_action_t m_foe_turn_action = none_action_t{};
 	turn_action_t m_trainer_turn_action = none_action_t{};
 
-	BATTLE_TURN m_attack_turn = BATTLE_TURN::TRAINER;
+	std::array<BATTLE_TURN, 2> m_order{};
+	u8 m_order_pos = 2;
 	public:
 	battle_t(trainer_t& p, foe_t& f, party_t& party) : player(p), foe(f), foe_party(&party){};
 	~battle_t() = default;
@@ -124,31 +126,62 @@ class battle_t{
 			set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, p.move_count() - 1), 0);
 		}
 	}
-	void execute_action(movedex_t& movedex, assets_t& assets){
-		auto& foe_pokemon = (*foe_party)[m_current_foe_pokemon_idx];
-		auto& ally_pokemon = player.get_party()[m_current_trainer_pokemon_idx];
-		if (std::holds_alternative<trainer_t>(foe)){
-			if (!std::holds_alternative<attack_action_t>(m_trainer_turn_action)){
-				m_trainer_turn_action = none_action_t{};
+	i8 action_priority(const turn_action_t& a, const pokemon_t& user, const movedex_t& movedex){
+		return std::visit([&](auto&& act) -> i8 {
+			using T = std::decay_t<decltype(act)>;
+			if constexpr (std::is_same_v<T, attack_action_t>){
+				return movedex.get_move(user.moves()[act.move_slot]).priority;
+			} else if constexpr (std::is_same_v<T, switch_pokemon_action_t> || std::is_same_v<T, item_action_t>){
+				return 10;
 			} else {
-				move_t used_move = movedex.get_move(player.get_party()[m_current_trainer_pokemon_idx].moves()[std::get<attack_action_t>(m_trainer_turn_action).move_slot]);
-				auto power = used_move.power;
-				PlaySound(assets.get_sfx(std::format("{}.wav", used_move.name)));
-				foe_pokemon.hp_damage(power, ally_pokemon.lvl(), ally_pokemon.get_pokedex().base_attack);
-				m_trainer_turn_action = none_action_t{};
+				return -128;
 			}
+		}, a);
+	}
+	void determine_order(const movedex_t& movedex){
+		auto& foe_pkmn = (*foe_party)[m_current_foe_pokemon_idx];
+		auto& ally_pkmn = player.get_party()[m_current_trainer_pokemon_idx];
+
+		i8 foe_pr = action_priority(m_foe_turn_action, foe_pkmn, movedex);
+		i8 ally_pr = action_priority(m_trainer_turn_action, ally_pkmn, movedex);
+
+		bool trainer_first;
+		if (foe_pr != ally_pr) trainer_first = ally_pr > foe_pr;
+		else if (foe_pkmn.speed() != ally_pkmn.speed()) trainer_first = ally_pkmn.speed() > foe_pkmn.speed();
+		else trainer_first = rnd::get_val<u8>(0, 1) == 0;
+		
+		m_order = trainer_first ? 
+		std::array{BATTLE_TURN::TRAINER, BATTLE_TURN::FOE} :
+		std::array{BATTLE_TURN::FOE, BATTLE_TURN::TRAINER};
+		m_order_pos = 0;
+	}
+	std::optional<BATTLE_TURN> next_turn() const{
+		if (m_order_pos >= 2) return std::nullopt;
+		return m_order[m_order_pos];
+	}
+	void execute_action(movedex_t& movedex, assets_t& assets){
+		if (m_order_pos >= 2) return;
+
+		bool is_trainer = m_order[m_order_pos++] == BATTLE_TURN::TRAINER;
+
+		auto& foep = (*foe_party)[m_current_foe_pokemon_idx];
+		auto& ally = player.get_party()[m_current_trainer_pokemon_idx];
+		auto& action = is_trainer ? m_trainer_turn_action : m_foe_turn_action;
+		auto& atk = is_trainer ? ally : foep;
+		auto& def = is_trainer ? foep : ally;
+		
+		if (atk.hp() > 0 && std::holds_alternative<attack_action_t>(action)){
+			const move_t& mv = movedex.get_move(atk.moves()[std::get<attack_action_t>(action).move_slot]);
+			PlaySound(assets.get_sfx(std::format("{}.wav", mv.name)));
+			def.hp_damage(mv.power, atk.lvl(), atk.get_pokedex().base_attack);
 		}
-		if (!std::holds_alternative<attack_action_t>(m_foe_turn_action)){
-			m_foe_turn_action = none_action_t{};
-		} else {
-			move_t used_move = movedex.get_move((*foe_party)[m_current_foe_pokemon_idx].moves()[std::get<attack_action_t>(m_foe_turn_action).move_slot]);
-			auto power = used_move.power;
-			PlaySound(assets.get_sfx(std::format("{}.wav", used_move.name)));
-			ally_pokemon.hp_damage(power, foe_pokemon.lvl(), foe_pokemon.get_pokedex().base_attack);
-			m_foe_turn_action = none_action_t{};
-		}
+		action = none_action_t{};
+
 	}
 	turn_action_t trainer_turn_action() const{
 		return m_trainer_turn_action;
+	}
+	turn_action_t foe_turn_action() const{
+		return m_foe_turn_action;
 	}
 };

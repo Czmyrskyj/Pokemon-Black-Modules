@@ -88,10 +88,7 @@ class pokemon_t{
 	void block_frames(bool b) {m_frames_blocked = b; }
 	void hp_damage(u16 power, u8 attacker_lvl, u8 attacker_attack) { 
 		u16 final_power =  std::floor(std::floor(std::floor(2 * attacker_lvl / 5 + 2) * power * attacker_attack / pokedex.base_defense) / 50) + 2;
-		m_hp -= final_power;
-		if (static_cast<i16>(m_hp - final_power) <= 0) {
-			m_hp = 0;
-		}
+		m_hp = final_power >= m_hp ? 0 : m_hp - final_power;
 	}
 	std::span<const u16> moves() const{ return m_moves; }
 	std::span<const u8> pp_used() const{ return m_pp_used; }
@@ -99,6 +96,9 @@ class pokemon_t{
 	u8 move_count() const { return m_move_count; }
 	void move_count_delta(u8 delta){
 		m_move_count += delta;
+	}
+	u16 speed() const {
+		return ((2 * pokedex.base_speed + m_iv + m_ev / 4) * m_lvl) / 100 + 5;
 	}
 };
 struct legendary_t{
