@@ -108,9 +108,20 @@ void battle_state_t::update(st_ctx_t& ctx){
 			switch (camera_pos){
 			case BATTLE_CAMERA_POS::DEFAULT: return {0.2f, 0.6f, 2.0f};
 			case BATTLE_CAMERA_POS::TRAINER: return {0.3f, 0.6f, 4.0f};
-			case BATTLE_CAMERA_POS::ALLY: return {0.0f, 0.6f, 3.0f};
+			case BATTLE_CAMERA_POS::ALLY: return {0.2f, 0.5f, 3.0f};
 			case BATTLE_CAMERA_POS::FOE: return {0.4f, 0.5f, 1.5f};
 			default: return {0.2f, 0.6f, 2.0f};
+			}
+			}()
+			});
+	ctx.camera.set_targ({
+			[&]() -> Vector3{
+			switch (camera_pos){
+			case BATTLE_CAMERA_POS::DEFAULT: return {0.0f, 0.0f, 0.0f};
+			case BATTLE_CAMERA_POS::TRAINER: return {0.0f, 0.0f, 0.0f};
+			case BATTLE_CAMERA_POS::ALLY: return {-0.3f, 0.0f, 0.8f};
+			case BATTLE_CAMERA_POS::FOE: return {0.9, 0.0f, -0.9f};
+			default: return {0.0f, 0.0f, 0.0f};
 			}
 			}()
 			});

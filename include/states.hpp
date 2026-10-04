@@ -268,6 +268,7 @@ struct battle_state_t{
 	u16 foe_hp_render = 0;
 	u16 ally_hp_render = 0;
 	BATTLE_CAMERA_POS camera_pos = BATTLE_CAMERA_POS::DEFAULT;
+	BATTLE_CAMERA_POS camera_targ = BATTLE_CAMERA_POS::DEFAULT;
 	BATTLE_PHASE phase = BATTLE_PHASE::INTRO;
 	BATTLE_MENU_STATE menu_state = BATTLE_MENU_STATE::OPTIONS;
 	BATTLE_MENU_STATE next_menu_state = BATTLE_MENU_STATE::NONE;

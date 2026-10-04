@@ -37,3 +37,8 @@ void camera_t::set_route(const std::vector<Vector3>& route, float speed){
 		}
 	}
 }
+
+
+void camera_t::set_targ(Vector3 targ){
+	camera.target = targ;
+}
