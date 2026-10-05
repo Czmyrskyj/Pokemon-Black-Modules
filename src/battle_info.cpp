@@ -120,6 +120,9 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		party.push_back(pokemon);
 	}
 
+	if (std::holds_alternative<trainer_t>(foe)){
+		std::get<trainer_t>(foe).set_conscious_count(party.size());
+	}
 	battle_entry_t battle_entry = {
 		.foe = foe,
 		.name = name,

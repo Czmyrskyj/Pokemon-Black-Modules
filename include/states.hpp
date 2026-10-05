@@ -284,6 +284,7 @@ struct battle_state_t{
 	bool running_from_tr_batt = false;
 	u8 no_run_from_tr_batt_scrn_alpha = 0;
 	u8 no_run_from_tr_batt_scrn_alpha_tim = 0;
+	bool critical_hp = false;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	bool control_foe_pokeballs();

@@ -46,6 +46,7 @@ class trainer_t{
 	SEX m_sex = SEX::NONE;
 	party_t party{};
 	std::vector <pokemon_t> pc_party{};
+	u8 m_conscious_count = 0;
 	public:
 	trainer_t() = default;
 	trainer_t(std::string n, TRAINER_TYPE t) : m_name(std::move(n)), m_trainer_type(t) {}
@@ -71,9 +72,16 @@ class trainer_t{
 	void push_pokemon(pokemon_t pokemon){
 		if (party.size() < 6){
 			party.push_back(pokemon);
+			m_conscious_count++;
 		} else {
 			pc_party.push_back(pokemon);
 		}
+	}
+	u8 conscious_count() const {
+		return m_conscious_count;
+	}
+	void set_conscious_count(u8 count){
+		m_conscious_count = count;
 	}
 	party_t& get_party(){
 		return party;

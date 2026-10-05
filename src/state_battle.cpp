@@ -9,7 +9,7 @@
 
 constexpr float pokemon_scale_dest{1.0f};
 constexpr float pokemon_y_dest{0.1f};
-constexpr float turn_timer_dest{25};
+constexpr float turn_timer_dest{30};
 
 
 Rectangle full_tx(const Texture2D& tx){
@@ -446,6 +446,12 @@ void battle_state_t::update(st_ctx_t& ctx){
 						break;
 					default: break;
 				}
+				if (std::holds_alternative<trainer_t>(ctx.bt_info.foe) && !critical_hp && !IsMusicStreamPlaying(ctx.assets.get_mus("Victory is Right Before Your Eyes!.ogg"))){
+					auto tr = std::get<trainer_t>(ctx.bt_info.foe);
+					if (ctx.bt_info.trainer_type == TRAINER_TYPE::GYM_LEADER && tr.conscious_count() == 1){
+						ctx.set_music("Victory is Right Before Your Eyes!.ogg");
+					}
+				}
 			}
 			break;
 		case BATTLE_PHASE::FIGHT:
@@ -457,7 +463,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
 						camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
 						const auto* atk = std::get_if<attack_action_t>(&act);
-						
+
 						if (atk && cur.hp() > 0){
 							current_line = ctx.formatter.format(
 									ctx.locale.get(Locale::TYPE::UI, "PKMN_USED"), 
@@ -499,7 +505,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 			}
 			if (ally_hp_render == ally.hp()){
 				float hp_ratio = ally.hp() / ally.max_hp();	
-				if (hp_ratio < 0.4f && hp_ratio > 0.0f){
+				critical_hp = hp_ratio < 0.4f && hp_ratio > 0.0f;
+				if (critical_hp){
 					if (!IsMusicStreamPlaying(ctx.assets.get_mus("Battle Trouble!.ogg"))){
 						ctx.set_music("Battle Trouble!.ogg");
 					}
