@@ -73,6 +73,9 @@ class battle_t{
 	void set_current_trainer_pokemon_idx(u8 idx) {
 		m_current_trainer_pokemon_idx = idx;
 	}
+	void set_current_foe_pokemon_idx(u8 idx) {
+		m_current_foe_pokemon_idx = idx;
+	}
 	u8 txtbox_alpha() const{
 		return m_txtbox_alpha;
 	}

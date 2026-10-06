@@ -225,6 +225,7 @@ enum class BATTLE_PHASE{
 	ALLY_SEND_OUT,
 	MENU,
 	FIGHT,
+	FOE_ABOUT_TO_SEND,
 };
 
 enum class BATTLE_MENU_STATE{

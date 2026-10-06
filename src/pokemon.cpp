@@ -103,7 +103,9 @@ void pokemon_t::render(assets_t& assets, spritedex_t& spritedex, POKEMON_RENDER_
 			(frame_width / pixels_per_unit) * scale.x,
 			(frame_height / pixels_per_unit) * scale.y,
 		};
-		draw_shadow(tx, src, {pos.x, 0.0f, pos.z - 0.2f}, world_size, {0, 0, 0, 180});
+		if (pos.y >= 0.0f){
+			draw_shadow(tx, src, {pos.x, 0.0f, pos.z - 0.2f}, world_size, {0, 0, 0, 180});
+		}
 		DrawBillboardPro(*camera, tx, src, pos, {0, 1, 0}, world_size, {0, 0}, 0, WHITE);
 	}
 }
