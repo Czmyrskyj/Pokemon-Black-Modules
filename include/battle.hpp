@@ -24,6 +24,12 @@ enum class BATTLE_TURN{
 	FOE,
 };
 
+enum class BATTLE_FIGURE{
+	NONE,
+	TRAINER,
+	FOE,
+};
+
 struct none_action_t{};
 
 struct attack_action_t{
@@ -55,6 +61,9 @@ class battle_t{
 
 	std::array<BATTLE_TURN, 2> m_order{};
 	u8 m_order_pos = 2;
+
+	BATTLE_FIGURE m_winner = BATTLE_FIGURE::NONE;
+
 	public:
 	battle_t(trainer_t& p, foe_t& f, party_t& party) : player(p), foe(f), foe_party(&party){};
 	~battle_t() = default;
@@ -189,5 +198,14 @@ class battle_t{
 	}
 	turn_action_t foe_turn_action() const{
 		return m_foe_turn_action;
+	}
+	void set_winner(BATTLE_FIGURE who){
+		m_winner = who;
+	}
+	BATTLE_FIGURE winner() const{
+		return m_winner;
+	}
+	void set_txtbox_alpha(u8 alpha){
+		m_txtbox_alpha = alpha;
 	}
 };

@@ -484,18 +484,24 @@ void battle_state_t::update(st_ctx_t& ctx){
 							battle.execute_action(ctx.movedex, ctx.assets);
 							txted = false;
 							if (attacked.hp() == 0){
+								trainer_t* owner = nullptr;
 								if (std::holds_alternative<trainer_t>(ctx.bt_info.foe)){
-									auto& tr = std::get<trainer_t>(ctx.bt_info.foe);
-									if (tr.conscious_count() > 0){
-										tr.set_conscious_count(tr.conscious_count() - 1);
-									}
+									owner = is_trainer ?  &std::get<trainer_t>(ctx.bt_info.foe) : &ctx.player;
+								} else {
+									owner = &ctx.player;
+								}
+								if (owner->conscious_count() > 0){
+									owner->set_conscious_count(owner->conscious_count() - 1);
+								}
+								if (owner->conscious_count() == 0){
+									battle.set_winner(is_trainer ? BATTLE_FIGURE::TRAINER : BATTLE_FIGURE::FOE);
 								}
 								if (foe_pokemon_y > -1.0f){
 									Sound dead = ctx.assets.get_sfx("SEQ_SE_DEAD.wav");
 									if (foe_pokemon_y >= 0.0f && !IsSoundPlaying(dead)){
 										PlaySound(dead);
 									}
-									foe_pokemon_y = -0.05f;
+									foe_pokemon_y = -0.02f;
 								}
 							} else {
 								turn_timer = 0;
@@ -507,13 +513,15 @@ void battle_state_t::update(st_ctx_t& ctx){
 						set_phase(ctx.assets, BATTLE_PHASE::MENU);
 						camera_pos = BATTLE_CAMERA_POS::ALLY;
 						menu_state = BATTLE_MENU_STATE::OPTIONS;
-					
 					} else if (foe_pokemon_y < 0.0f && foe_pokemon_y > -1.0f){
-						foe_pokemon_y -= 0.05f;
-					} else if (std::holds_alternative<trainer_t>(ctx.bt_info.foe) && std::get<trainer_t>(ctx.bt_info.foe).conscious_count() > 0) {
+						foe_pokemon_y -= 0.02f;
+					} else if (battle.winner() == BATTLE_FIGURE::NONE) {
 						set_phase(ctx.assets, BATTLE_PHASE::FOE_ABOUT_TO_SEND);
 						camera_pos = BATTLE_CAMERA_POS::ALLY;
 						menu_state = BATTLE_MENU_STATE::OPTIONS;
+						txted = false;
+					} else {
+						set_phase(ctx.assets, BATTLE_PHASE::END);
 						txted = false;
 					}
 				}
@@ -550,6 +558,29 @@ void battle_state_t::update(st_ctx_t& ctx){
 					current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_ABOUT_TO_SEND"), foep->get_pokedex().id);
 					writer.set_text(current_line);
 					txted = true;
+				}
+			}
+			break;
+		case BATTLE_PHASE::END:
+			{
+				foe_alpha = 255;
+				foe_z = -0.9f;
+				camera_pos = BATTLE_CAMERA_POS::DEFAULT;
+				if (battle.winner() == BATTLE_FIGURE::TRAINER){
+					ctx.set_music(std::holds_alternative<trainer_t>(ctx.bt_info.foe) ? "Victory Against Trainer!.ogg" : "Victory Against Wild Pokemon.ogg");
+					if (!txted){
+						current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_WAS_DEFEATED"));
+						writer.set_text(current_line);
+						txted = true;
+					}
+					if (txted && writer.finished){
+						foe_defeat_timer++;
+					}
+					if (!foe_defeat_msg && foe_defeat_timer > 50){
+						current_line = ctx.formatter.format(ctx.bt_info.defeat_msg);
+						writer.set_text(current_line);
+						foe_defeat_msg = true;
+					}
 				}
 			}
 			break;
@@ -625,7 +656,14 @@ void battle_state_t::render(st_ctx_t& ctx){
 		}
 	}
 	EndMode3D();
-	battle.write(ctx.assets, writer);
+	if (!foe_defeat_msg){
+		battle.write(ctx.assets, writer);
+	} else {
+		if (battle.txtbox_alpha() < 255){
+			battle.set_txtbox_alpha(battle.txtbox_alpha() + 1);
+		}
+		draw_text_seq(ctx.assets, writer, 10, wnd_h - 200, 50, {255, 255, 255, battle.txtbox_alpha()}, 1, {150, 150, 150, battle.txtbox_alpha()});
+	}
 	if (phase < BATTLE_PHASE::FOE_SEND_OUT){
 		DrawTextureEx(ctx.assets.get_tx("line-under-foe-pokeballs.png"), {line_under_foe_pokeballs, 300.0f}, 0.0f, 8.0f, WHITE);
 		auto xs = foe_pokeball_x;

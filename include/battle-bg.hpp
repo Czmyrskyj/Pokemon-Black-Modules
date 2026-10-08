@@ -29,7 +29,7 @@ inline std::string get_battle_bg_name(REGION reg, Time::SEASON season, BAT_BG_NA
 			case REGION::LACUNOSA:
 			case REGION::UNDELLA:
 			case REGION::ANVILLE:
-				return 4;
+				return 3;
 			case REGION::ROUTE_1:
 			case REGION::ROUTE_2:
 			case REGION::ROUTE_3:
@@ -71,7 +71,7 @@ inline std::string get_battle_bg_name(REGION reg, Time::SEASON season, BAT_BG_NA
 			return std::format("batt_bg{:02}.glb", idx);
 		}
 	} else {
-		if (std::ranges::contains(std::array{2, 4}, idx)){
+		if (std::ranges::contains(std::array{2}, idx)){
 			return std::format("batt_stage{:02}{}.glb", idx, ssn);
 		} else {
 			return std::format("batt_stage{:02}.glb", idx);

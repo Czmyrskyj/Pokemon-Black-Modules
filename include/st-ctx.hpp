@@ -141,7 +141,7 @@ struct st_ctx_t{
 	// WARN: only for debugging!
 	void set_temp_data(){
 		current_state = STATE::MAIN;
-		region = REGION::STRIATON_GYM;
+		region = REGION::NUVEMA;
 		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
@@ -219,7 +219,5 @@ struct st_ctx_t{
 		player.push_pokemon(emolga);
 		cheren.push_pokemon(cherens);
 		bianca.push_pokemon(biancas);
-		bianca.push_pokemon(purrloin);
-		bianca.push_pokemon(buizel);
 	}
 };

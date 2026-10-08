@@ -226,6 +226,7 @@ enum class BATTLE_PHASE{
 	MENU,
 	FIGHT,
 	FOE_ABOUT_TO_SEND,
+	END,
 };
 
 enum class BATTLE_MENU_STATE{
@@ -286,6 +287,8 @@ struct battle_state_t{
 	u8 no_run_from_tr_batt_scrn_alpha = 0;
 	u8 no_run_from_tr_batt_scrn_alpha_tim = 0;
 	bool critical_hp = false;
+	bool foe_defeat_msg = false;
+	u8 foe_defeat_timer = 0;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	bool control_foe_pokeballs();
