@@ -288,6 +288,7 @@ struct battle_state_t{
 	u8 no_run_from_tr_batt_scrn_alpha_tim = 0;
 	bool critical_hp = false;
 	bool foe_defeat_msg = false;
+	bool switch_necessary = false;
 	u8 foe_defeat_timer = 0;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
