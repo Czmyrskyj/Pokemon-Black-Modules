@@ -289,7 +289,7 @@ struct battle_state_t{
 	bool critical_hp = false;
 	bool foe_defeat_msg = false;
 	bool switch_necessary = false;
-	u8 foe_defeat_timer = 0;
+	u8 unique_txt_timer = 0;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	bool control_foe_pokeballs();

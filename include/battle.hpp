@@ -59,6 +59,8 @@ class battle_t{
 	turn_action_t m_foe_turn_action = none_action_t{};
 	turn_action_t m_trainer_turn_action = none_action_t{};
 
+	BATTLE_FIGURE m_figure_missed = BATTLE_FIGURE::NONE;
+
 	std::array<BATTLE_TURN, 2> m_order{};
 	u8 m_order_pos = 2;
 
@@ -185,8 +187,13 @@ class battle_t{
 		if (atk.hp() > 0 && std::holds_alternative<attack_action_t>(action)){
 			u8 slot = std::get<attack_action_t>(action).move_slot;
 			const move_t& mv = movedex.get_move(atk.moves()[slot]);
-			PlaySound(assets.get_sfx(std::format("{}.wav", mv.name)));
-			def.hp_damage(mv.power, atk.lvl(), atk.get_pokedex().base_attack);
+			u8 mv_acc = rnd::get_val<u8>(1, 100);
+			if (mv.accuracy == 0 || mv_acc <= mv.accuracy){
+				PlaySound(assets.get_sfx(std::format("{}.wav", mv.name)));
+				def.hp_damage(mv.power, atk.lvl(), atk.get_pokedex().base_attack);
+			} else {
+				m_figure_missed = is_trainer ? BATTLE_FIGURE::TRAINER : BATTLE_FIGURE::FOE;
+			}
 			auto& used = atk.get_pp_used_array()[slot];
 			if (used < mv.pp) used++;
 		}
@@ -207,5 +214,11 @@ class battle_t{
 	}
 	void set_txtbox_alpha(u8 alpha){
 		m_txtbox_alpha = alpha;
+	}
+	BATTLE_FIGURE figure_missed() const{
+		return m_figure_missed;
+	}
+	void set_figure_missed(BATTLE_FIGURE f){
+		m_figure_missed = f;
 	}
 };

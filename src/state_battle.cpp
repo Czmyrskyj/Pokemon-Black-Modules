@@ -466,8 +466,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 				if (auto next = battle.next_turn()){
 					const bool is_trainer = (*next == BATTLE_TURN::TRAINER);
 					const pokemon_t& attacked = !is_trainer ? *ally : *foep;
+					const pokemon_t& cur = is_trainer ? *ally : *foep;
 					if (!txted){
-						const pokemon_t& cur = is_trainer ? *ally : *foep;
 						const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
 						camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
 						const auto* atk = std::get_if<attack_action_t>(&act);
@@ -514,6 +514,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 							} else {
 								turn_timer = 0;
 							}
+						}
+						if (battle.figure_missed() != BATTLE_FIGURE::NONE){
+							current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ATTACK_MISSED"), cur.get_pokedex().id);
+							writer.set_text(current_line);
+							battle.set_figure_missed(BATTLE_FIGURE::NONE);
 						}
 					}
 				} else {
@@ -581,9 +586,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 						txted = true;
 					}
 					if (txted && writer.finished){
-						foe_defeat_timer++;
+						unique_txt_timer++;
 					}
-					if (!foe_defeat_msg && foe_defeat_timer > 50){
+					if (!foe_defeat_msg && unique_txt_timer > 50){
 						current_line = ctx.formatter.format(ctx.bt_info.defeat_msg);
 						writer.set_text(current_line);
 						foe_defeat_msg = true;
