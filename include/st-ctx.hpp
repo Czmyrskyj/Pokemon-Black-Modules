@@ -8,6 +8,7 @@
 #include "formatter.hpp"
 #include "camera.hpp"
 #include "spritedex.hpp"
+#include "items.hpp"
 
 struct st_ctx_t;
 
@@ -23,6 +24,7 @@ struct st_ctx_t{
 	pokedex_t& pokedex;
 	spritedex_t& spritedex;
 	movedex_t& movedex;
+	itemdex_t& itemdex;
 	Time::time_t& time;
 	battle_info_t& battle_info;
 	formatter_t& formatter;

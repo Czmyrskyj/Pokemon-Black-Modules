@@ -10,6 +10,7 @@
 #include "formatter.hpp"
 #include "music-offset.hpp"
 #include "moves.hpp"
+#include "items.hpp"
 
 #include <print>
 
@@ -73,6 +74,13 @@ int main(){
 			return -1;
 		}
 
+		itemdex_t itemdex;
+		auto itemdex_load_res = itemdex.load_itemdex();
+		if (!itemdex_load_res.has_value()){
+			std::println(stderr, "error: {}", itemdex_load_res.error());
+			return -1;
+		}
+
 		camera_t camera;
 
 		st_ctx_t ctx{
@@ -81,6 +89,7 @@ int main(){
 			.pokedex = pokedex,
 			.spritedex = spritedex,
 			.movedex = movedex,
+			.itemdex = itemdex,
 			.time = time,
 			.battle_info = battle_info,
 			.formatter = formatter,

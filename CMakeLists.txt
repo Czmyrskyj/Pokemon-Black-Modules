@@ -60,6 +60,7 @@ add_executable(${Project_Name}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/pokeball.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/spritedex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/moves.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/items.cpp
 )
 
 target_precompile_headers(${Project_Name} PRIVATE
