@@ -195,7 +195,7 @@ struct st_ctx_t{
 			"SERPERIOR",
 			NATURE::LONELY,
 			SEX::MALE,
-			5,
+			50,
 			{36, 24, 51, 32},
 			4
 		};

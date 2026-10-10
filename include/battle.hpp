@@ -70,7 +70,6 @@ class battle_t{
 	battle_t(trainer_t& p, foe_t& f, party_t& party) : player(p), foe(f), foe_party(&party){};
 	~battle_t() = default;
 
-
 	std::string get_dialog_intro();
 	std::string get_dialog_foe_sent_out();
 

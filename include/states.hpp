@@ -238,6 +238,12 @@ enum class BATTLE_MENU_STATE{
 	POKEMON,
 };
 
+enum class UNIQUE_TXT_ENTRY{
+	NONE,
+	FOE_DEFEAT_MSG,
+	WILL_SWITCH_PKMN,
+};
+
 struct battle_state_t{
 	float bg_rotation = 0.0f;
 	u8 animation_timer = 0;
@@ -284,10 +290,13 @@ struct battle_state_t{
 	i8 sel_opt = -1;
 	i8 next_pokemon = -1;
 	bool running_from_tr_batt = false;
+	bool foe_about_to_send = false;
+	std::array<std::string_view, 2> yes_no{"YES", "NO"};
 	u8 no_run_from_tr_batt_scrn_alpha = 0;
 	u8 no_run_from_tr_batt_scrn_alpha_tim = 0;
+	u8 next_foe_idx = 0;
 	bool critical_hp = false;
-	bool foe_defeat_msg = false;
+	UNIQUE_TXT_ENTRY unique_txt_entry = UNIQUE_TXT_ENTRY::NONE;
 	bool switch_necessary = false;
 	u8 unique_txt_timer = 0;
 	void update(st_ctx_t& ctx);
@@ -295,6 +304,7 @@ struct battle_state_t{
 	bool control_foe_pokeballs();
 	bool control_ally_pokeballs();
 	void set_phase(assets_t& assets, BATTLE_PHASE p);
+	void begin_foe_send_out(assets_t& assets);
 	explicit battle_state_t(st_ctx_t& ctx);
 };
 

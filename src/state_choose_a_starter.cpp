@@ -214,9 +214,9 @@ void choose_a_starter_t::render(st_ctx_t& ctx){
 	}
 	if (selected_starter != -1){
 		for (usz i = 0; i < 2; i++){
-			Texture2D button = ctx.assets.get_tx(current_opt == i ? "opt-selected.png" : "opt.png");
-			DrawTextureEx(button, {wnd_w - 300, wnd_h - 400 + i * (button.height * 4.0f)}, 0, 4.0f, WHITE);
-			draw_text(ctx.assets, yes_no[i], wnd_w - 300 + 30.0f, wnd_h - 400 + i * (button.height * 4.0f) + 15.0f, 60, WHITE);
+			Texture2D button = ctx.assets.get_tx("opt.png");
+			DrawTexturePro(button, {0, (current_opt == i) * 24.0f, 70.0f, 24.0f}, {wnd_w - 300, wnd_h - 400 + i * (button.height * 2.0f), button.width * 4.0f, button.height * 2.0f}, {0, 0}, 0, WHITE);
+			draw_text(ctx.assets, yes_no[i], wnd_w - 300 + 30.0f, wnd_h - 400 + i * (button.height * 2.0f) + 15.0f, 60, WHITE);
 		}
 	}
 }
