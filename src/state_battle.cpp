@@ -625,7 +625,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 				foe_z = -0.9f;
 				camera_pos = BATTLE_CAMERA_POS::DEFAULT;
 				if (battle.winner() == BATTLE_FIGURE::TRAINER){
-					ctx.set_music(std::holds_alternative<trainer_t>(ctx.bt_info.foe) ? "Victory Against Trainer!.ogg" : "Victory Against Wild Pokemon.ogg");
+					ctx.set_music(get_victory_music_name(ctx));
 					if (!txted){
 						current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_WAS_DEFEATED"));
 						writer.set_text(current_line);

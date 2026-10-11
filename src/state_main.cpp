@@ -160,6 +160,7 @@ void main_state_t::update(st_ctx_t& ctx){
 					switch (tt){
 					case TRAINER_TYPE::PKMN_TRAINER: return ctx.bt_info.name;
 					case TRAINER_TYPE::GYM_LEADER: return "Gym";
+					case TRAINER_TYPE::TEAM_PLASMA_GRUNT: return "Team Plasma Appears!";
 					default: return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
 					}
 					}()
