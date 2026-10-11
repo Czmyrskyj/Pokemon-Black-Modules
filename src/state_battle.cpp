@@ -471,6 +471,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						break;
 					case BATTLE_MENU_STATE::BAG:
+						
 						if (IsKeyPressed(KEY_X)){
 							next_menu_state = BATTLE_MENU_STATE::OPTIONS;
 						}
@@ -852,6 +853,12 @@ void battle_state_t::render(st_ctx_t& ctx){
 						}
 					}
 
+				}
+				break;
+			case BATTLE_MENU_STATE::BAG:
+				{
+					DrawTextureEx(ctx.assets.get_tx("bag-bg.png"), {0, 0}, 0, 3.9f, WHITE);
+					DrawTexturePro(ctx.assets.get_tx("bag.png"), {0, 0, 60, 63}, {0.0f, 300.0f, 420.0f, 441.0f}, {0, 0}, 0.0f, WHITE);
 				}
 				break;
 			default: break;
