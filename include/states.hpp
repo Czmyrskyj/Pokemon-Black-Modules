@@ -300,6 +300,17 @@ struct battle_state_t{
 	UNIQUE_TXT_ENTRY unique_txt_entry = UNIQUE_TXT_ENTRY::NONE;
 	bool switch_necessary = false;
 	u8 unique_txt_timer = 0;
+	float bags_x = -300.0f;
+	float bags_y_jump = 0.0f;
+	u8 bag_animation_frame = 0;
+	u8 bag_animation_frame_timer = 0;
+	std::array<std::string_view, 5> bag_labels = {
+		"ITEMS",
+		"KEY_ITEMS",
+		"BERRIES",
+		"TMHM",
+		"MEDICINE",
+	};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	bool control_foe_pokeballs();

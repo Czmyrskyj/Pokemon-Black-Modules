@@ -176,6 +176,10 @@ void battle_state_t::update(st_ctx_t& ctx){
 				menu_state = next_menu_state;
 				opt = 0;
 				sel_opt = -1;
+				bag_animation_frame_timer = 0;
+				bag_animation_frame= 0 ;
+				bags_x = -300.0f;
+				bags_y_jump = 0.0f;
 			}
 		} else {
 			if (next_pokemon != -1){
@@ -376,6 +380,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 					case BATTLE_MENU_STATE::MOVES:
 						if (IsKeyPressed(KEY_X)){
 							menu_state = BATTLE_MENU_STATE::OPTIONS;
+							opt = 0;
 						}
 						if (IsKeyPressed(KEY_RIGHT)){
 							PlaySound(sel_sfx);
@@ -411,6 +416,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						if (IsKeyPressed(KEY_Z)){
 							battle.set_action(TURN_ACTION::ATTACK, BATTLE_TURN::TRAINER, opt, 0);
+							opt = 0;
 						}
 						break;
 					case BATTLE_MENU_STATE::MODULES:
@@ -471,7 +477,21 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						break;
 					case BATTLE_MENU_STATE::BAG:
-						
+						sel_opt = ctx.control_selection(opt, 4, sel_sfx, dec_sfx, true);
+						if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+							bag_animation_frame_timer = 0;
+							bag_animation_frame = 0;
+							bags_y_jump = -20.0f;
+						}
+						if (bag_animation_frame < 2){
+							bag_animation_frame_timer++;
+							if (bag_animation_frame_timer > 2){
+								bag_animation_frame++;
+								bag_animation_frame_timer = 0;
+							}
+						}
+						if (bags_x < 0.0f) bags_x += 25.0f;
+						if (bags_y_jump < 0.0f) bags_y_jump += 1.0f;
 						if (IsKeyPressed(KEY_X)){
 							next_menu_state = BATTLE_MENU_STATE::OPTIONS;
 						}
@@ -858,7 +878,13 @@ void battle_state_t::render(st_ctx_t& ctx){
 			case BATTLE_MENU_STATE::BAG:
 				{
 					DrawTextureEx(ctx.assets.get_tx("bag-bg.png"), {0, 0}, 0, 3.9f, WHITE);
-					DrawTexturePro(ctx.assets.get_tx("bag.png"), {0, 0, 60, 63}, {0.0f, 300.0f, 420.0f, 441.0f}, {0, 0}, 0.0f, WHITE);
+					DrawTexturePro(ctx.assets.get_tx("bag.png"), {opt == 0 ? bag_animation_frame * 60.0f : 0, 0, 60, 63}, {0.0f + bags_x, 200.0f + (opt == 0 ? bags_y_jump : 0), 420.0f, 441.0f}, {0, 0}, 0.0f, WHITE);
+					DrawTexturePro(ctx.assets.get_tx("key-bag.png"), {opt == 1 ? bag_animation_frame * 45.0f : 0, 0, 45, 48}, {400.0f + bags_x, 300.0f + (opt == 1 ? bags_y_jump : 0), 315.0f, 336.0f}, {0, 0}, 0.0f, WHITE);
+					DrawTexturePro(ctx.assets.get_tx("berries-bag.png"), {opt == 2 ? bag_animation_frame * 38.0f : 0, 0, 38, 37}, {600.0f + bags_x, 500.0f + (opt == 2 ? bags_y_jump : 0), 266.0f, 259.0f}, {0, 0}, 0.0f, WHITE);
+					DrawTexturePro(ctx.assets.get_tx("tm-bag.png"), {opt == 3 ? bag_animation_frame * 42.0f : 0, 0, 42, 45}, {300.0f + bags_x, 600.0f + (opt == 3 ? bags_y_jump : 0), 294.0f, 315.0f}, {0, 0}, 0.0f, WHITE);
+					DrawTexturePro(ctx.assets.get_tx("medicine-bag.png"), {opt == 4 ? bag_animation_frame * 38.0f : 0, 0, 38, 49}, {0.0f + bags_x, 600.0f + (opt == 4 ? bags_y_jump : 0), 266.0f, 343.0f}, {0, 0}, 0.0f, WHITE);
+					DrawTexturePro(ctx.assets.get_tx("bar.png"), {0, 0, 256, 24}, {0, wnd_h - 72, wnd_w, 72}, {0, 0}, 0, WHITE);
+					draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, bag_labels[opt]), 50, wnd_h - 50, 50, WHITE);
 				}
 				break;
 			default: break;
