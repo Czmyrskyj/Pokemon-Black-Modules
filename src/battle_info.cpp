@@ -43,14 +43,6 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 	u8 battle_type;
 	in.read(reinterpret_cast<char*>(&battle_type), sizeof(u8));
 
-	foe_t foe = [&]() -> foe_t{
-		switch (battle_type){
-			case 0: return trainer_t{};			
-			case 1: return pokemon_t{};
-			case 2: return legendary_t{};
-		}
-		return {};
-	}();
 
 	u32 name_len;
 	in.read(reinterpret_cast<char*>(&name_len), sizeof(u32));
@@ -91,6 +83,15 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 	u8 party_len;
 	in.read(reinterpret_cast<char*>(&party_len), sizeof(u8));
 	party_t party;
+
+	foe_t foe = [&]() -> foe_t{
+		switch (battle_type){
+			case 0: return trainer_t{name, trainer_type};
+			case 1: return pokemon_t{};
+			case 2: return legendary_t{};
+		}
+		return {};
+	}();
 
 
 	while (party.size() < party_len){

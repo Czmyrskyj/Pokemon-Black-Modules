@@ -197,6 +197,7 @@ struct battle_vs_t{
 	bool flashed = false;
 	bool flashed_last_time = false;
 	bool played_vs_whoosh{false};
+	bool has_title{false};
 	float banner_x = -bn_w*8.0f;
 	float source_x = 0.0f;
 	float portrait_x = -bn_w*8.0f;
