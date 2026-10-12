@@ -304,6 +304,7 @@ struct battle_state_t{
 	float bags_y_jump = 0.0f;
 	u8 bag_animation_frame = 0;
 	u8 bag_animation_frame_timer = 0;
+	u8 opt2 = 0;
 	std::array<std::string_view, 5> bag_labels = {
 		"ITEMS",
 		"KEY_ITEMS",

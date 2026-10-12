@@ -477,11 +477,13 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						break;
 					case BATTLE_MENU_STATE::BAG:
-						sel_opt = ctx.control_selection(opt, 4, sel_sfx, dec_sfx, true);
+						ctx.control_selection(opt, 4, sel_sfx, {}, true);
+						sel_opt = ctx.control_selection(opt2, ctx.player.inventory()[opt].size() - 1, sel_sfx, dec_sfx);
 						if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
 							bag_animation_frame_timer = 0;
 							bag_animation_frame = 0;
 							bags_y_jump = -20.0f;
+							opt2 = 0;
 						}
 						if (bag_animation_frame < 2){
 							bag_animation_frame_timer++;
@@ -722,6 +724,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		ctx.bianca.get_party();
 	auto& foep = party[battle.current_foe_pokemon_idx()];
 	auto& p_party = ctx.player.get_party();
+	Texture2D optb = ctx.assets.get_tx("opt.png");
 	if (std::holds_alternative<trainer_t>(ctx.bt_info.foe)){
 		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
 			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha}, foe_accent_color == 255);
@@ -885,6 +888,13 @@ void battle_state_t::render(st_ctx_t& ctx){
 					DrawTexturePro(ctx.assets.get_tx("medicine-bag.png"), {opt == 4 ? bag_animation_frame * 38.0f : 0, 0, 38, 49}, {0.0f + bags_x, 600.0f + (opt == 4 ? bags_y_jump : 0), 266.0f, 343.0f}, {0, 0}, 0.0f, WHITE);
 					DrawTexturePro(ctx.assets.get_tx("bar.png"), {0, 0, 256, 24}, {0, wnd_h - 72, wnd_w, 72}, {0, 0}, 0, WHITE);
 					draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, bag_labels[opt]), 50, wnd_h - 50, 50, WHITE);
+					for (usz i = 0; i < ctx.player.inventory()[opt].size(); i++){
+						DrawTexturePro(optb, {0, (opt2 == i) * 24.0f, 70.0f, 24.0f}, {1400, 100 + i * (optb.height * 2.5f), optb.width * 5.0f, optb.height * 2.5f}, {0, 0}, 0, WHITE);
+						draw_text(ctx.assets, ctx.player.inventory()[opt][i].name, 1425, 130 + i * (optb.height * 2.5f), 50, WHITE);
+					}
+					if (ctx.player.inventory()[opt].size() > opt2){
+						draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, ctx.player.inventory()[opt][opt2].name), 0, 0, 50, WHITE);
+					}
 				}
 				break;
 			default: break;
@@ -897,9 +907,8 @@ void battle_state_t::render(st_ctx_t& ctx){
 	if (phase == BATTLE_PHASE::FOE_ABOUT_TO_SEND){
 		if (unique_txt_entry == UNIQUE_TXT_ENTRY::WILL_SWITCH_PKMN){
 			for (usz i = 0; i < 2; i++){
-				Texture2D button = ctx.assets.get_tx("opt.png");
-				DrawTexturePro(button, {0, (opt == i) * 24.0f, 70.0f, 24.0f}, {wnd_w - 300, wnd_h - 410 + i * (button.height * 2.0f), button.width * 4.0f, button.height * 2.0f}, {0, 0}, 0, WHITE);
-				draw_text(ctx.assets, yes_no[i], wnd_w - 300 + 30.0f, wnd_h - 410 + i * (button.height * 2.0f) + 15.0f, 60, WHITE);
+				DrawTexturePro(optb, {0, (opt == i) * 24.0f, 70.0f, 24.0f}, {wnd_w - 300, wnd_h - 410 + i * (optb.height * 2.0f), optb.width * 4.0f, optb.height * 2.0f}, {0, 0}, 0, WHITE);
+				draw_text(ctx.assets, yes_no[i], wnd_w - 300 + 30.0f, wnd_h - 410 + i * (optb.height * 2.0f) + 15.0f, 60, WHITE);
 			}
 		}
 	}

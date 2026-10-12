@@ -4,6 +4,7 @@
 #include "pokemon.hpp"
 #include "sex.hpp"
 #include "trainer_type_prefixes.hpp"
+#include "items.hpp"
 #include <string>
 #include <cassert>
 #include <span>
@@ -40,6 +41,17 @@ class party_t{
 class assets_t;
 struct Vector2;
 
+enum class BAG : u8{
+	ITEMS = 0,
+	KEY,
+	BERRIES,
+	TMHM,
+	MEDICINE,
+	COUNT
+};
+
+using inventory_t = std::array<std::vector<item_t>, static_cast<u8>(BAG::COUNT)>;
+
 class trainer_t{
 	std::string m_name = "nodata";
 	TRAINER_TYPE m_trainer_type = TRAINER_TYPE::NONE;
@@ -47,6 +59,7 @@ class trainer_t{
 	party_t party{};
 	std::vector <pokemon_t> pc_party{};
 	u8 m_conscious_count = 0;
+	inventory_t m_inventory{};
 	public:
 	trainer_t() = default;
 	trainer_t(std::string n, TRAINER_TYPE t) : m_name(std::move(n)), m_trainer_type(t) {}
@@ -85,6 +98,13 @@ class trainer_t{
 	}
 	party_t& get_party(){
 		return party;
+	}
+	void push_item(itemdex_t& itemdex, u16 id){
+		item_t item = itemdex.get_item(id);
+		m_inventory[item.category].push_back(item);
+	}
+	const inventory_t& inventory() const{
+		return m_inventory;
 	}
 };
 void draw_trainer(assets_t& assets, TRAINER_TYPE trainer_type, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE);

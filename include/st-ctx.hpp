@@ -221,5 +221,11 @@ struct st_ctx_t{
 		player.push_pokemon(emolga);
 		cheren.push_pokemon(cherens);
 		bianca.push_pokemon(biancas);
+		player.push_item(itemdex, 12);
+		player.push_item(itemdex, 13);
+		player.push_item(itemdex, 14);
+		player.push_item(itemdex, 126);
+		player.push_item(itemdex, 305);
+		player.push_item(itemdex, 17);
 	}
 };
