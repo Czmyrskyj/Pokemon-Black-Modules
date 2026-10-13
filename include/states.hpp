@@ -245,6 +245,13 @@ enum class UNIQUE_TXT_ENTRY{
 	WILL_SWITCH_PKMN,
 };
 
+enum class ITEM_ACT{
+	USE,
+	GIVE,
+	TRASH,
+	CANCEL,
+};
+
 struct battle_state_t{
 	float bg_rotation = 0.0f;
 	u8 animation_timer = 0;
@@ -289,6 +296,7 @@ struct battle_state_t{
 	std::array<float, 6> trainer_pokeball_x{};
 	u8 opt = 0;
 	i8 sel_opt = -1;
+	i8 sel_opt2 = -1;
 	i8 next_pokemon = -1;
 	bool running_from_tr_batt = false;
 	bool foe_about_to_send = false;
@@ -299,18 +307,26 @@ struct battle_state_t{
 	bool critical_hp = false;
 	UNIQUE_TXT_ENTRY unique_txt_entry = UNIQUE_TXT_ENTRY::NONE;
 	bool switch_necessary = false;
+	u16 item_used = 0;
 	u8 unique_txt_timer = 0;
 	float bags_x = -300.0f;
 	float bags_y_jump = 0.0f;
 	u8 bag_animation_frame = 0;
 	u8 bag_animation_frame_timer = 0;
 	u8 opt2 = 0;
+	u8 opt3 = 0;
 	std::array<std::string_view, 5> bag_labels = {
 		"ITEMS",
 		"KEY_ITEMS",
 		"BERRIES",
 		"TMHM",
 		"MEDICINE",
+	};
+	std::array<std::string_view, 4> item_act_labels = {
+		"USE",
+		"GIVE",
+		"TRASH",
+		"CANCEL",
 	};
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);

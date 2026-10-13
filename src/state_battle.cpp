@@ -175,7 +175,10 @@ void battle_state_t::update(st_ctx_t& ctx){
 				}
 				menu_state = next_menu_state;
 				opt = 0;
+				opt2 = 0;
+				opt3 = 0;
 				sel_opt = -1;
+				sel_opt2 = -1;
 				bag_animation_frame_timer = 0;
 				bag_animation_frame= 0 ;
 				bags_x = -300.0f;
@@ -463,8 +466,12 @@ void battle_state_t::update(st_ctx_t& ctx){
 							}
 							if (IsKeyPressed(KEY_Z)){
 								PlaySound(dec_sfx);
-								if (opt != battle.current_trainer_pokemon_idx() && p_party[opt].hp() > 0){
-									next_pokemon = opt;
+								if (item_used != 0){
+									if (opt != battle.current_trainer_pokemon_idx() && p_party[opt].hp() > 0){
+										next_pokemon = opt;
+									}
+								} else {
+									ctx.player.use_item(ctx.itemdex, item_used, opt);
 								}
 							}
 							if (next_pokemon != -1){
@@ -477,25 +484,61 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						break;
 					case BATTLE_MENU_STATE::BAG:
-						ctx.control_selection(opt, 4, sel_sfx, {}, true);
-						sel_opt = ctx.control_selection(opt2, ctx.player.inventory()[opt].size() - 1, sel_sfx, dec_sfx);
-						if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
-							bag_animation_frame_timer = 0;
-							bag_animation_frame = 0;
-							bags_y_jump = -20.0f;
-							opt2 = 0;
-						}
-						if (bag_animation_frame < 2){
-							bag_animation_frame_timer++;
-							if (bag_animation_frame_timer > 2){
-								bag_animation_frame++;
-								bag_animation_frame_timer = 0;
+						if (next_menu_state == BATTLE_MENU_STATE::NONE){
+							if (sel_opt == -1){
+								ctx.control_selection(opt, 4, sel_sfx, {}, true);
+								if (ctx.player.inventory()[opt].size() > 0){
+									sel_opt = ctx.control_selection(opt2, ctx.player.inventory()[opt].size() - 1, sel_sfx, dec_sfx);
+								}
+							} else if (sel_opt2 == -1) {
+								sel_opt2 = ctx.control_selection(opt3, 3, sel_sfx, dec_sfx);
 							}
-						}
-						if (bags_x < 0.0f) bags_x += 25.0f;
-						if (bags_y_jump < 0.0f) bags_y_jump += 1.0f;
-						if (IsKeyPressed(KEY_X)){
-							next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+							switch (sel_opt2){
+								case 0:
+									next_menu_state = BATTLE_MENU_STATE::POKEMON;
+									item_used = sel_opt;
+									battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
+									break;
+								case 1:
+									battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
+									next_menu_state = BATTLE_MENU_STATE::POKEMON;
+									break;
+								case 2:
+									ctx.player.pop_item(opt, sel_opt);
+									battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
+									next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+									break;
+								case 3:
+									sel_opt = -1;
+									opt3 = 0;
+									sel_opt2 = -1;
+									break;
+								default: break;
+							}
+							if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+								bag_animation_frame_timer = 0;
+								bag_animation_frame = 0;
+								bags_y_jump = -20.0f;
+								opt2 = 0;
+							}
+							if (bag_animation_frame < 2){
+								bag_animation_frame_timer++;
+								if (bag_animation_frame_timer > 2){
+									bag_animation_frame++;
+									bag_animation_frame_timer = 0;
+								}
+							}
+							if (bags_x < 0.0f) bags_x += 25.0f;
+							if (bags_y_jump < 0.0f) bags_y_jump += 1.0f;
+							if (IsKeyPressed(KEY_X)){
+								if (sel_opt == -1){
+									next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+								} else {
+									sel_opt = -1;
+									sel_opt2 = -1;
+									opt3 = 0;
+								}
+							}
 						}
 						break;
 					default: break;
@@ -895,6 +938,15 @@ void battle_state_t::render(st_ctx_t& ctx){
 					if (ctx.player.inventory()[opt].size() > opt2){
 						draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, ctx.player.inventory()[opt][opt2].name), 0, 0, 50, WHITE);
 					}
+					if (sel_opt != -1){
+						DrawRectangle(0, 0, wnd_w, wnd_h, {0, 0, 0, 150});
+						draw_text(ctx.assets, std::format("{} is selected.", ctx.player.inventory()[opt][sel_opt].name), 15, 15, 50, WHITE, TXT_SHADOW_COLOR, 0, 1);
+						for (usz i = 0; i < 4; i++){
+							DrawTexturePro(optb, {0, (opt3 == i) * 24.0f, 70.0f, 24.0f}, {1500, 600 + i * (optb.height * 2.5f), optb.width * 5.0f, optb.height * 2.5f}, {0, 0}, 0, WHITE);
+							draw_text(ctx.assets, item_act_labels[i], 1525, 630 + i * (optb.height * 2.5f), 50, WHITE);
+						}
+					}
+
 				}
 				break;
 			default: break;

@@ -90,6 +90,9 @@ class pokemon_t{
 		u16 final_power =  std::floor(std::floor(std::floor(2 * attacker_lvl / 5 + 2) * power * attacker_attack / pokedex.base_defense) / 50) + 2;
 		m_hp = final_power >= m_hp ? 0 : m_hp - final_power;
 	}
+	void hp_heal(u8 power) {
+		m_hp = power <= m_max_hp ? power : m_max_hp;
+	}
 	std::span<const u16> moves() const{ return m_moves; }
 	std::span<const u8> pp_used() const{ return m_pp_used; }
 	std::array<u8, 4>& get_pp_used_array() { return m_pp_used; }

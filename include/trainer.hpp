@@ -103,8 +103,34 @@ class trainer_t{
 		item_t item = itemdex.get_item(id);
 		m_inventory[item.category].push_back(item);
 	}
+	void pop_item(u8 category, u8 n){
+		m_inventory[category].erase(m_inventory[category].begin() + n);
+	}
 	const inventory_t& inventory() const{
 		return m_inventory;
+	}
+	void use_item(itemdex_t& itemdex, u16 id, u8 target){
+		item_t item = itemdex.get_item(id);
+		switch (item.category){
+			case 0:
+				
+				break;
+			case 1:
+
+				break;
+			case 2:
+
+				break;
+			case 3:
+
+				break;
+			case 4:
+
+				break;
+			case 5:
+				// party[target].hp_heal(item.power);
+				break;
+		}
 	}
 };
 void draw_trainer(assets_t& assets, TRAINER_TYPE trainer_type, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE);

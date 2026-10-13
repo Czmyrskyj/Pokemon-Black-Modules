@@ -2,6 +2,8 @@
 #include "assets.hpp"
 #include <string_view>
 
+#define TXT_SHADOW_COLOR {150, 150, 150, 255}
+
 struct writer_t{
 	std::string target{};
 	std::string visible_buffer{};
