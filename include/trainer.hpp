@@ -109,7 +109,7 @@ class trainer_t{
 	const inventory_t& inventory() const{
 		return m_inventory;
 	}
-	void use_item(itemdex_t& itemdex, u16 id, u8 target){
+	void use_item(itemdex_t& itemdex, u16 id, u8){
 		item_t item = itemdex.get_item(id);
 		switch (item.category){
 			case 0:

@@ -98,22 +98,22 @@ class battle_t{
 			}
 			return {};
 		}();
-		
+
 	}
 	void set_ai_action(){
 		if (std::holds_alternative<trainer_t>(foe)){
 			auto& t = std::get<trainer_t>(foe);
 			auto& cur_pokemon = (*foe_party)[m_current_foe_pokemon_idx];
 			if (std::ranges::contains(std::array{TRAINER_TYPE::PKMN_TRAINER, 
-								TRAINER_TYPE::ACE_TRAINER, 
-								TRAINER_TYPE::DOCTOR, 
-								TRAINER_TYPE::NURSE, 
-								TRAINER_TYPE::VETERAN, 
-								TRAINER_TYPE::GYM_LEADER, 
-								TRAINER_TYPE::ELITE_FOUR, 
-								TRAINER_TYPE::BOSS}, t.trainer_type())){
-				
-	
+						TRAINER_TYPE::ACE_TRAINER, 
+						TRAINER_TYPE::DOCTOR, 
+						TRAINER_TYPE::NURSE, 
+						TRAINER_TYPE::VETERAN, 
+						TRAINER_TYPE::GYM_LEADER, 
+						TRAINER_TYPE::ELITE_FOUR, 
+						TRAINER_TYPE::BOSS}, t.trainer_type())){
+
+
 				float hp_ratio = cur_pokemon.hp() / cur_pokemon.max_hp();
 				if (hp_ratio > 0.2f){
 					set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.move_count() - 1), 0);
@@ -122,10 +122,10 @@ class battle_t{
 				}
 
 			} else {
-			 
-			/*  WARN:
-			 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
-			 */
+
+				/*  WARN:
+				 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
+				 */
 				set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.move_count() - 1), 0);
 			}
 		} else {
@@ -141,15 +141,15 @@ class battle_t{
 	}
 	i8 action_priority(const turn_action_t& a, const pokemon_t& user, const movedex_t& movedex){
 		return std::visit([&](auto&& act) -> i8 {
-			using T = std::decay_t<decltype(act)>;
-			if constexpr (std::is_same_v<T, attack_action_t>){
+				using T = std::decay_t<decltype(act)>;
+				if constexpr (std::is_same_v<T, attack_action_t>){
 				return movedex.get_move(user.moves()[act.move_slot]).priority;
-			} else if constexpr (std::is_same_v<T, switch_pokemon_action_t> || std::is_same_v<T, item_action_t>){
+				} else if constexpr (std::is_same_v<T, switch_pokemon_action_t> || std::is_same_v<T, item_action_t>){
 				return 10;
-			} else {
+				} else {
 				return -128;
-			}
-		}, a);
+				}
+				}, a);
 	}
 	void determine_order(const movedex_t& movedex){
 		auto& foe_pkmn = (*foe_party)[m_current_foe_pokemon_idx];
@@ -162,10 +162,10 @@ class battle_t{
 		if (foe_pr != ally_pr) trainer_first = ally_pr > foe_pr;
 		else if (foe_pkmn.speed() != ally_pkmn.speed()) trainer_first = ally_pkmn.speed() > foe_pkmn.speed();
 		else trainer_first = rnd::get_val<u8>(0, 1) == 0;
-		
+
 		m_order = trainer_first ? 
-		std::array{BATTLE_TURN::TRAINER, BATTLE_TURN::FOE} :
-		std::array{BATTLE_TURN::FOE, BATTLE_TURN::TRAINER};
+			std::array{BATTLE_TURN::TRAINER, BATTLE_TURN::FOE} :
+			std::array{BATTLE_TURN::FOE, BATTLE_TURN::TRAINER};
 		m_order_pos = 0;
 	}
 	std::optional<BATTLE_TURN> next_turn() const{
@@ -182,14 +182,14 @@ class battle_t{
 		auto& action = is_trainer ? m_trainer_turn_action : m_foe_turn_action;
 		auto& atk = is_trainer ? ally : foep;
 		auto& def = is_trainer ? foep : ally;
-		
+
 		if (atk.hp() > 0 && std::holds_alternative<attack_action_t>(action)){
 			u8 slot = std::get<attack_action_t>(action).move_slot;
 			const move_t& mv = movedex.get_move(atk.moves()[slot]);
 			u8 mv_acc = rnd::get_val<u8>(1, 100);
 			if (mv.accuracy == 0 || mv_acc <= mv.accuracy){
 				PlaySound(assets.get_sfx(std::format("{}.wav", mv.name)));
-				def.hp_damage(mv.power, atk.lvl(), atk.get_pokedex().base_attack);
+				def.hp_damage(mv.power, mv.type, atk.lvl(), atk.get_pokedex().base_attack);
 			} else {
 				m_figure_missed = is_trainer ? BATTLE_FIGURE::TRAINER : BATTLE_FIGURE::FOE;
 			}

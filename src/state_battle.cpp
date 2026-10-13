@@ -466,7 +466,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 							}
 							if (IsKeyPressed(KEY_Z)){
 								PlaySound(dec_sfx);
-								if (item_used != 0){
+								if (item_used == 0){
 									if (opt != battle.current_trainer_pokemon_idx() && p_party[opt].hp() > 0){
 										next_pokemon = opt;
 									}

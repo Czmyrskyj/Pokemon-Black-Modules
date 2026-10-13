@@ -45,6 +45,27 @@ enum class POKEMON_RENDER_TYPE{
 
 class assets_t;
 class spritedex_t;
+
+constexpr std::array<std::array<u8, 17>, 17> type_chart = {{
+	/*NOR*/ {2,2,2,2,2,2,2,2,2,2,2,2,1,0,2,2,1},
+	/*FIR*/ {2,1,1,2,4,4,2,2,2,2,2,4,1,2,1,2,4},
+	/*WAT*/ {2,4,1,2,1,2,2,2,4,2,2,2,4,2,1,2,2},
+	/*ELE*/ {2,2,4,1,1,2,2,2,0,4,2,2,2,2,1,2,2},
+	/*GRA*/ {2,1,4,2,1,2,2,1,4,1,2,1,4,2,1,2,1},
+	/*ICE*/ {2,1,1,2,4,1,2,2,4,4,2,2,2,2,4,2,1},
+	/*FIG*/ {4,2,2,2,2,4,2,1,2,1,1,1,4,0,2,4,4},
+	/*POI*/ {2,2,2,2,4,2,2,1,1,2,2,2,1,1,2,2,0},
+	/*GRO*/ {2,4,2,4,1,2,2,4,2,0,2,1,4,2,2,2,4},
+	/*FLY*/ {2,2,2,1,4,2,4,2,2,2,2,4,1,2,2,2,1},
+	/*PSY*/ {2,2,2,2,2,2,4,4,2,2,1,2,2,2,2,0,1},
+	/*BUG*/ {2,1,2,2,4,2,1,1,2,1,4,2,2,1,2,4,1},
+	/*ROC*/ {2,4,2,2,2,4,1,2,1,4,2,4,2,2,2,2,1},
+	/*GHO*/ {0,2,2,2,2,2,2,2,2,2,4,2,2,4,2,1,1},
+	/*DRA*/ {2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,2,1},
+	/*DAR*/ {2,2,2,2,2,2,1,2,2,2,4,2,2,4,2,1,1},
+	/*STE*/ {2,1,1,1,2,4,2,2,2,2,2,2,4,2,2,2,1},	
+}};
+
 class pokemon_t{
 	u8 frame{0};
 	float menu_y{0.0f};
@@ -64,6 +85,13 @@ class pokemon_t{
 	u32 m_exp = 0;
 	u32 m_exp_cap = 0;
 	bool m_frames_blocked = false;
+	u8 type_effectiveness(TYPE atk, TYPE def1, TYPE def2){
+		u8 a = static_cast<u8>(atk) - 1;
+		u8 e = type_chart[a][static_cast<u8>(def1) - 1];
+		if (def2 != TYPE::NONE) e *= type_chart[a][static_cast<u8>(def2) - 1];
+		else e *= 2;
+		return e;
+	}
 	public:
 	pokemon_t() = default;
 	pokemon_t(pokedex_entry_t p, std::string nick, NATURE nat, SEX s, u8 lv, std::array<u16, 4> m, u8 mc) : pokedex(std::move(p)), m_nickname(std::move(nick)), m_nature(nat), m_sex(s), m_lvl(lv), m_moves(std::move(m)), m_move_count(mc){
@@ -86,12 +114,18 @@ class pokemon_t{
 		m_exp_cap = 3 * (m_lvl*m_lvl) + 3 * m_lvl + 1;
 	}
 	void block_frames(bool b) {m_frames_blocked = b; }
-	void hp_damage(u16 power, u8 attacker_lvl, u8 attacker_attack) { 
-		u16 final_power =  std::floor(std::floor(std::floor(2 * attacker_lvl / 5 + 2) * power * attacker_attack / pokedex.base_defense) / 50) + 2;
+	void hp_damage(u16 power, TYPE move_type, u8 attacker_lvl, u8 attacker_attack) { 
+		if (power == 0) return;
+		const u8 type_eff = type_effectiveness(move_type, pokedex.type1, pokedex.type2);
+		u32 final_power = ((((2 * attacker_lvl / 5 + 2) * power * attacker_attack / pokedex.base_defense) / 50) + 2) * type_eff / 4;
+		if (type_eff != 0 && final_power == 0){
+			final_power = 1;	
+		}
 		m_hp = final_power >= m_hp ? 0 : m_hp - final_power;
 	}
 	void hp_heal(u8 power) {
-		m_hp = power <= m_max_hp ? power : m_max_hp;
+		const u32 healed = static_cast<u32>(m_hp) + power;
+		m_hp = healed >= m_max_hp ? m_max_hp : healed;
 	}
 	std::span<const u16> moves() const{ return m_moves; }
 	std::span<const u8> pp_used() const{ return m_pp_used; }
