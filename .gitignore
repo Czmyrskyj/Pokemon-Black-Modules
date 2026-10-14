@@ -2,3 +2,4 @@ build
 makefile
 scripts
 .clangd
+assets.PAKG
