@@ -369,6 +369,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 									menu_state = BATTLE_MENU_STATE::MOVES;
 									break;
 								case 1:
+									item_used = 0;
 									next_menu_state = BATTLE_MENU_STATE::POKEMON;
 									break;
 								case 2:
@@ -429,7 +430,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 							p_party[i].block_frames(true);
 						}
 						if (IsKeyPressed(KEY_X) && !switch_necessary){
-							next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+							next_menu_state = item_used != 0 ? BATTLE_MENU_STATE::BAG : BATTLE_MENU_STATE::OPTIONS;
+							item_used = 0;
 						}
 						if (next_menu_state == BATTLE_MENU_STATE::NONE){
 							if (IsKeyPressed(KEY_RIGHT)){
@@ -471,7 +473,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 										next_pokemon = opt;
 									}
 								} else {
-									ctx.player.use_item(ctx.itemdex, item_used, opt);
+									if (can_use_item(ctx.itemdex.get_item(item_used), p_party[opt])){
+										battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, item_used, opt);
+										item_used = 0;
+										next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+									}
 								}
 							}
 							if (next_pokemon != -1){
@@ -494,25 +500,34 @@ void battle_state_t::update(st_ctx_t& ctx){
 								sel_opt2 = ctx.control_selection(opt3, 3, sel_sfx, dec_sfx);
 							}
 							switch (sel_opt2){
-								case 0:
-									next_menu_state = BATTLE_MENU_STATE::POKEMON;
-									item_used = sel_opt;
-									battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
-									break;
+								case 0:{
+									       const item_t& it = ctx.player.inventory()[opt][sel_opt];
+									       if (it.target == ITEM_TARGET::ALLY){
+										       item_used = it.id;
+										       next_menu_state = BATTLE_MENU_STATE::POKEMON;
+									       } else if (it.target == ITEM_TARGET::FOE){
+										       battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, it.id, battle.current_foe_pokemon_idx());
+										       next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+									       } else {
+										       sel_opt2 = -1;
+										       opt3 = 0;
+									       }
+									       break;
+								       }
 								case 1:
-									battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
-									next_menu_state = BATTLE_MENU_STATE::POKEMON;
-									break;
+								       battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
+								       next_menu_state = BATTLE_MENU_STATE::POKEMON;
+								       break;
 								case 2:
-									ctx.player.pop_item(opt, sel_opt);
-									battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
-									next_menu_state = BATTLE_MENU_STATE::OPTIONS;
-									break;
+								       ctx.player.pop_item(opt, sel_opt);
+								       battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
+								       next_menu_state = BATTLE_MENU_STATE::OPTIONS;
+								       break;
 								case 3:
-									sel_opt = -1;
-									opt3 = 0;
-									sel_opt2 = -1;
-									break;
+								       sel_opt = -1;
+								       opt3 = 0;
+								       sel_opt2 = -1;
+								       break;
 								default: break;
 							}
 							if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
@@ -572,13 +587,13 @@ void battle_state_t::update(st_ctx_t& ctx){
 							turn_timer = 0;
 						} else {
 							if (++turn_timer >= turn_timer_dest){
-								battle.execute_action(ctx.movedex, ctx.assets);
+								battle.execute_action(ctx.movedex, ctx.itemdex, ctx.assets);
 								turn_timer = 0;
 							}
 						}
 					} else {
 						if (++turn_timer >= turn_timer_dest){
-							battle.execute_action(ctx.movedex, ctx.assets);
+							battle.execute_action(ctx.movedex, ctx.itemdex, ctx.assets);
 							txted = false;
 							if (attacked.hp() == 0){
 								trainer_t* owner = nullptr;

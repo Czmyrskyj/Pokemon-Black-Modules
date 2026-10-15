@@ -109,28 +109,15 @@ class trainer_t{
 	const inventory_t& inventory() const{
 		return m_inventory;
 	}
-	void use_item(itemdex_t& itemdex, u16 id, u8){
-		item_t item = itemdex.get_item(id);
-		switch (item.category){
-			case 0:
-				
-				break;
-			case 1:
-
-				break;
-			case 2:
-
-				break;
-			case 3:
-
-				break;
-			case 4:
-
-				break;
-			case 5:
-				// party[target].hp_heal(item.power);
-				break;
+	bool consume_item(u16 id){
+		for (auto& pocket : m_inventory){
+			auto it = std::ranges::find(pocket, id, &item_t::id);
+			if (it != pocket.end()){
+				pocket.erase(it);
+				return true;
+			}
 		}
+		return false;
 	}
 };
 void draw_trainer(assets_t& assets, TRAINER_TYPE trainer_type, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE);

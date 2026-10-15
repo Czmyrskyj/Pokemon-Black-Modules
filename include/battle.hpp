@@ -5,6 +5,7 @@
 #include "trainer.hpp"
 #include "dialog.hpp"
 #include "random.hpp"
+#include "item_effects.hpp"
 #include <variant>
 #include <format>
 #include <algorithm>
@@ -38,7 +39,7 @@ struct attack_action_t{
 };
 
 struct item_action_t{
-	u8 item_id;
+	u16 item_id;
 	u8 target;
 };
 
@@ -56,8 +57,10 @@ class battle_t{
 	u8 m_txtbox_peak_alpha_timer = 0;
 	u8 m_current_foe_pokemon_idx = 0;
 	u8 m_current_trainer_pokemon_idx = 0;
+	u8 m_turn_count = 0;
 	turn_action_t m_foe_turn_action = none_action_t{};
 	turn_action_t m_trainer_turn_action = none_action_t{};
+	item_result_t m_last_item_result = {};
 
 	BATTLE_FIGURE m_figure_missed = BATTLE_FIGURE::NONE;
 
@@ -92,9 +95,9 @@ class battle_t{
 	void set_action(TURN_ACTION act, BATTLE_TURN turn, u8 reg1, u8 reg2 = 0xFF){
 		((turn == BATTLE_TURN::TRAINER) ? m_trainer_turn_action : m_foe_turn_action) = [&]() -> turn_action_t{
 			switch (act){
-				case TURN_ACTION::ATTACK: return attack_action_t{reg1, reg2};
+				case TURN_ACTION::ATTACK: return attack_action_t{static_cast<u8>(reg1), reg2};
 				case TURN_ACTION::ITEM: return item_action_t{reg1, reg2};
-				case TURN_ACTION::SWITCH: return switch_pokemon_action_t{reg1};
+				case TURN_ACTION::SWITCH: return switch_pokemon_action_t{static_cast<u8>(reg1)};
 			}
 			return {};
 		}();
@@ -167,12 +170,47 @@ class battle_t{
 			std::array{BATTLE_TURN::TRAINER, BATTLE_TURN::FOE} :
 			std::array{BATTLE_TURN::FOE, BATTLE_TURN::TRAINER};
 		m_order_pos = 0;
+		m_turn_count++;
 	}
 	std::optional<BATTLE_TURN> next_turn() const{
 		if (m_order_pos >= 2) return std::nullopt;
 		return m_order[m_order_pos];
 	}
-	void execute_action(movedex_t& movedex, assets_t& assets){
+	void execute_item(const item_action_t& ia, bool is_trainer, const itemdex_t& itemdex){
+		if (!is_trainer) return;
+		const item_t& item = itemdex.get_item(ia.item_id);
+		auto& party = player.get_party();
+		auto& foep = (*foe_party)[m_current_foe_pokemon_idx];
+		auto& ally = party[m_current_trainer_pokemon_idx];
+		pokemon_t* target = nullptr;
+		switch (item.target){
+			case ITEM_TARGET::ALLY: if (ia.target < party.size()) target = &party[ia.target]; break;
+			case ITEM_TARGET::FOE: target = &foep; break;
+			case ITEM_TARGET::NONE: break;
+		}
+		if (!target) return;
+
+		catch_ctx_t cctx{};
+		cctx.turn = m_turn_count;
+		cctx.ally_level = ally.lvl();
+		cctx.ally_sex = ally.sex();
+		cctx.ally_species = ally.get_pokedex().id;
+		
+		const bool was_fainted = target->hp() <= 0;
+		m_last_item_result = apply_item(item, *target, std::holds_alternative<trainer_t>(foe), cctx);
+
+		if (m_last_item_result.consumed()){
+			player.consume_item(ia.item_id);
+		}
+		if (m_last_item_result.kind == ITEM_RESULT::REVIVED && was_fainted){
+			player.set_conscious_count(player.conscious_count() + 1);
+		}
+		if (m_last_item_result.kind == ITEM_RESULT::CAUGHT){
+			player.push_pokemon(foep);
+			m_winner = BATTLE_FIGURE::TRAINER;
+		}
+	}
+	void execute_action(movedex_t& movedex, const itemdex_t& itemdex, assets_t& assets){
 		if (m_order_pos >= 2) return;
 
 		bool is_trainer = m_order[m_order_pos++] == BATTLE_TURN::TRAINER;
@@ -195,6 +233,8 @@ class battle_t{
 			}
 			auto& used = atk.get_pp_used_array()[slot];
 			if (used < mv.pp) used++;
+		} else if (const auto* ia = std::get_if<item_action_t>(&action)){
+			execute_item(*ia, is_trainer, itemdex);
 		}
 		action = none_action_t{};
 

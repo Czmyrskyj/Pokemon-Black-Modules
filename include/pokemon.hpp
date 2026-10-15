@@ -137,6 +137,10 @@ class pokemon_t{
 	u16 speed() const {
 		return ((2 * pokedex.base_speed + m_iv + m_ev / 4) * m_lvl) / 100 + 5;
 	}
+	void revive(bool full){
+		if (m_hp != 0) return;
+		m_hp = full ? m_max_hp : std::max<u16>(1, m_max_hp / 2);
+	}
 };
 struct legendary_t{
 	pokemon_t pokemon;

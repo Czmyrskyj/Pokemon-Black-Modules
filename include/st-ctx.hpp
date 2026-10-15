@@ -171,7 +171,7 @@ struct st_ctx_t{
 			NATURE::LONELY,
 			SEX::MALE,
 			5,
-			{1, 0, 0, 0},
+			{7, 1, 0, 0},
 			1
 		};
 		pokemon_t purrloin{
@@ -197,7 +197,7 @@ struct st_ctx_t{
 			"SERPERIOR",
 			NATURE::LONELY,
 			SEX::MALE,
-			50,
+			5,
 			{36, 24, 51, 32},
 			4
 		};
@@ -214,7 +214,7 @@ struct st_ctx_t{
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
 		formatter.feed("[CHEREN-STARTER]", "SNIVY");
-		player.push_pokemon(serperior);
+		player.push_pokemon(cherens);
 		player.push_pokemon(players);
 		player.push_pokemon(purrloin);
 		player.push_pokemon(buizel);

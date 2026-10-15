@@ -61,6 +61,7 @@ add_executable(${Project_Name}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/spritedex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/moves.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/items.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/item_effects.cpp
 )
 
 target_precompile_headers(${Project_Name} PRIVATE

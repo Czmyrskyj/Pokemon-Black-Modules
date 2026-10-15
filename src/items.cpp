@@ -23,6 +23,10 @@ std::expected<void, std::string_view> itemdex_t::load_itemdex(){
 			item_h.cost,
 			item_h.fling_power,
 			item_h.category,
+			static_cast<ITEM_TARGET>(item_h.target),
+			static_cast<ITEM_EFFECT>(item_h.effect),
+			item_h.arg,
+			item_h.flags,
 			std::move(name),
 		});
 	}
