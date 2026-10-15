@@ -1,6 +1,6 @@
 #include "dialog.hpp"
 #include "from_all_caps_to_capitalized.hpp"
-#include <algorithm>
+#include "st-ctx.hpp"
 #include <raylib.h>
 #include <format>
 
@@ -28,7 +28,8 @@ std::string dialog_t::step(assets_t& assets, writer_t& writer, Locale::locale_t&
 	auto buffer = std::string(locale.get(Locale::TYPE::DIALOG, lines[current_line]));
 	if (lines[current_line].starts_with("CHAR_")){
 		speaker = tell_whos_talking();
-		buffer = std::format("{}: {}", speaker, buffer);
+		auto speaker_txt = (!lines[current_line].ends_with("HN")) ? tell_whos_talking() : "???";
+		buffer = (speaker != prev_speaker) ? std::format("{}: {}", speaker_txt, buffer) : buffer;
 		txtbox_x = 200.0f;
 	} else {
 		txtbox_x = 10.0f;
@@ -43,6 +44,7 @@ bool dialog_t::update(assets_t& assets, writer_t& writer){
 		if (current_line < lines.size()){
 			PlaySound(assets.get_sfx("SEQ_SE_DP_SELECT.wav"));
 		}
+		prev_speaker = speaker;
 		return true;
 	}
 	if (!top){
@@ -89,5 +91,12 @@ void dialog_t::draw_speaker(assets_t& assets){
 		DrawTexturePro(speaker_tx, {src_offset.x, src_offset.y * 78, 84, 78}, {10, txtbox_y - 20, 204, 190}, {0, 0}, 0, WHITE);
 	} else {
 		
+	}
+}
+
+void dialog_t::change_music_if_char(st_ctx_t& ctx){
+	auto buffer = ctx.formatter.format(std::string(ctx.locale.get(Locale::TYPE::DIALOG, lines[current_line])));
+	if (buffer.starts_with("\x03")){
+		ctx.set_music(std::format("{}.ogg", tell_whos_talking()));
 	}
 }

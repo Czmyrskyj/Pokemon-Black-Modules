@@ -46,8 +46,15 @@ void draw_text_seq(assets_t& assets, const writer_t& writer, float x, float y, u
 	draw_text(assets, writer.visible_buffer, x, y, size, tint, shadow_tint, 0, 0);
 }
 
+static bool is_silent_char(char c){
+	return c == '\x03' || c == '\x04';
+}
+
 void writer_t::update(const Sound* char_sfx, const Sound* begin_sfx){
 	if (finished || target.empty() || current_idx >= target.size()) return;
+	while (current_idx < target.size() && is_silent_char(target[current_idx])){
+		current_idx++;
+	}
 	bool is_waiting = (target[current_idx] == '\x02');
 	float step_speed = is_waiting ? (speed * 10.0f) : speed;
 	if (begin_sfx && current_idx == 0){

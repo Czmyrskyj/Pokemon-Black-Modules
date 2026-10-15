@@ -44,6 +44,10 @@ std::string formatter_t::format(std::string_view txt, POKEDEX pokemon, std::stri
 	while ((pos = buffer.find("[PKMN_SIGN]")) != std::string::npos){
 		buffer.replace(pos, 11, "\x01");
 	}
+	pos = 0;
+	while ((pos = buffer.find("[START_CHAR_MUSIC]")) != std::string::npos){
+		buffer.replace(pos, 18, "\x03");
+	}
 
 	return buffer;
 }

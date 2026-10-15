@@ -34,6 +34,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 	predialog.init(for_pre);
 	postdialog.init(for_post);
 
+	predialog.change_music_if_char(ctx);
 	current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
 	writer.set_text(current_line);
 }

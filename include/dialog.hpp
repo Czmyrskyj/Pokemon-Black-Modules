@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 class trainer_t;
+struct st_ctx_t;
 struct dialog_t{
 	std::vector<std::string> lines;
 	usz current_line{0};
@@ -19,11 +20,13 @@ struct dialog_t{
 		txtbox_y = !top ? wnd_h + 20.0f : -200.0f;
 	}
 	std::string speaker{""};
+	std::string prev_speaker{""};
 	bool hid_txtbox() const { return txtbox_y >= wnd_h; }
 	std::string tell_whos_talking();
 	std::string step(assets_t& assets, writer_t& writer, Locale::locale_t& locale);
 	void draw_speaker(assets_t& assets);
 	bool update(assets_t& assets, writer_t& writer);
+	void change_music_if_char(st_ctx_t& ctx);
 	std::string get_identifier() {
 		return lines[current_line];
 	}
