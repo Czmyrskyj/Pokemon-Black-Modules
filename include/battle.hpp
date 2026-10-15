@@ -176,7 +176,7 @@ class battle_t{
 		if (m_order_pos >= 2) return std::nullopt;
 		return m_order[m_order_pos];
 	}
-	void execute_item(const item_action_t& ia, bool is_trainer, const itemdex_t& itemdex){
+	void execute_item(const item_action_t& ia, bool is_trainer, const itemdex_t& itemdex, assets_t& assets){
 		if (!is_trainer) return;
 		const item_t& item = itemdex.get_item(ia.item_id);
 		auto& party = player.get_party();
@@ -184,7 +184,12 @@ class battle_t{
 		auto& ally = party[m_current_trainer_pokemon_idx];
 		pokemon_t* target = nullptr;
 		switch (item.target){
-			case ITEM_TARGET::ALLY: if (ia.target < party.size()) target = &party[ia.target]; break;
+			case ITEM_TARGET::ALLY: 
+				{
+					if (ia.target < party.size()) target = &party[ia.target]; 
+					PlaySound(assets.get_sfx("SEQ_SE_BE_SE_09.wav"));
+				}
+				break;
 			case ITEM_TARGET::FOE: target = &foep; break;
 			case ITEM_TARGET::NONE: break;
 		}
@@ -198,6 +203,7 @@ class battle_t{
 		
 		const bool was_fainted = target->hp() <= 0;
 		m_last_item_result = apply_item(item, *target, std::holds_alternative<trainer_t>(foe), cctx);
+		
 
 		if (m_last_item_result.consumed()){
 			player.consume_item(ia.item_id);
@@ -234,7 +240,7 @@ class battle_t{
 			auto& used = atk.get_pp_used_array()[slot];
 			if (used < mv.pp) used++;
 		} else if (const auto* ia = std::get_if<item_action_t>(&action)){
-			execute_item(*ia, is_trainer, itemdex);
+			execute_item(*ia, is_trainer, itemdex, assets);
 		}
 		action = none_action_t{};
 
@@ -259,5 +265,8 @@ class battle_t{
 	}
 	void set_figure_missed(BATTLE_FIGURE f){
 		m_figure_missed = f;
+	}
+	item_result_t last_item_result() const{
+		return m_last_item_result;
 	}
 };

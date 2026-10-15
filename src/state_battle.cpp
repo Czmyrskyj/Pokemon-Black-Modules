@@ -576,12 +576,20 @@ void battle_state_t::update(st_ctx_t& ctx){
 						const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
 						camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
 						const auto* atk = std::get_if<attack_action_t>(&act);
+						const auto* itm = std::get_if<item_action_t>(&act);
+					
+						if (cur.hp() > 0){
+							if (atk){
+								current_line = ctx.formatter.format(
+										ctx.locale.get(Locale::TYPE::UI, "PKMN_USED"), 
+										cur.get_pokedex().id, 
+										ctx.movedex.get_move(cur.moves()[atk->move_slot]).name);
+							} else if (itm) {
+								current_line = ctx.formatter.format(
+										ctx.locale.get(Locale::TYPE::UI, (is_trainer) ? "TRAINER_USED" : "FOE_USED"), 
+										MISSINGNO, ctx.itemdex.get_item(itm->item_id).name);
 
-						if (atk && cur.hp() > 0){
-							current_line = ctx.formatter.format(
-									ctx.locale.get(Locale::TYPE::UI, "PKMN_USED"), 
-									cur.get_pokedex().id, 
-									ctx.movedex.get_move(cur.moves()[atk->move_slot]).name);
+							}
 							writer.set_text(current_line);
 							txted = true;
 							turn_timer = 0;
