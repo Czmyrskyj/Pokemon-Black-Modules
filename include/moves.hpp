@@ -18,6 +18,7 @@ struct move_header_t{
 	u8 accuracy;
 	u8 priority;
 	u8 damage_class;
+	u8 crit_rate;
 	u8 name_len;
 };
 #pragma pack(pop)
@@ -30,6 +31,7 @@ struct move_t{
 	u8 accuracy;
 	i8 priority;
 	u8 damage_class;
+	u8 crit_rate;
 	std::string name;
 };
 

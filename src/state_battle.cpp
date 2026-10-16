@@ -11,7 +11,7 @@
 constexpr float pokemon_scale_dest{1.0f};
 constexpr float pokemon_y_dest{0.1f};
 constexpr float turn_timer_dest{30};
-
+constexpr u8 unique_txt_dest{50};
 
 Rectangle full_tx(const Texture2D& tx){
 	return Rectangle{0, 0, static_cast<float>(tx.width), static_cast<float>(tx.height)};
@@ -568,18 +568,23 @@ void battle_state_t::update(st_ctx_t& ctx){
 			break;
 		case BATTLE_PHASE::FIGHT:
 			if (writer.finished && foe_hp_render == foep->hp() && ally_hp_render == ally->hp()){
-				if (auto next = battle.next_turn()){
+				if (unique_txt_entry != UNIQUE_TXT_ENTRY::NONE){
+					if (++unique_txt_timer >= unique_txt_dest){
+						unique_txt_entry = UNIQUE_TXT_ENTRY::NONE;
+						unique_txt_timer = 0;
+					}
+				} else if (auto next = battle.next_turn()){
 					const bool is_trainer = (*next == BATTLE_TURN::TRAINER);
 					const pokemon_t& attacked = !is_trainer ? *ally : *foep;
 					const pokemon_t& cur = is_trainer ? *ally : *foep;
 					if (!txted){
 						const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
-						camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
 						const auto* atk = std::get_if<attack_action_t>(&act);
 						const auto* itm = std::get_if<item_action_t>(&act);
 					
 						if (cur.hp() > 0){
 							if (atk){
+								camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
 								current_line = ctx.formatter.format(
 										ctx.locale.get(Locale::TYPE::UI, "PKMN_USED"), 
 										cur.get_pokedex().id, 
@@ -631,7 +636,16 @@ void battle_state_t::update(st_ctx_t& ctx){
 						if (battle.figure_missed() != BATTLE_FIGURE::NONE){
 							current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ATTACK_MISSED"), cur.get_pokedex().id);
 							writer.set_text(current_line);
+							unique_txt_entry = UNIQUE_TXT_ENTRY::MISSED;
+							unique_txt_timer = 0;
 							battle.set_figure_missed(BATTLE_FIGURE::NONE);
+						}
+						if (battle.is_crit()){
+							current_line = ctx.locale.get(Locale::TYPE::UI, "CRIT_HIT");
+							writer.set_text(current_line);
+							unique_txt_entry = UNIQUE_TXT_ENTRY::CRIT;
+							unique_txt_timer = 0;
+							battle.set_crit(false);
 						}
 					}
 				} else {

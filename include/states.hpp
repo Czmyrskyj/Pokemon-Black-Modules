@@ -243,6 +243,8 @@ enum class UNIQUE_TXT_ENTRY{
 	NONE,
 	FOE_DEFEAT_MSG,
 	WILL_SWITCH_PKMN,
+	MISSED,
+	CRIT,
 };
 
 enum class ITEM_ACT{

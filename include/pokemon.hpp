@@ -85,6 +85,8 @@ class pokemon_t{
 	u32 m_exp = 0;
 	u32 m_exp_cap = 0;
 	bool m_frames_blocked = false;
+	u16 m_held_item = 0;
+	bool m_focus_energy = false;
 	u8 type_effectiveness(TYPE atk, TYPE def1, TYPE def2){
 		u8 a = static_cast<u8>(atk) - 1;
 		u8 e = type_chart[a][static_cast<u8>(def1) - 1];
@@ -140,6 +142,18 @@ class pokemon_t{
 	void revive(bool full){
 		if (m_hp != 0) return;
 		m_hp = full ? m_max_hp : std::max<u16>(1, m_max_hp / 2);
+	}
+	u16 held_item() const{
+		return m_held_item;
+	}
+	void set_held_item(u16 id){
+		m_held_item = id;
+	}
+	bool focus_energy() const{
+		return m_focus_energy;
+	}
+	void set_focus_energy(bool f){
+		m_focus_energy = f;
 	}
 };
 struct legendary_t{

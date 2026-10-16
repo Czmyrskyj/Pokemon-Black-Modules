@@ -27,6 +27,7 @@ std::expected<void, std::string_view> movedex_t::load_movedex(){
 			move_h.accuracy,
 			static_cast<i8>(move_h.priority - 128),
 			move_h.damage_class,
+			move_h.crit_rate,
 			std::move(name),
 		});
 	}

@@ -68,6 +68,7 @@ class battle_t{
 	u8 m_order_pos = 2;
 
 	BATTLE_FIGURE m_winner = BATTLE_FIGURE::NONE;
+	bool m_is_crit = false;
 
 	public:
 	battle_t(trainer_t& p, foe_t& f, party_t& party) : player(p), foe(f), foe_party(&party){};
@@ -233,7 +234,24 @@ class battle_t{
 			u8 mv_acc = rnd::get_val<u8>(1, 100);
 			if (mv.accuracy == 0 || mv_acc <= mv.accuracy){
 				PlaySound(assets.get_sfx(std::format("{}.wav", mv.name)));
-				def.hp_damage(mv.power, mv.type, atk.lvl(), atk.get_pokedex().base_attack);
+
+				int crit_stage = mv.crit_rate;
+				if (atk.focus_energy()) crit_stage += 2;
+				if (atk.held_item() == 209 || atk.held_item() == 303) crit_stage++;
+				if (atk.get_pokedex().ability1 == ABILITY::SUPER_LUCK) crit_stage++;
+
+				if (crit_stage > 4) crit_stage = 4;
+				
+				const auto& dd = def.get_pokedex();
+				bool blocked = dd.ability1 == ABILITY::BATTLE_ARMOR || dd.ability2 == ABILITY::BATTLE_ARMOR
+					|| dd.ability1 == ABILITY::SHELL_ARMOR  || dd.ability2 == ABILITY::SHELL_ARMOR;
+
+				if (!blocked){
+					static constexpr std::array<int, 5> crit_denominator = {16, 8, 4, 3, 2};
+					bool always_crit = mv.id == 524 || mv.id == 480;
+					m_is_crit = always_crit || rnd::get_val<u8>(0, crit_denominator[crit_stage] - 1) == 0;
+				}
+				def.hp_damage(mv.power * (m_is_crit ? 2 : 1), mv.type , atk.lvl(), atk.get_pokedex().base_attack);
 			} else {
 				m_figure_missed = is_trainer ? BATTLE_FIGURE::TRAINER : BATTLE_FIGURE::FOE;
 			}
@@ -268,5 +286,11 @@ class battle_t{
 	}
 	item_result_t last_item_result() const{
 		return m_last_item_result;
+	}
+	bool is_crit() const{
+		return m_is_crit;
+	}
+	void set_crit(bool c){
+		m_is_crit = c;
 	}
 };
