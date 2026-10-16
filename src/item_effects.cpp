@@ -100,7 +100,7 @@ item_result_t apply_item(const item_t& item, pokemon_t& target, bool wild_battle
 			}
 		case ITEM_EFFECT::REVIVE:
 			{
-				//target.revive(full);
+				target.revive(full);
 				return {ITEM_RESULT::REVIVED, static_cast<u16>(target.hp()), 0};	
 			}
 		case ITEM_EFFECT::NONE:

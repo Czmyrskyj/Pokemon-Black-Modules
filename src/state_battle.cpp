@@ -430,7 +430,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 							p_party[i].block_frames(true);
 						}
 						if (IsKeyPressed(KEY_X) && !switch_necessary){
-							next_menu_state = item_used != 0 ? BATTLE_MENU_STATE::BAG : BATTLE_MENU_STATE::OPTIONS;
+							next_menu_state = (item_used != 0) ? BATTLE_MENU_STATE::BAG : BATTLE_MENU_STATE::OPTIONS;
 							item_used = 0;
 						}
 						if (next_menu_state == BATTLE_MENU_STATE::NONE){
@@ -512,18 +512,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 										       sel_opt2 = -1;
 										       opt3 = 0;
 									       }
-									       break;
 								       }
+								       break;
 								case 1:
-								       battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
-								       next_menu_state = BATTLE_MENU_STATE::POKEMON;
-								       break;
-								case 2:
-								       ctx.player.pop_item(opt, sel_opt);
-								       battle.set_action(TURN_ACTION::ITEM, BATTLE_TURN::TRAINER, ctx.player.inventory()[opt][sel_opt].id, 0);
-								       next_menu_state = BATTLE_MENU_STATE::OPTIONS;
-								       break;
-								case 3:
 								       sel_opt = -1;
 								       opt3 = 0;
 								       sel_opt2 = -1;
@@ -569,9 +560,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 		case BATTLE_PHASE::FIGHT:
 			if (writer.finished && foe_hp_render == foep->hp() && ally_hp_render == ally->hp()){
 				if (unique_txt_entry != UNIQUE_TXT_ENTRY::NONE){
+					battle.set_txtbox_alpha(255);
 					if (++unique_txt_timer >= unique_txt_dest){
 						unique_txt_entry = UNIQUE_TXT_ENTRY::NONE;
 						unique_txt_timer = 0;
+						writer.finished = true;
 					}
 				} else if (auto next = battle.next_turn()){
 					const bool is_trainer = (*next == BATTLE_TURN::TRAINER);
@@ -581,7 +574,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
 						const auto* atk = std::get_if<attack_action_t>(&act);
 						const auto* itm = std::get_if<item_action_t>(&act);
-					
+
 						if (cur.hp() > 0){
 							if (atk){
 								camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
@@ -978,7 +971,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 					if (sel_opt != -1){
 						DrawRectangle(0, 0, wnd_w, wnd_h, {0, 0, 0, 150});
 						draw_text(ctx.assets, std::format("{} is selected.", ctx.player.inventory()[opt][sel_opt].name), 15, 15, 50, WHITE, TXT_SHADOW_COLOR, 0, 1);
-						for (usz i = 0; i < 4; i++){
+						for (usz i = 0; i < 2; i++){
 							DrawTexturePro(optb, {0, (opt3 == i) * 24.0f, 70.0f, 24.0f}, {1500, 600 + i * (optb.height * 2.5f), optb.width * 5.0f, optb.height * 2.5f}, {0, 0}, 0, WHITE);
 							draw_text(ctx.assets, item_act_labels[i], 1525, 630 + i * (optb.height * 2.5f), 50, WHITE);
 						}

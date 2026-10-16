@@ -324,10 +324,8 @@ struct battle_state_t{
 		"TMHM",
 		"MEDICINE",
 	};
-	std::array<std::string_view, 4> item_act_labels = {
+	std::array<std::string_view, 2> item_act_labels = {
 		"USE",
-		"GIVE",
-		"TRASH",
 		"CANCEL",
 	};
 	void update(st_ctx_t& ctx);
