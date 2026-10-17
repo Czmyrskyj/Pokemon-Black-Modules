@@ -208,7 +208,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 		}
 		ctx.transition_alpha = static_cast<unsigned char>(current_alpha);
 	}
-
+	SetMusicVolume(ctx.current_music, ctx.music_volume);
 
 	switch (phase){
 		case BATTLE_PHASE::INTRO:
@@ -721,19 +721,32 @@ void battle_state_t::update(st_ctx_t& ctx){
 				foe_z = -0.9f;
 				camera_pos = BATTLE_CAMERA_POS::DEFAULT;
 				if (battle.winner() == BATTLE_FIGURE::TRAINER){
-					ctx.set_music(get_victory_music_name(ctx));
 					if (!txted){
+						StopMusicStream(ctx.current_music);
+						ctx.set_music(get_victory_music_name(ctx));
+						if (ctx.predialog_finished && ctx.postdialog_finished){
+							ctx.index++;
+							ctx.predialog_finished = false;
+							ctx.postdialog_finished = false;
+						}
 						current_line = ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "FOE_WAS_DEFEATED"));
 						writer.set_text(current_line);
 						txted = true;
 					}
-					if (txted && writer.finished){
+					if (txted && writer.finished && unique_txt_entry == UNIQUE_TXT_ENTRY::NONE){
 						unique_txt_timer++;
 					}
 					if (unique_txt_entry != UNIQUE_TXT_ENTRY::FOE_DEFEAT_MSG && unique_txt_timer > 50){
 						current_line = ctx.formatter.format(ctx.bt_info.defeat_msg);
 						writer.set_text(current_line);
 						unique_txt_entry = UNIQUE_TXT_ENTRY::FOE_DEFEAT_MSG;
+					} else {
+						if (++unique_txt_timer > 150){
+							ctx.switch_state(STATE::MAIN);
+							if (ctx.music_volume > 0.0f) ctx.music_volume -= 0.05f;
+							else StopMusicStream(ctx.current_music);
+							return;
+						} 
 					}
 				}
 			}

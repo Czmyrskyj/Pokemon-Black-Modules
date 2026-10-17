@@ -177,11 +177,11 @@ struct main_state_t{
 	bool ended_battle{false};
 	float encounter_info_txtbox_y{wnd_h};
 	std::string current_line;
-	// WARN: [!!] AFTER DEBUGGING, SET TO 0
-	usz index = 0;
 	std::vector<cloud_t> clouds{};
 	Color sky_color{SKYBLUE};
 	anim_trainer_render_t anim_trainer_render;
+	std::vector<std::string> for_pre;
+	std::vector<std::string> for_post;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	explicit main_state_t(st_ctx_t& ctx);

@@ -43,6 +43,12 @@ struct st_ctx_t{
 	u8 selected_option = 0;
 	bool music_started{false};
 	float music_volume = 1.0f;
+	// WARN: [!!] AFTER DEBUGGING, SET TO 0
+	usz index = 0;
+	bool predialog_finished = false;
+	bool postdialog_finished = false;
+	u8 predialog_idx = 0;
+	u8 postdialog_idx = 0;
 	void resume_state_alpha(unsigned char& alpha){
 		float current_alpha = static_cast<float>(alpha);
 		if (current_alpha > 5.0f){
@@ -143,7 +149,7 @@ struct st_ctx_t{
 	// WARN: only for debugging!
 	void set_temp_data(){
 		current_state = STATE::MAIN;
-		region = REGION::ROUTE_1;
+		region = REGION::NUVEMA;
 		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
@@ -171,7 +177,7 @@ struct st_ctx_t{
 			NATURE::LONELY,
 			SEX::MALE,
 			5,
-			{7, 1, 0, 0},
+			{52, 1, 0, 0},
 			1
 		};
 		pokemon_t purrloin{

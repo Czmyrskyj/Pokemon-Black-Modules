@@ -21,9 +21,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 				}
 			);
 	}
-	ctx.bt_info = ctx.battle_info.get_battle_info(ctx.region, index, ctx.pokedex);
-	std::vector<std::string> for_pre;
-	std::vector<std::string> for_post;
+	ctx.bt_info = ctx.battle_info.get_battle_info(ctx.region, ctx.index, ctx.pokedex);
 	for (const auto& d : ctx.bt_info.dialog){
 		if (d.ends_with("A")){
 			for_post.push_back(d);
@@ -112,8 +110,19 @@ void main_state_t::update(st_ctx_t& ctx){
 		ctx.resume_state_alpha(ctx.transition_alpha);
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
+		ctx.music_volume = 1.0f;
+		std::string_view region_music = [&]() -> std::string_view{
+			auto reg_str = get_region_str(ctx.region);
+			if (reg_str.ends_with("Gym")){
+				return "Gym";
+			}
+			return reg_str;
+		}();
+		ctx.set_music(std::format("{}.ogg", region_music));
 		ctx.set_state_meta = true;
 	}
+
+
 	auto season = ctx.time.get_season();
 	auto hours = ctx.time.get_time().hours().count();
 	get_time_palette(season, hours, sky_color, ctx);
@@ -124,59 +133,63 @@ void main_state_t::update(st_ctx_t& ctx){
 			c.pos.x = wnd_w + rnd::get_val<float>(0.0f, 500.0f);
 		}
 	}
-	if (predialog.update(ctx.assets, writer) && writer.finished && !predialog.finished){
-		current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
-		writer.set_text(current_line);
-	}
-	if (predialog.finished && predialog.hid_txtbox()) {
-		allow_fight = true;
-		if (ended_battle){
-			if (!initialized_postdialog){
-				current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
-				writer.set_text(current_line);
-				initialized_postdialog = true;
-			}
-			if (postdialog.update(ctx.assets, writer) && writer.finished){
-				current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
-				writer.set_text(current_line);
-			}
+	if (started_battle){
+		ctx.predialog_finished = predialog.finished;
+		ctx.switch_state(STATE::BATTLE_VS);
+		SetMusicVolume(ctx.current_music, ctx.music_volume);
+		if (ctx.music_volume > 0.0f){
+			ctx.music_volume -= GetFrameTime()*1.5f;
 		}
+		return;
 	}
-	if (allow_fight && predialog.hid_txtbox()){
-		if (!initialized_encounter_info){
-			std::string reward_string(5, '\0');
-			std::to_chars(reward_string.data(), reward_string.data() + reward_string.size(), ctx.bt_info.reward);
-			if (usz pos = reward_string.find('\0'); pos != std::string::npos){
-				reward_string = reward_string.substr(0, pos);
-			}
-			current_line = std::format("{}\n{}\n{}", ctx.bt_info.name, ctx.formatter.format(ctx.bt_info.meet_msg), ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ENCOUNTER_REWARD"), MISSINGNO, reward_string));
+	if (!ctx.predialog_finished){
+		if (predialog.update(ctx.assets, writer) && writer.finished && !predialog.finished){
+			current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
 			writer.set_text(current_line);
-			initialized_encounter_info = true;
 		}
-		ctx.set_music(
-				std::format(
-					"{}.ogg",
-					[&]() -> std::string{
-					auto tt = ctx.bt_info.trainer_type;
-					switch (tt){
-					case TRAINER_TYPE::PKMN_TRAINER: return ctx.bt_info.name;
-					case TRAINER_TYPE::GYM_LEADER: return "Gym";
-					case TRAINER_TYPE::TEAM_PLASMA_GRUNT: return "Team Plasma Appears!";
-					default: return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
-					}
-					}()
-					)
-			     );
-		if (IsKeyPressed(KEY_Z) && writer.finished){
-			started_battle = true;
+		if (predialog.finished && predialog.hid_txtbox()) {
+			allow_fight = true;
 		}
-		if (started_battle){
-			ctx.switch_state(STATE::BATTLE_VS);
-			SetMusicVolume(ctx.current_music, ctx.music_volume);
-			if (ctx.music_volume > 0.0f){
-				ctx.music_volume -= GetFrameTime()*1.5f;
+
+		if (allow_fight && predialog.hid_txtbox()){
+			if (!initialized_encounter_info){
+				std::string reward_string(5, '\0');
+				std::to_chars(reward_string.data(), reward_string.data() + reward_string.size(), ctx.bt_info.reward);
+				if (usz pos = reward_string.find('\0'); pos != std::string::npos){
+					reward_string = reward_string.substr(0, pos);
+				}
+				current_line = std::format("{}\n{}\n{}", ctx.bt_info.name, ctx.formatter.format(ctx.bt_info.meet_msg), ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ENCOUNTER_REWARD"), MISSINGNO, reward_string));
+				writer.set_text(current_line);
+				initialized_encounter_info = true;
 			}
-			return;
+			ctx.set_music(
+					std::format(
+						"{}.ogg",
+						[&]() -> std::string{
+						auto tt = ctx.bt_info.trainer_type;
+						switch (tt){
+						case TRAINER_TYPE::PKMN_TRAINER: return ctx.bt_info.name;
+						case TRAINER_TYPE::GYM_LEADER: return "Gym";
+						case TRAINER_TYPE::TEAM_PLASMA_GRUNT: return "Team Plasma Appears!";
+						default: return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
+						}
+						}()
+						)
+				     );
+			if (IsKeyPressed(KEY_Z) && writer.finished){
+				started_battle = true;
+			}
+		}
+		ctx.postdialog_finished = for_post.empty() ? true : postdialog.finished;
+	} else if (!ctx.postdialog_finished){
+		if (!initialized_postdialog){
+			current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
+			writer.set_text(current_line);
+			initialized_postdialog = true;
+		}
+		if (postdialog.update(ctx.assets, writer) && writer.finished){
+			current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
+			writer.set_text(current_line);
 		}
 	}
 	writer.update();
@@ -198,12 +211,12 @@ void main_state_t::render(st_ctx_t& ctx){
 		auto& c = clouds[i];
 		DrawTextureEx(ctx.assets.get_tx("cloud.png"), c.pos, 0.0f, c.scale, {255, 255, 255, static_cast<u8>(100 + (i * 5))});
 	}
-	DrawTexture(ctx.assets.get_tx(std::format("{}.png", get_region_str(ctx.region))), 0, 0, WHITE);
+	DrawTextureEx(ctx.assets.get_tx(std::format("{}.png", get_region_str(ctx.region))), {0, 0}, 0, 2.4, WHITE);
 	DrawTexturePro(ctx.assets.get_tx("bar.png"), {0, 0, 256, 24}, {0, 0, 1920, 72}, {0, 0}, 0, WHITE);
 	for (usz i = 0; i < encounters_count[static_cast<u8>(ctx.region)]; i++){
-		DrawTextureEx(ctx.assets.get_tx("level-point.png"), {100 + i * 400.0f, 600.0f}, 0.0f, 2.0f, (i == index) ? WHITE : DARKGRAY);
+		DrawTextureEx(ctx.assets.get_tx("level-point.png"), {100 + i * 400.0f, 600.0f}, 0.0f, 2.0f, (i == ctx.index) ? WHITE : DARKGRAY);
 	}
-	DrawTextureEx(ctx.assets.get_tx("level-point-outline.png"), {100 + index * 400.0f - 15.0f, 585.0f}, 0.0f, 3.0f, WHITE);
+	DrawTextureEx(ctx.assets.get_tx("level-point-outline.png"), {100 + ctx.index * 400.0f - 15.0f, 585.0f}, 0.0f, 3.0f, WHITE);
 	if (!predialog.finished || !predialog.hid_txtbox()){
 		draw_text_seq(ctx.assets, writer, predialog.txtbox_x, predialog.txtbox_y, 50, WHITE, 1);
 		predialog.draw_speaker(ctx.assets);
