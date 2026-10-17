@@ -182,6 +182,10 @@ struct main_state_t{
 	anim_trainer_render_t anim_trainer_render;
 	std::vector<std::string> for_pre;
 	std::vector<std::string> for_post;
+	bool is_foe_trainer{false};
+	u8 wild_pokemon_render_id = 0;
+	u8 wild_pokemon_render_id_timer = 0;
+
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	explicit main_state_t(st_ctx_t& ctx);
