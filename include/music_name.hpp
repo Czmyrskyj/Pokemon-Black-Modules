@@ -36,9 +36,9 @@ inline std::string get_victory_music_name(st_ctx_t& ctx){
 			if (tt == TRAINER_TYPE::GYM_LEADER) return "Victory Against Gym Leader!";
 			return "Victory Against Trainer!";
 			} else if constexpr (std::is_same_v<T, pokemon_t>){
-			return "Victory Against Wild Pokemon.ogg";
+			return "Victory Against Wild Pokemon";
 			} else if constexpr (std::is_same_v<T, legendary_t>){
-			return "Victory Against Wild Pokemon.ogg";
+			return "Victory Against Wild Pokemon";
 			}
 			return "";
 			}, ctx.bt_info.foe);

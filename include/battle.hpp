@@ -58,6 +58,7 @@ class battle_t{
 	u8 m_current_foe_pokemon_idx = 0;
 	u8 m_current_trainer_pokemon_idx = 0;
 	u8 m_turn_count = 0;
+	u8 m_wild_pokemon_idx = 0;
 	turn_action_t m_foe_turn_action = none_action_t{};
 	turn_action_t m_trainer_turn_action = none_action_t{};
 	item_result_t m_last_item_result = {};
@@ -92,6 +93,10 @@ class battle_t{
 	}
 	u8 txtbox_alpha() const{
 		return m_txtbox_alpha;
+	}
+	// WARN: EVERY SLOT HAS THE SAME ENCOUNTER RATE;
+	void determine_wild_encounter(){
+		m_current_foe_pokemon_idx = rnd::get_val<u8>(0, (*foe_party).size() - 1);
 	}
 	void set_action(TURN_ACTION act, BATTLE_TURN turn, u8 reg1, u8 reg2 = 0xFF){
 		((turn == BATTLE_TURN::TRAINER) ? m_trainer_turn_action : m_foe_turn_action) = [&]() -> turn_action_t{
@@ -139,8 +144,9 @@ class battle_t{
 			 *  WARN:
 			 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
 			 */
-			const auto& p = std::get<pokemon_t>(foe);
-			set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, p.move_count() - 1), 0);
+			const auto& p = (*foe_party)[m_current_foe_pokemon_idx];
+			const u8 mc = p.move_count();
+			set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, mc > 0 ? rnd::get_val<u8>(0, mc - 1) : 0, 0);
 		}
 	}
 	i8 action_priority(const turn_action_t& a, const pokemon_t& user, const movedex_t& movedex){

@@ -185,7 +185,6 @@ struct main_state_t{
 	bool is_foe_trainer{false};
 	u8 wild_pokemon_render_id = 0;
 	u8 wild_pokemon_render_id_timer = 0;
-
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 	explicit main_state_t(st_ctx_t& ctx);
@@ -313,6 +312,7 @@ struct battle_state_t{
 	bool critical_hp = false;
 	UNIQUE_TXT_ENTRY unique_txt_entry = UNIQUE_TXT_ENTRY::NONE;
 	bool switch_necessary = false;
+	bool is_foe_trainer{false};
 	u16 item_used = 0;
 	u8 unique_txt_timer = 0;
 	float bags_x = -300.0f;
