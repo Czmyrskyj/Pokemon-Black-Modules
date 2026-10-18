@@ -93,32 +93,78 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		return {};
 	}();
 
-
-	while (party.size() < party_len){
-		POKEDEX id;
-		in.read(reinterpret_cast<char*>(&id), sizeof(u16));
-		auto pokeentry = pokedex.get_pokedex_entry(id);
-		u8 lvl;
-		in.read(reinterpret_cast<char*>(&lvl), sizeof(u8));
-
-		std::array<u16, 4> moves;
-		in.read(reinterpret_cast<char*>(moves.data()), moves.size()*sizeof(u16));
+	std::vector<u8> wild_rates;
 
 
-		u8 move_count = std::ranges::count_if(moves, [](u16 move_id){
-				return move_id != 0;
-				});
+	if (std::holds_alternative<trainer_t>(foe)){
+		while (party.size() < party_len){
+			POKEDEX id;
+			in.read(reinterpret_cast<char*>(&id), sizeof(u16));
+			auto pokeentry = pokedex.get_pokedex_entry(id);
+			u8 lvl;
+			in.read(reinterpret_cast<char*>(&lvl), sizeof(u8));
 
-		pokemon_t pokemon{
-			pokeentry,
-				"",
-				rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
-				rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
-				lvl,
-				moves,
-				move_count,
+			std::array<u16, 4> moves;
+			in.read(reinterpret_cast<char*>(moves.data()), moves.size()*sizeof(u16));
+
+
+			u8 move_count = std::ranges::count_if(moves, [](u16 move_id){
+					return move_id != 0;
+					});
+
+			pokemon_t pokemon{
+				pokeentry,
+					"",
+					rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+					rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
+					lvl,
+					moves,
+					move_count,
+			};
+			party.push_back(pokemon);
+		}
+	} else {
+		struct slot_key_t{
+			u16 id;
+			u8 lvl;
+			std::array<u16, 4> moves;
+			bool operator==(const slot_key_t&) const = default; 
 		};
-		party.push_back(pokemon);
+		std::vector<slot_key_t> seen;
+		party = party_t{MAX_FOE_PARTY};
+
+		for (usz slot = 0; slot < party_len; slot++){
+			slot_key_t key{};
+			in.read(reinterpret_cast<char*>(&key.id), sizeof(u16));
+			in.read(reinterpret_cast<char*>(&key.lvl), sizeof(u8));
+			in.read(reinterpret_cast<char*>(key.moves.data()), key.moves.size()*sizeof(u16));
+
+			u8 rate = (slot < wild_encounter_slot_rates.size()) ? static_cast<u8>(wild_encounter_slot_rates[slot]) : 0;
+
+			if (auto it = std::ranges::find(seen, key); it != seen.end()){
+				wild_rates[it - seen.begin()] += rate;
+				continue;
+			}
+
+			seen.push_back(key);
+			wild_rates.push_back(rate);
+
+			auto pokeentry = pokedex.get_pokedex_entry(static_cast<POKEDEX>(key.id));
+			u8 move_count = std::ranges::count_if(key.moves, [](u16 move_id){
+					return move_id != 0;
+					});
+
+			party.push_back(pokemon_t{
+					pokeentry,
+					"",
+					rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
+					rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
+					key.lvl,
+					key.moves,
+					move_count,
+					});
+
+		}
 	}
 
 	if (std::holds_alternative<trainer_t>(foe)){
@@ -133,6 +179,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t
 		.dialog = dialog,
 		.trainer_type = trainer_type,
 		.party = party,
+		.wild_rates = wild_rates,
 	};
 	return battle_entry;
 }

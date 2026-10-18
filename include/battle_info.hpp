@@ -14,6 +14,7 @@ struct battle_entry_t{
 	std::vector<std::string> dialog;
 	TRAINER_TYPE trainer_type;
 	party_t party;
+	std::vector<u8> wild_rates;
 };
 
 struct lookup_t{
@@ -24,6 +25,7 @@ struct lookup_t{
 
 class battle_info_t{
 	std::vector<lookup_t> table;
+	u8 wild_rate_idx = 0;
 	public:
 		std::expected<void, std::string_view> load_battle_info();
 		battle_entry_t get_battle_info(REGION region, u8 index, pokedex_t& pokedex);

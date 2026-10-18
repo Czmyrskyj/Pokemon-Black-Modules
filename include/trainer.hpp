@@ -9,12 +9,19 @@
 #include <cassert>
 #include <span>
 
+static constexpr usz MAX_FOE_PARTY{12};
+
 class party_t{
 	std::array<pokemon_t, 6> data_;
 	usz size_ = 0;
+	usz limit_ = 6;
 	public:
+	party_t() = default;
+	explicit party_t(usz limit) : limit_(limit){
+		assert(limit <= MAX_FOE_PARTY);
+	}
 	void push_back(pokemon_t pokemon){
-		assert(size_ < data_.size() && "pokemon party index exceeds 6");
+		assert(size_ < limit_ && "pokemon party index exceeds limit");
 		data_[size_++] = std::move(pokemon);
 	}
 	std::span<pokemon_t> data(){

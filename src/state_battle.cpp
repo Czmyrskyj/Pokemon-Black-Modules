@@ -115,7 +115,7 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 		ctx.formatter.feed("[FOE_TYPE]", ctx.formatter.format(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]));
 		ctx.formatter.feed("[FOE]", ctx.bt_info.name);
 	} else {
-		battle.determine_wild_encounter();
+		battle.determine_wild_encounter(ctx.bt_info.wild_rates);
 		foe_pokemon_scale = 1.0f;
 		foe_pokemon_y = pokemon_y_dest;
 		foe_hp_render = ctx.bt_info.party[battle.current_foe_pokemon_idx()].max_hp();

@@ -12,6 +12,10 @@
 #include <optional>
 #include <print>
 
+static constexpr std::array<int, 12> wild_encounter_slot_rates {
+	20, 20, 10, 10, 10, 10, 5, 5, 4, 4, 1, 1
+};
+
 using foe_t = std::variant<trainer_t, pokemon_t, legendary_t>;
 
 enum class TURN_ACTION{
@@ -94,9 +98,23 @@ class battle_t{
 	u8 txtbox_alpha() const{
 		return m_txtbox_alpha;
 	}
-	// WARN: EVERY SLOT HAS THE SAME ENCOUNTER RATE;
-	void determine_wild_encounter(){
-		m_current_foe_pokemon_idx = rnd::get_val<u8>(0, (*foe_party).size() - 1);
+	void determine_wild_encounter(std::span<const u8> chances){
+		u16 total = 0;
+		for (u8 c : chances) total += c;
+		if (total == 0){
+			m_current_foe_pokemon_idx = rnd::get_val<u8>(0, (*foe_party).size() - 1);
+			return;
+		}
+		u16 roll = rnd::get_val<u8>(1, static_cast<u8>(total));
+		u16 acc = 0;
+		for (usz i = 0; i < chances.size(); i++){
+			acc += chances[i];
+			if (roll <= acc){
+				m_current_foe_pokemon_idx = static_cast<u8>(i);
+				return;
+			}
+		}
+		m_current_foe_pokemon_idx = static_cast<u8>(chances.size() - 1);
 	}
 	void set_action(TURN_ACTION act, BATTLE_TURN turn, u8 reg1, u8 reg2 = 0xFF){
 		((turn == BATTLE_TURN::TRAINER) ? m_trainer_turn_action : m_foe_turn_action) = [&]() -> turn_action_t{
@@ -207,10 +225,10 @@ class battle_t{
 		cctx.ally_level = ally.lvl();
 		cctx.ally_sex = ally.sex();
 		cctx.ally_species = ally.get_pokedex().id;
-		
+
 		const bool was_fainted = target->hp() <= 0;
 		m_last_item_result = apply_item(item, *target, std::holds_alternative<trainer_t>(foe), cctx);
-		
+
 
 		if (m_last_item_result.consumed()){
 			player.consume_item(ia.item_id);
@@ -247,7 +265,7 @@ class battle_t{
 				if (atk.get_pokedex().ability1 == ABILITY::SUPER_LUCK) crit_stage++;
 
 				if (crit_stage > 4) crit_stage = 4;
-				
+
 				const auto& dd = def.get_pokedex();
 				bool blocked = dd.ability1 == ABILITY::BATTLE_ARMOR || dd.ability2 == ABILITY::BATTLE_ARMOR
 					|| dd.ability1 == ABILITY::SHELL_ARMOR  || dd.ability2 == ABILITY::SHELL_ARMOR;
