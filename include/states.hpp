@@ -230,6 +230,7 @@ enum class BATTLE_PHASE{
 	MENU,
 	FIGHT,
 	FOE_ABOUT_TO_SEND,
+	THROW_POKEBALL,
 	END,
 };
 
@@ -240,6 +241,7 @@ enum class BATTLE_MENU_STATE{
 	MODULES,
 	BAG,
 	POKEMON,
+	GIVE_NICKNAME_TO_CAUGHT,
 };
 
 enum class UNIQUE_TXT_ENTRY{
@@ -276,6 +278,7 @@ struct battle_state_t{
 	anim_trainer_render_t anim_trainer_render;
 	thrown_pokeball_renderer_t foe_thrown_pokeball_renderer; 
 	thrown_pokeball_renderer_t trainer_thrown_pokeball_renderer; 
+	float trainer_thrown_pokeball_x = -0.5f;
 	float trainer_thrown_pokeball_y = 0.7f;
 	float trainer_thrown_pokeball_z = 3.0f;
 	float trainer_thrown_pokeball_y_vel = 0.05f;
@@ -298,6 +301,9 @@ struct battle_state_t{
 	u8 trainer_alpha = 255;
 	u8 current_trainer_pokeball = 0;
 	u8 turn_timer = 0;
+	u8 catch_shakes = 1;
+	u8 caught_timer = 0;
+	bool inc_catch_shakes = false;
 	std::array<float, 6> trainer_pokeball_x{};
 	u8 opt = 0;
 	i8 sel_opt = -1;
@@ -313,6 +319,7 @@ struct battle_state_t{
 	UNIQUE_TXT_ENTRY unique_txt_entry = UNIQUE_TXT_ENTRY::NONE;
 	bool switch_necessary = false;
 	bool is_foe_trainer{false};
+	bool caught_and_pushed{false};
 	u16 item_used = 0;
 	u8 unique_txt_timer = 0;
 	float bags_x = -300.0f;

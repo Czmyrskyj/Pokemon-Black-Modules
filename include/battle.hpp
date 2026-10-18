@@ -227,7 +227,7 @@ class battle_t{
 		cctx.ally_species = ally.get_pokedex().id;
 
 		const bool was_fainted = target->hp() <= 0;
-		m_last_item_result = apply_item(item, *target, std::holds_alternative<trainer_t>(foe), cctx);
+		m_last_item_result = apply_item(item, *target, !std::holds_alternative<trainer_t>(foe), cctx);
 
 
 		if (m_last_item_result.consumed()){
@@ -237,7 +237,6 @@ class battle_t{
 			player.set_conscious_count(player.conscious_count() + 1);
 		}
 		if (m_last_item_result.kind == ITEM_RESULT::CAUGHT){
-			player.push_pokemon(foep);
 			m_winner = BATTLE_FIGURE::TRAINER;
 		}
 	}
