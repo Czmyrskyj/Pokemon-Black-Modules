@@ -23,6 +23,15 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 	}
 	ctx.bt_info = ctx.battle_info.get_battle_info(ctx.region, ctx.index, ctx.pokedex);
 	is_foe_trainer = std::holds_alternative<trainer_t>(ctx.bt_info.foe);
+	ctx.music_volume = 1.0f;
+	std::string_view region_music = [&]() -> std::string_view{
+		auto reg_str = get_region_str(ctx.region);
+		if (reg_str.ends_with("Gym")){
+			return "Gym";
+		}
+		return reg_str;
+	}();
+	ctx.set_music(std::format("{}.ogg", region_music));
 	if (is_foe_trainer){
 		for (const auto& d : ctx.bt_info.dialog){
 			if (d.ends_with("A")){
@@ -33,8 +42,10 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 		}
 		predialog.init(for_pre);
 		postdialog.init(for_post);
+		predialog.change_music_if_char(ctx);
 		current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
 		writer.set_text(current_line);
+		SetMusicVolume(ctx.current_music, ctx.music_volume);
 	} else {
 	}
 }
@@ -112,15 +123,6 @@ void main_state_t::update(st_ctx_t& ctx){
 		ctx.resume_state_alpha(ctx.transition_alpha);
 	}
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
-		ctx.music_volume = 1.0f;
-		std::string_view region_music = [&]() -> std::string_view{
-			auto reg_str = get_region_str(ctx.region);
-			if (reg_str.ends_with("Gym")){
-				return "Gym";
-			}
-			return reg_str;
-		}();
-		ctx.set_music(std::format("{}.ogg", region_music));
 		ctx.set_state_meta = true;
 	}
 

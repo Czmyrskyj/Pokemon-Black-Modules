@@ -887,8 +887,6 @@ void battle_state_t::update(st_ctx_t& ctx){
 							return;
 						} else {
 							ctx.switch_state(STATE::MAIN);
-							if (ctx.music_volume > 0.0f) ctx.music_volume -= 0.05f;
-							else StopMusicStream(ctx.current_music);
 							return;
 						}
 					}
