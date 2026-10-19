@@ -596,6 +596,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 			}
 			break;
 		case BATTLE_PHASE::FIGHT:
+			if (ally_height < 1.0f) ally_height += 0.1f;
+			if (foe_height < 1.0f) foe_height += 0.1f;
 			if (writer.finished && foe_hp_render == foep->hp() && ally_hp_render == ally->hp()){
 				if (unique_txt_entry != UNIQUE_TXT_ENTRY::NONE){
 					battle.set_txtbox_alpha(255);
@@ -606,13 +608,13 @@ void battle_state_t::update(st_ctx_t& ctx){
 					}
 				} else if (auto next = battle.next_turn()){
 					const bool is_trainer = (*next == BATTLE_TURN::TRAINER);
+					float& attacked_height = !is_trainer ? ally_height : foe_height;
 					const pokemon_t& attacked = !is_trainer ? *ally : *foep;
 					const pokemon_t& cur = is_trainer ? *ally : *foep;
+					const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
+					const auto* atk = std::get_if<attack_action_t>(&act);
+					const auto* itm = std::get_if<item_action_t>(&act);
 					if (!txted){
-						const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
-						const auto* atk = std::get_if<attack_action_t>(&act);
-						const auto* itm = std::get_if<item_action_t>(&act);
-
 						if (cur.hp() > 0){
 							if (atk){
 								camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
@@ -639,6 +641,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 						if (++turn_timer >= turn_timer_dest){
 							const bool trainer_item = is_trainer && std::holds_alternative<item_action_t>(battle.trainer_turn_action());
 							battle.execute_action(ctx.movedex, ctx.itemdex, ctx.assets);
+							if (atk){
+								attacked_height = 0.6f;
+							}
 							txted = false;
 							turn_timer = 0;
 							if (trainer_item){
@@ -875,10 +880,17 @@ void battle_state_t::update(st_ctx_t& ctx){
 							} 
 						}
 					} else {
-						set_phase(ctx.assets, BATTLE_PHASE::MENU);
-						menu_state = BATTLE_MENU_STATE::NONE;
-						next_menu_state = BATTLE_MENU_STATE::GIVE_NICKNAME_TO_CAUGHT;
-						return;
+						if (battle.last_item_result().kind == ITEM_RESULT::CAUGHT){
+							set_phase(ctx.assets, BATTLE_PHASE::MENU);
+							menu_state = BATTLE_MENU_STATE::NONE;
+							next_menu_state = BATTLE_MENU_STATE::GIVE_NICKNAME_TO_CAUGHT;
+							return;
+						} else {
+							ctx.switch_state(STATE::MAIN);
+							if (ctx.music_volume > 0.0f) ctx.music_volume -= 0.05f;
+							else StopMusicStream(ctx.current_music);
+							return;
+						}
 					}
 				}
 			}
@@ -958,14 +970,14 @@ void battle_state_t::render(st_ctx_t& ctx){
 	}
 	auto& ally = p_party[battle.current_trainer_pokemon_idx()];
 	if (phase >= BATTLE_PHASE::FOE_SEND_OUT){
-		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, foe_pokemon_y, -0.3f}, {foe_pokemon_scale, foe_pokemon_scale}, &ctx.camera.camera);
+		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, foe_pokemon_y, -0.3f}, {foe_pokemon_scale, foe_pokemon_scale * foe_height}, &ctx.camera.camera);
 		if (player_back.draw_back(ctx.assets, (ctx.player.sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, trainer_alpha})) finished_drawing_back = true;
 		if (is_foe_trainer && foe_thrown_pokeball_renderer.spinned < 3){
 			foe_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {0.7f, 0.5f, -0.5f}, ctx.camera.camera);
 		}
 	}
 	if (phase >= BATTLE_PHASE::ALLY_SEND_OUT || foe_about_to_send){
-		ally.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::BACK, {-0.4f, ally_pokemon_y, 2.0f}, {ally_pokemon_scale, ally_pokemon_scale}, &ctx.camera.camera);
+		ally.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::BACK, {-0.4f, ally_pokemon_y, 2.0f}, {ally_pokemon_scale, ally_pokemon_scale * ally_height}, &ctx.camera.camera);
 	}
 	if (phase == BATTLE_PHASE::ALLY_SEND_OUT){
 		if (finished_drawing_back && trainer_thrown_pokeball_renderer.spinned < 3){

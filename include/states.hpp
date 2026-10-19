@@ -324,6 +324,8 @@ struct battle_state_t{
 	u8 unique_txt_timer = 0;
 	float bags_x = -300.0f;
 	float bags_y_jump = 0.0f;
+	float ally_height = 1.0f;
+	float foe_height = 1.0f;
 	u8 bag_animation_frame = 0;
 	u8 bag_animation_frame_timer = 0;
 	u8 opt2 = 0;
