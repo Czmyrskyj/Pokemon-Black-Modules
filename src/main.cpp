@@ -22,6 +22,7 @@ int main(){
 	InitAudioDevice();
 	ToggleFullscreen();
 	SetTargetFPS(60);
+	HideCursor();
 	{
 		assets_t assets;
 		auto assets_load_res = assets.load_assets();

@@ -58,7 +58,15 @@ struct boy_or_girl_t{
 	explicit boy_or_girl_t(st_ctx_t& ctx);
 };
 
+enum class WIFI_CONNECTION_STATE{
+	CONNECTION_SERVICES,
+};
+
 struct wifi_connection_t{
+	WIFI_CONNECTION_STATE state = WIFI_CONNECTION_STATE::CONNECTION_SERVICES;
+	u8 opt = 0;
+	i8 sel_opt = -1;
+	bool return_to_main_menu = false;
 	void update(st_ctx_t& ctx);
 	void render(st_ctx_t& ctx);
 };
