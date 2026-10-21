@@ -16,3 +16,4 @@ using i16 = std::int16_t;
 constexpr int wnd_w{1920};
 constexpr int wnd_h{1080};
 
+#define FULL_TX(tx) {0, 0, static_cast<float>(tx.width), static_cast<float>(tx.height)}

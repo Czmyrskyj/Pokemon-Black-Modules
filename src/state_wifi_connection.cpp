@@ -12,6 +12,8 @@ void wifi_connection_t::update(st_ctx_t& ctx){
 }
 void wifi_connection_t::render(st_ctx_t& ctx){
 	auto background = ctx.assets.get_tx("wifi-connection-bg.png");
+	auto bluebar = ctx.assets.get_tx("bluebar.png");
 	DrawTexturePro(background, {0, 0, static_cast<float>(background.width), static_cast<float>(background.height)}, {0, 0, wnd_w, wnd_h}, {0, 0}, 0, WHITE);
-	draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, "WIFI_NOT_AVAILABLE"), 500, 400, 50, WHITE, DARKBLUE);
+	DrawTexturePro(bluebar, FULL_TX(bluebar), {0, 0, wnd_w, 100}, {0, 0}, 0, WHITE);
+	draw_text(ctx.assets, ctx.locale.get(Locale::TYPE::UI, "WIFI_CON_LABEL"), 10, 30, 50, WHITE, DARKBLUE);
 }
