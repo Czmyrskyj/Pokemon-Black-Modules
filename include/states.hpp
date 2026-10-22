@@ -179,7 +179,6 @@ struct main_state_t{
 	dialog_t postdialog{};
 	Vector2 celestial_pos{};
 	bool initialized_postdialog{false};
-	bool initialized_encounter_info{false};
 	bool allow_fight{false};
 	bool started_battle{false};
 	bool ended_battle{false};

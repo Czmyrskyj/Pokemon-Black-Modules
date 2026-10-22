@@ -28,5 +28,5 @@ class battle_info_t{
 	u8 wild_rate_idx = 0;
 	public:
 		std::expected<void, std::string_view> load_battle_info();
-		battle_entry_t get_battle_info(REGION region, u8 index, pokedex_t& pokedex);
+		battle_entry_t get_battle_info(REGION region, usz index, pokedex_t& pokedex);
 };

@@ -116,7 +116,7 @@ class battle_t{
 		}
 		m_current_foe_pokemon_idx = static_cast<u8>(chances.size() - 1);
 	}
-	void set_action(TURN_ACTION act, BATTLE_TURN turn, u8 reg1, u8 reg2 = 0xFF){
+	void set_action(TURN_ACTION act, BATTLE_TURN turn, u16 reg1, u8 reg2 = 0xFF){
 		((turn == BATTLE_TURN::TRAINER) ? m_trainer_turn_action : m_foe_turn_action) = [&]() -> turn_action_t{
 			switch (act){
 				case TURN_ACTION::ATTACK: return attack_action_t{static_cast<u8>(reg1), reg2};
@@ -153,7 +153,8 @@ class battle_t{
 				/*  WARN:
 				 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
 				 */
-				set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.move_count() - 1), 0);
+				const u8 mc = cur_pokemon.move_count();
+				set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, mc > 0 ? rnd::get_val<u8>(0, mc - 1) : 0, 0);
 			}
 		} else {
 

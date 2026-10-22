@@ -30,7 +30,7 @@ constexpr usz battle_offset(REGION r){
 	return sum;
 }
 
-battle_entry_t battle_info_t::get_battle_info(REGION region, u8 index, pokedex_t& pokedex){
+battle_entry_t battle_info_t::get_battle_info(REGION region, usz index, pokedex_t& pokedex){
 	u16 total_index = battle_offset(region) + index;
 	std::ifstream in("BATTLEINFO", std::ios::binary);
 	if (!in.is_open()){

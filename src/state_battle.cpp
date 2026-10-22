@@ -402,45 +402,40 @@ void battle_state_t::update(st_ctx_t& ctx){
 						}
 						break;
 					case BATTLE_MENU_STATE::MOVES:
-						if (IsKeyPressed(KEY_X)){
-							menu_state = BATTLE_MENU_STATE::OPTIONS;
-							opt = 0;
-						}
-						if (IsKeyPressed(KEY_RIGHT)){
-							PlaySound(sel_sfx);
-							if (opt < ally->move_count() - 1){
-								opt ++;
-							} else {
+						{
+							usz mv_count = std::max<usz>(1, ally->move_count());
+							if (IsKeyPressed(KEY_X)){
+								menu_state = BATTLE_MENU_STATE::OPTIONS;
 								opt = 0;
 							}
-						}
-						if (IsKeyPressed(KEY_LEFT)){
-							PlaySound(sel_sfx);
-							if (opt > 0){
-								opt --;
-							} else {
-								opt = ally->move_count() - 1;
+							if (IsKeyPressed(KEY_RIGHT)){
+								PlaySound(sel_sfx);
+								opt = (opt + 1) % mv_count;
 							}
-						}
-						if (IsKeyPressed(KEY_DOWN)){
-							PlaySound(sel_sfx);
-							if (opt < 2){
-								opt += 2;
-							} else {
-								opt = (opt % 2) != 0;
+							if (IsKeyPressed(KEY_LEFT)){
+								PlaySound(sel_sfx);
+								opt = (opt == 0) ? mv_count - 1 : opt - 1;
 							}
-						}
-						if (IsKeyPressed(KEY_UP)){
-							PlaySound(sel_sfx);
-							if (opt > 1){
-								opt -= 2;
-							} else {
-								opt = (opt % 2 == 0) ? ally->move_count() - 2 : ally->move_count() - 1;
+							if (IsKeyPressed(KEY_DOWN)){
+								PlaySound(sel_sfx);
+								if (opt + 2u < mv_count){
+									opt += 2;
+								} else {
+									opt = ((opt % 2) < mv_count) ? (opt % 2) : 0;
+								}
 							}
-						}
-						if (IsKeyPressed(KEY_Z)){
-							battle.set_action(TURN_ACTION::ATTACK, BATTLE_TURN::TRAINER, opt, 0);
-							opt = 0;
+							if (IsKeyPressed(KEY_UP)){
+								PlaySound(sel_sfx);
+								if (opt >= 2){
+									opt -= 2;
+								} else {
+									opt = ((opt % 2) < mv_count) ? (opt % 2) : mv_count - 1;
+								}
+							}
+							if (IsKeyPressed(KEY_Z) && ally->pp_used()[opt] < ctx.movedex.get_move(ally->moves()[opt]).pp){
+								battle.set_action(TURN_ACTION::ATTACK, BATTLE_TURN::TRAINER, opt, 0);
+								opt = 0;
+							}
 						}
 						break;
 					case BATTLE_MENU_STATE::MODULES:
@@ -712,11 +707,14 @@ void battle_state_t::update(st_ctx_t& ctx){
 						if (foe_pokemon_y == poke_y){
 							set_phase(ctx.assets, BATTLE_PHASE::FOE_ABOUT_TO_SEND);
 							menu_state = BATTLE_MENU_STATE::OPTIONS;
-						} else if (is_foe_trainer && ctx.player.conscious_count() > 0){
+						} else if (ctx.player.conscious_count() > 0){
+							// TODO: WILD POKEMON OPTIONAL POKEMON SUBSTITUDE/RUN
 							set_phase(ctx.assets, BATTLE_PHASE::MENU);
 							menu_state = BATTLE_MENU_STATE::NONE;
 							next_menu_state = BATTLE_MENU_STATE::POKEMON;
-							switch_necessary = true;
+							if (is_foe_trainer){
+								switch_necessary = true;
+							}
 						}
 						camera_pos = BATTLE_CAMERA_POS::ALLY;
 						txted = false;
@@ -853,7 +851,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 						StopMusicStream(ctx.current_music);
 						ctx.set_music(get_victory_music_name(ctx));
 						if ((ctx.predialog_finished && ctx.postdialog_finished) || !is_foe_trainer){
-							ctx.index++;
+							if (ctx.index < encounters_count[static_cast<usz>(ctx.region)]) ctx.index++;
 							ctx.predialog_finished = false;
 							ctx.postdialog_finished = false;
 						}
@@ -890,6 +888,13 @@ void battle_state_t::update(st_ctx_t& ctx){
 							return;
 						}
 					}
+				} else {
+					// TODO: TEXT
+					// DECREMENT MONEY
+					ctx.initialized_encounter_info = false;
+					ctx.switch_state(STATE::MAIN);
+					ctx.show_encounter_info = true;
+					return;
 				}
 			}
 			break;
@@ -1016,7 +1021,8 @@ void battle_state_t::render(st_ctx_t& ctx){
 			DrawTexturePro(ctx.assets.get_tx("hp.png"), {hp_idx, 2, 1, 2}, {foe_hud_x + 220.0f, 345.0f, hp_ratio * 240.0f, 10.0f}, {0, 0}, 0, WHITE);
 			draw_pokename(ctx.assets, names[foep.get_pokedex().id].data(), foe_hud_x + 100, 295.0f);
 			char lvl_buf[4];
-			std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), foep.lvl());
+			auto [ptr, ec] = std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), foep.lvl());
+			std::string_view lvl_str(lvl_buf, ptr - lvl_buf);
 			draw_pokename(ctx.assets, lvl_buf, foe_hud_x + 450, 295.0f);
 			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {foe_hud_x + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
 		}

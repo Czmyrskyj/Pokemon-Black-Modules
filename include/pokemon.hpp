@@ -117,15 +117,16 @@ class pokemon_t{
 	}
 	void block_frames(bool b) {m_frames_blocked = b; }
 	void hp_damage(u16 power, TYPE move_type, u8 attacker_lvl, u8 attacker_attack) { 
-		if (power == 0) return;
+		if (power == 0 || pokedex.base_defense == 0) return;
 		const u8 type_eff = type_effectiveness(move_type, pokedex.type1, pokedex.type2);
-		u32 final_power = ((((2 * attacker_lvl / 5 + 2) * power * attacker_attack / pokedex.base_defense) / 50) + 2) * type_eff / 4;
+		u8 defense = (pokedex.base_defense == 0) ? 1 : pokedex.base_defense;
+		u32 final_power = ((((2 * attacker_lvl / 5 + 2) * power * attacker_attack / defense) / 50) + 2) * type_eff / 4;
 		if (type_eff != 0 && final_power == 0){
 			final_power = 1;	
 		}
 		m_hp = final_power >= m_hp ? 0 : m_hp - final_power;
 	}
-	void hp_heal(u8 power) {
+	void hp_heal(u16 power) {
 		const u32 healed = static_cast<u32>(m_hp) + power;
 		m_hp = healed >= m_max_hp ? m_max_hp : healed;
 	}

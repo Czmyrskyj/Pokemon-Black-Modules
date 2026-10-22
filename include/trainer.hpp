@@ -12,7 +12,7 @@
 static constexpr usz MAX_FOE_PARTY{12};
 
 class party_t{
-	std::array<pokemon_t, 6> data_;
+	std::array<pokemon_t, MAX_FOE_PARTY> data_;
 	usz size_ = 0;
 	usz limit_ = 6;
 	public:

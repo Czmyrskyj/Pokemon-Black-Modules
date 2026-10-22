@@ -13,13 +13,13 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 	for (usz i = 0; i < 20; i++){
 		clouds.push_back(
 				{
-			.pos = {
+				.pos = {
 				rnd::get_val<float>(0.0f, wnd_w),
 				rnd::get_val<float>(0.0f, wnd_h / 2.0f),	
-			},
-			.scale = rnd::get_val<float>(2.0f, 8.0f),
+				},
+				.scale = rnd::get_val<float>(2.0f, 8.0f),
 				}
-			);
+				);
 	}
 	ctx.bt_info = ctx.battle_info.get_battle_info(ctx.region, ctx.index, ctx.pokedex);
 	is_foe_trainer = std::holds_alternative<trainer_t>(ctx.bt_info.foe);
@@ -40,11 +40,17 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 				for_pre.push_back(d);
 			}
 		}
-		predialog.init(for_pre);
 		postdialog.init(for_post);
-		predialog.change_music_if_char(ctx);
-		current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
-		writer.set_text(current_line);
+
+		if (!for_pre.empty()){
+			predialog.init(for_pre);
+			predialog.change_music_if_char(ctx);
+			current_line = ctx.formatter.format(predialog.step(ctx.assets, writer, ctx.locale));
+			writer.set_text(current_line);
+		} else {
+			ctx.predialog_finished = true;
+			allow_fight = true;
+		}
 		SetMusicVolume(ctx.current_music, ctx.music_volume);
 	} else {
 	}
@@ -125,7 +131,9 @@ void main_state_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
 		ctx.set_state_meta = true;
 	}
-
+	if (ctx.set_state_meta && ctx.transition_alpha >= 255.0f){
+		ctx.show_encounter_info = false;
+	}
 
 	auto season = ctx.time.get_season();
 	auto hours = ctx.time.get_time().hours().count();
@@ -146,6 +154,37 @@ void main_state_t::update(st_ctx_t& ctx){
 		}
 		return;
 	}
+	if ((!ctx.predialog_finished && allow_fight && predialog.hid_txtbox()) || ctx.show_encounter_info){
+		if (!ctx.initialized_encounter_info){
+			std::string reward_string(5, '\0');
+			std::to_chars(reward_string.data(), reward_string.data() + reward_string.size(), ctx.bt_info.reward);
+			if (usz pos = reward_string.find('\0'); pos != std::string::npos){
+				reward_string = reward_string.substr(0, pos);
+			}
+			current_line = std::format("{}\n{}\n{}", is_foe_trainer ? ctx.bt_info.name : "Wild Pokémon", ctx.formatter.format(ctx.bt_info.meet_msg), ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ENCOUNTER_REWARD"), MISSINGNO, reward_string));
+			writer.set_text(current_line);
+			ctx.initialized_encounter_info = true;
+		}
+		if (is_foe_trainer){
+			ctx.set_music(
+					std::format(
+						"{}.ogg",
+						[&]() -> std::string{
+						auto tt = ctx.bt_info.trainer_type;
+						switch (tt){
+						case TRAINER_TYPE::PKMN_TRAINER: return ctx.bt_info.name;
+						case TRAINER_TYPE::GYM_LEADER: return "Gym";
+						case TRAINER_TYPE::TEAM_PLASMA_GRUNT: return "Team Plasma Appears!";
+						default: return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
+						}
+						}()
+						)
+				     );
+		}
+		if (IsKeyPressed(KEY_Z) && writer.finished){
+			started_battle = true;
+		}
+	}
 	if (!ctx.predialog_finished){
 		if (!is_foe_trainer){
 			allow_fight = true;
@@ -159,39 +198,8 @@ void main_state_t::update(st_ctx_t& ctx){
 			}
 		}
 
-		if (allow_fight && predialog.hid_txtbox()){
-			if (!initialized_encounter_info){
-				std::string reward_string(5, '\0');
-				std::to_chars(reward_string.data(), reward_string.data() + reward_string.size(), ctx.bt_info.reward);
-				if (usz pos = reward_string.find('\0'); pos != std::string::npos){
-					reward_string = reward_string.substr(0, pos);
-				}
-				current_line = std::format("{}\n{}\n{}", is_foe_trainer ? ctx.bt_info.name : "Wild Pokémon", ctx.formatter.format(ctx.bt_info.meet_msg), ctx.formatter.format(ctx.locale.get(Locale::TYPE::UI, "ENCOUNTER_REWARD"), MISSINGNO, reward_string));
-				writer.set_text(current_line);
-				initialized_encounter_info = true;
-			}
-			if (is_foe_trainer){
-				ctx.set_music(
-						std::format(
-							"{}.ogg",
-							[&]() -> std::string{
-							auto tt = ctx.bt_info.trainer_type;
-							switch (tt){
-							case TRAINER_TYPE::PKMN_TRAINER: return ctx.bt_info.name;
-							case TRAINER_TYPE::GYM_LEADER: return "Gym";
-							case TRAINER_TYPE::TEAM_PLASMA_GRUNT: return "Team Plasma Appears!";
-							default: return std::string(trainer_type_prefixes[static_cast<u8>(ctx.bt_info.trainer_type)]);
-							}
-							}()
-							)
-					     );
-			}
-			if (IsKeyPressed(KEY_Z) && writer.finished){
-				started_battle = true;
-			}
-		}
 		ctx.postdialog_finished = for_post.empty() ? true : postdialog.finished;
-	} else if (!ctx.postdialog_finished){
+	} else if (!ctx.postdialog_finished && !ctx.show_encounter_info){
 		if (!initialized_postdialog){
 			current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
 			writer.set_text(current_line);
@@ -200,6 +208,10 @@ void main_state_t::update(st_ctx_t& ctx){
 		if (postdialog.update(ctx.assets, writer) && writer.finished){
 			current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
 			writer.set_text(current_line);
+		}
+		if (writer.finished){
+			ctx.postdialog_finished = true;
+			if (ctx.index < encounters_count[static_cast<usz>(ctx.region)]) ctx.index++;
 		}
 	}
 	writer.update();
@@ -236,7 +248,7 @@ void main_state_t::render(st_ctx_t& ctx){
 		postdialog.draw_speaker(ctx.assets);
 	}
 	if (is_foe_trainer){
-		if (allow_fight && predialog.hid_txtbox()){
+		if ((allow_fight && predialog.hid_txtbox()) || ctx.show_encounter_info){
 			if (encounter_info_txtbox_y >= wnd_h - 200){
 				encounter_info_txtbox_y -= 10;
 			}
@@ -257,7 +269,7 @@ void main_state_t::render(st_ctx_t& ctx){
 	} else {
 		// ISSUE: MAIN PORTRAIT UPDATES TOO FAST BECAUSE OF MENU PORTRAITS;
 		// FIX: SEPARATE UPDATE FROM RENDER [WILL AFFECT BATTLE RENDER TOO];
-		if (allow_fight && predialog.hid_txtbox()){
+		if ((allow_fight && predialog.hid_txtbox()) || ctx.show_encounter_info){
 			wild_pokemon_render_id_timer++;
 			if (encounter_info_txtbox_y >= wnd_h - 200){
 				encounter_info_txtbox_y -= 10;

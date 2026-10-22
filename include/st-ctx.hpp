@@ -47,6 +47,8 @@ struct st_ctx_t{
 	usz index = 0;
 	bool predialog_finished = false;
 	bool postdialog_finished = false;
+	bool show_encounter_info = false;
+	bool initialized_encounter_info{false};
 	u8 predialog_idx = 0;
 	u8 postdialog_idx = 0;
 	void resume_state_alpha(unsigned char& alpha){
@@ -149,8 +151,8 @@ struct st_ctx_t{
 	// WARN: only for debugging!
 	void set_temp_data(){
 		current_state = STATE::WIFI_CONNECTION;
-		region = REGION::NUVEMA;
-		state_data.emplace<wifi_connection_t>();
+		region = REGION::ROUTE_1;
+		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{

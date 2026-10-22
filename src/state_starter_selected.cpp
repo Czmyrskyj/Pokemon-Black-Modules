@@ -42,6 +42,7 @@ void starter_selected_t::update(st_ctx_t& ctx){
 	if (dialog.finished){
 		ctx.transition_color = BLACK;
 		ctx.switch_state(STATE::WHICH_SEASON_AND_REGION);
+		return;
 	}
 	writer.update();
 }
