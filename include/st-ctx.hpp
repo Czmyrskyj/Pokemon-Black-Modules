@@ -144,6 +144,7 @@ struct st_ctx_t{
 	}
 	void set_music(std::string_view mus){
 		if (music_name == mus) return;
+		StopMusicStream(current_music);
 		music_name = mus;
 		current_music = assets.get_mus(music_name);
 		music_started = false;

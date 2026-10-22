@@ -14,6 +14,7 @@ struct battle_entry_t{
 	std::vector<std::string> dialog;
 	TRAINER_TYPE trainer_type;
 	party_t party;
+	std::vector<u16> items{};
 	std::vector<u8> wild_rates;
 };
 

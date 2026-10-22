@@ -49,6 +49,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 			writer.set_text(current_line);
 		} else {
 			ctx.predialog_finished = true;
+			ctx.show_encounter_info = true;
 			allow_fight = true;
 		}
 		SetMusicVolume(ctx.current_music, ctx.music_volume);

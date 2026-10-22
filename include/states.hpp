@@ -311,6 +311,7 @@ struct battle_state_t{
 	u8 catch_shakes = 1;
 	u8 caught_timer = 0;
 	bool inc_catch_shakes = false;
+	bool running_from_battle = false;
 	std::array<float, 6> trainer_pokeball_x{};
 	u8 opt = 0;
 	i8 sel_opt = -1;

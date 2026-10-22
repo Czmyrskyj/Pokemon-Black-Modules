@@ -170,6 +170,16 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, usz index, pokedex_
 	if (std::holds_alternative<trainer_t>(foe)){
 		std::get<trainer_t>(foe).set_conscious_count(party.size());
 	}
+
+	u8 itm_len;
+	in.read(reinterpret_cast<char*>(&itm_len), sizeof(u8));
+	std::vector<u16> items;
+	for (usz i = 0; i < itm_len; i++){
+		u16 itm;
+		in.read(reinterpret_cast<char*>(&itm), sizeof(u16));
+		items.push_back(itm);
+	}
+
 	battle_entry_t battle_entry = {
 		.foe = foe,
 		.name = name,
@@ -179,6 +189,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, usz index, pokedex_
 		.dialog = dialog,
 		.trainer_type = trainer_type,
 		.party = party,
+		.items = items,
 		.wild_rates = wild_rates,
 	};
 	return battle_entry;

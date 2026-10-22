@@ -127,7 +127,7 @@ class battle_t{
 		}();
 
 	}
-	void set_ai_action(){
+	void set_ai_action(std::span<const u16> items){
 		if (std::holds_alternative<trainer_t>(foe)){
 			auto& t = std::get<trainer_t>(foe);
 			auto& cur_pokemon = (*foe_party)[m_current_foe_pokemon_idx];
@@ -145,7 +145,7 @@ class battle_t{
 				if (hp_ratio > 0.2f){
 					set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.move_count() - 1), 0);
 				} else {
-					set_action(TURN_ACTION::ITEM, BATTLE_TURN::FOE, 0, 0);
+					set_action(TURN_ACTION::ITEM, BATTLE_TURN::FOE, items[0], 0);
 				}
 
 			} else {
@@ -203,41 +203,48 @@ class battle_t{
 		return m_order[m_order_pos];
 	}
 	void execute_item(const item_action_t& ia, bool is_trainer, const itemdex_t& itemdex, assets_t& assets){
-		if (!is_trainer) return;
+		if (!is_trainer && !std::holds_alternative<trainer_t>(foe)) return;
 		const item_t& item = itemdex.get_item(ia.item_id);
-		auto& party = player.get_party();
-		auto& foep = (*foe_party)[m_current_foe_pokemon_idx];
-		auto& ally = party[m_current_trainer_pokemon_idx];
+		trainer_t& actor_trainer = is_trainer ? player : std::get<trainer_t>(foe);
+		auto& actor_party = is_trainer ? player.get_party() : *foe_party;
+		auto& opponent_party = is_trainer ? *foe_party : player.get_party();
+		u8 opponent_active_idx = is_trainer ? m_current_foe_pokemon_idx : m_current_trainer_pokemon_idx;
 		pokemon_t* target = nullptr;
 		switch (item.target){
 			case ITEM_TARGET::ALLY: 
 				{
-					if (ia.target < party.size()) target = &party[ia.target]; 
+					if (ia.target < actor_party.size()) target = &actor_party[ia.target]; 
 					PlaySound(assets.get_sfx("SEQ_SE_BE_SE_09.wav"));
 				}
 				break;
-			case ITEM_TARGET::FOE: target = &foep; break;
+			case ITEM_TARGET::FOE: target = &opponent_party[opponent_active_idx]; break;
 			case ITEM_TARGET::NONE: break;
 		}
 		if (!target) return;
 
 		catch_ctx_t cctx{};
 		cctx.turn = m_turn_count;
-		cctx.ally_level = ally.lvl();
-		cctx.ally_sex = ally.sex();
-		cctx.ally_species = ally.get_pokedex().id;
+
+		u8 actor_active_idx = is_trainer ? m_current_trainer_pokemon_idx : m_current_foe_pokemon_idx;
+		auto& actor_active_pkmn = actor_party[actor_active_idx];
+
+		cctx.ally_level = actor_active_pkmn.lvl();
+		cctx.ally_sex = actor_active_pkmn.sex();
+		cctx.ally_species = actor_active_pkmn.get_pokedex().id;
 
 		const bool was_fainted = target->hp() <= 0;
-		m_last_item_result = apply_item(item, *target, !std::holds_alternative<trainer_t>(foe), cctx);
+
+		bool is_wild = !is_trainer ? false : !std::holds_alternative<trainer_t>(foe);
+		m_last_item_result = apply_item(item, *target, is_wild, cctx);
 
 
 		if (m_last_item_result.consumed()){
-			player.consume_item(ia.item_id);
+			actor_trainer.consume_item(ia.item_id);
 		}
 		if (m_last_item_result.kind == ITEM_RESULT::REVIVED && was_fainted){
-			player.set_conscious_count(player.conscious_count() + 1);
+			actor_trainer.set_conscious_count(player.conscious_count() + 1);
 		}
-		if (m_last_item_result.kind == ITEM_RESULT::CAUGHT){
+		if (m_last_item_result.kind == ITEM_RESULT::CAUGHT && is_trainer){
 			m_winner = BATTLE_FIGURE::TRAINER;
 		}
 	}

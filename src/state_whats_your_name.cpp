@@ -137,5 +137,5 @@ void whats_your_name_t::clear(assets_t& assets){
 	for (const auto& i : {"hilbert.png", "hilda.png"}){
 		assets.unload_texture(i);
 	}
-	assets.unload_track("Abandoned Lof of Dreams.ogg");
+	assets.unload_track("Abandoned Lot of Dreams.ogg");
 }

@@ -156,6 +156,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 						ctx.formatter.feed("[CHEREN-STARTER]", std::string(names[cherens_chosen.get_pokedex().id]));
 						handed_pokemon = true;
 					}
+					StopMusicStream(ctx.current_music);
 					ctx.current_music = {};
 					ctx.switch_state(STATE::STARTER_SELECTED, 100);
 					return;

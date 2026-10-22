@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include <cmath>
 
 camera_t::camera_t(){
 	camera = {
@@ -11,31 +12,31 @@ camera_t::camera_t(){
 };
 
 void camera_t::set_route(const std::vector<Vector3>& route, float speed){
-	if (camera_idx < route.size()){
-		if (camera.position.x < route[camera_idx].x){
-			camera.position.x += speed;
-		}
-		if (camera.position.x > route[camera_idx].x){
-			camera.position.x -= speed;
-		}
-		if (camera.position.y < route[camera_idx].y){
-			camera.position.y += speed;
-		}
-		if (camera.position.y > route[camera_idx].y){
-			camera.position.y -= speed;
-		}
-		if (camera.position.z < route[camera_idx].z){
-			camera.position.z += speed;
-		}
-		if (camera.position.z > route[camera_idx].z){
-			camera.position.z -= speed;
-		}
-		if (camera.position.x == route[camera_idx].x &&
-				camera.position.y == route[camera_idx].y &&
-				camera.position.z == route[camera_idx].z){
-			camera_idx ++;
-		}
+	if (camera_idx >= route.size()){
+		camera_idx = 0;
+		return;
 	}
+
+	const auto& target = route[camera_idx];
+	auto update_axis = [](float& current, float target_val, float spd) -> bool{
+		if (std::fabs(current - target_val) <= spd){
+			current = target_val;
+			return true;
+		} else if (current < target_val){
+			current += spd;
+		} else {
+			current -= spd;
+		}
+		return false;
+	};
+
+	bool x_done = update_axis(camera.position.x, target.x, speed);
+	bool y_done = update_axis(camera.position.y, target.y, speed);
+	bool z_done = update_axis(camera.position.z, target.z, speed);
+	if (x_done && y_done && z_done){
+		camera_idx++;
+	}
+
 }
 
 

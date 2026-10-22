@@ -33,7 +33,7 @@ int main(){
 			return -1;
 		}
 		
-		SetTextureFilter(assets.get_font("font.otf").texture, TEXTURE_FILTER_POINT);
+		SetTextureFilter(assets.get_font("main.otf").texture, TEXTURE_FILTER_POINT);
 		Locale::locale_t locale;
 		auto locale_load_res = locale.load_locale_files();
 		if (!locale_load_res.has_value()){

@@ -155,7 +155,13 @@ void battle_state_t::update(st_ctx_t& ctx){
 	if (!ctx.set_state_meta && ctx.transition_alpha <= 0.0f){
 		ctx.set_state_meta = true;
 	}
-
+	if (running_from_battle){
+		ctx.switch_state(STATE::MAIN);
+		ctx.show_encounter_info = true;
+		ctx.initialized_encounter_info = false;
+		// TODO: FADE MUSIC
+		return;
+	}
 	auto& party = (!ctx.bt_info.party.empty()) ? ctx.bt_info.party :
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
@@ -395,7 +401,8 @@ void battle_state_t::update(st_ctx_t& ctx){
 									if (is_foe_trainer){
 										running_from_tr_batt = true;
 									} else {
-										
+										running_from_battle = true;
+										return;
 									}
 									break;
 							}
@@ -904,7 +911,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 			 ally_pokemon_scale >= pokemon_scale_dest &&
 			 next_menu_state == BATTLE_MENU_STATE::NONE
 			) && phase != BATTLE_PHASE::FIGHT){
-		battle.set_ai_action();
+		battle.set_ai_action(ctx.bt_info.items);
 		battle.determine_order(ctx.movedex);
 		turn_timer = 0;
 		txted = false;
