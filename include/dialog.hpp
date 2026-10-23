@@ -15,6 +15,9 @@ struct dialog_t{
 	float txtbox_y{wnd_h + 20.0f};
 	bool top{false};
 	void init(std::vector<std::string> l) { 
+		finished = false;
+		speaker = "";
+		prev_speaker = "";
 		lines = std::move(l);
 		current_line = 0;
 		txtbox_y = !top ? wnd_h + 20.0f : -200.0f;

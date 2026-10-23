@@ -25,6 +25,12 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 		char_cursor_blinker = 0;
 		PlaySound(sel_sfx);
 	}
+	auto contains_printable = [](std::string_view txt) -> bool{
+		for (usz i = 0; i < txt.size(); i++){
+			if (std::isalnum(txt[i]) || std::ispunct(txt[i])) return true;
+		}
+		return false;
+	};
 	if (IsKeyPressed(KEY_Z)){
 		if (selected_char < 70){
 			if (entered_name.size() < 7){
@@ -41,7 +47,7 @@ void whats_your_name_t::update(st_ctx_t& ctx){
 				} else {
 					PlaySound(bep_sfx);
 				}
-			} else if (selected_char == 74 && (!entered_name.empty() && entered_name != "nodata" && ctx.player.name() == "nodata")){
+			} else if (selected_char == 74 && (!entered_name.empty() && entered_name != "nodata" && ctx.player.name() == "nodata" && contains_printable(entered_name))){
 				ctx.player.set_name(entered_name);
 				ctx.formatter.feed("[PLAYER]", std::string(ctx.player.name()));
 				PlaySound(dec2_sfx);

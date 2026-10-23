@@ -158,10 +158,10 @@ struct st_ctx_t{
 	}
 	// WARN: only for debugging!
 	void set_temp_data(){
-		current_state = STATE::MAIN;
+		current_state = STATE::WHATS_YOUR_NAME;
 		region = REGION::ROUTE_1;
-		state_data.emplace<main_state_t>(*this);
-		player.set_name("Dvoriak");
+		state_data.emplace<whats_your_name_t>(*this);
+	//	player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{
 			pokedex.get_pokedex_entry(OSHAWOTT),
