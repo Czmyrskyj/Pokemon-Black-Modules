@@ -3,8 +3,8 @@
 #include "types.hpp"
 #include <expected>
 
-enum class CATEGORY{
-	PHYSICAL,
+enum class CATEGORY : u8{
+	PHYSICAL = 1,
 	SPECIAL,
 	STATUS,
 };

@@ -520,7 +520,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 										sel_opt = ctx.control_selection(opt2, ctx.player.inventory()[opt].size() - 1, sel_sfx, dec_sfx);
 									}
 								} else if (sel_opt2 == -1) {
-									sel_opt2 = ctx.control_selection(opt3, 3, sel_sfx, dec_sfx);
+									sel_opt2 = ctx.control_selection(opt3, 1, sel_sfx, dec_sfx);
 								}
 								switch (sel_opt2){
 									case 0:{
@@ -1151,7 +1151,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 							draw_text(ctx.assets, item_act_labels[i], 1525, 630 + i * (optb.height * 2.5f), 50, WHITE);
 						}
 					}
-
+					// TODO: SCROLLING ITEMS
 				}
 				break;
 			case BATTLE_MENU_STATE::GIVE_NICKNAME_TO_CAUGHT:

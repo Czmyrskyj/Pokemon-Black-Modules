@@ -259,6 +259,8 @@ class battle_t{
 		auto& atk = is_trainer ? ally : foep;
 		auto& def = is_trainer ? foep : ally;
 
+		m_is_crit = false;
+
 		if (atk.hp() > 0 && std::holds_alternative<attack_action_t>(action)){
 			u8 slot = std::get<attack_action_t>(action).move_slot;
 			const move_t& mv = movedex.get_move(atk.moves()[slot]);
@@ -266,23 +268,26 @@ class battle_t{
 			if (mv.accuracy == 0 || mv_acc <= mv.accuracy){
 				PlaySound(assets.get_sfx(std::format("{}.wav", mv.name)));
 
-				int crit_stage = mv.crit_rate;
-				if (atk.focus_energy()) crit_stage += 2;
-				if (atk.held_item() == 209 || atk.held_item() == 303) crit_stage++;
-				if (atk.get_pokedex().ability1 == ABILITY::SUPER_LUCK) crit_stage++;
+				if (mv.power > 0){
 
-				if (crit_stage > 4) crit_stage = 4;
+					int crit_stage = mv.crit_rate;
+					if (atk.focus_energy()) crit_stage += 2;
+					if (atk.held_item() == 209 || atk.held_item() == 303) crit_stage++;
+					if (atk.get_pokedex().ability1 == ABILITY::SUPER_LUCK) crit_stage++;
 
-				const auto& dd = def.get_pokedex();
-				bool blocked = dd.ability1 == ABILITY::BATTLE_ARMOR || dd.ability2 == ABILITY::BATTLE_ARMOR
-					|| dd.ability1 == ABILITY::SHELL_ARMOR  || dd.ability2 == ABILITY::SHELL_ARMOR;
+					if (crit_stage > 4) crit_stage = 4;
 
-				if (!blocked){
-					static constexpr std::array<int, 5> crit_denominator = {16, 8, 4, 3, 2};
-					bool always_crit = mv.id == 524 || mv.id == 480;
-					m_is_crit = always_crit || rnd::get_val<u8>(0, crit_denominator[crit_stage] - 1) == 0;
+					const auto& dd = def.get_pokedex();
+					bool blocked = dd.ability1 == ABILITY::BATTLE_ARMOR || dd.ability2 == ABILITY::BATTLE_ARMOR
+						|| dd.ability1 == ABILITY::SHELL_ARMOR  || dd.ability2 == ABILITY::SHELL_ARMOR;
+
+					if (!blocked){
+						static constexpr std::array<int, 5> crit_denominator = {16, 8, 4, 3, 2};
+						bool always_crit = mv.id == 524 || mv.id == 480;
+						m_is_crit = always_crit || rnd::get_val<u8>(0, crit_denominator[crit_stage] - 1) == 0;
+					}
 				}
-				def.hp_damage(mv.power * (m_is_crit ? 2 : 1), mv.type , atk.lvl(), atk.get_pokedex().base_attack);
+				def.hp_damage(atk.calc_damage(mv, def, m_is_crit, rnd::get_val<u8>(85, 100)));
 			} else {
 				m_figure_missed = is_trainer ? BATTLE_FIGURE::TRAINER : BATTLE_FIGURE::FOE;
 			}
