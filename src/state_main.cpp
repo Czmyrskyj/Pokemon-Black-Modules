@@ -21,6 +21,7 @@ main_state_t::main_state_t(st_ctx_t& ctx){
 				}
 				);
 	}
+	ctx.initialized_encounter_info = false;
 	ctx.bt_info = ctx.battle_info.get_battle_info(ctx.region, ctx.index, ctx.pokedex);
 	is_foe_trainer = std::holds_alternative<trainer_t>(ctx.bt_info.foe);
 	ctx.music_volume = 1.0f;

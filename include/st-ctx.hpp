@@ -151,9 +151,9 @@ struct st_ctx_t{
 	}
 	// WARN: only for debugging!
 	void set_temp_data(){
-		current_state = STATE::WIFI_CONNECTION;
+		current_state = STATE::CHOOSE_STARTER;
 		region = REGION::ROUTE_1;
-		state_data.emplace<main_state_t>(*this);
+		state_data.emplace<choose_a_starter_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{
@@ -206,7 +206,7 @@ struct st_ctx_t{
 			"SERPERIOR",
 			NATURE::LONELY,
 			SEX::MALE,
-			5,
+			20,
 			{36, 24, 51, 32},
 			4
 		};
@@ -223,6 +223,7 @@ struct st_ctx_t{
 		formatter.feed("[PLAYER-STARTER]", "OSHAWOTT");
 		formatter.feed("[BIANCA-STARTER]", "TEPIG");
 		formatter.feed("[CHEREN-STARTER]", "SNIVY");
+		player.push_pokemon(serperior);
 		player.push_pokemon(players);
 		player.push_pokemon(purrloin);
 		player.push_pokemon(buizel);

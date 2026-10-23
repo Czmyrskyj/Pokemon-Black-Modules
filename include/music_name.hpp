@@ -10,6 +10,7 @@ inline std::string get_music_name(st_ctx_t& ctx){
 					if (tt == TRAINER_TYPE::PKMN_TRAINER){
 						if (nm == "Bianca" || nm == "Cheren") return "Battle! Cheren A Belle";
 						if (nm == "N") return "Battle! N";
+						return "Battle! Trainer";
 					} else {
 						if (tt == TRAINER_TYPE::TEAM_PLASMA_GRUNT) return "Battle! Team Plasma";
 						if (tt == TRAINER_TYPE::ELITE_FOUR) return "Battle! Elite Four";

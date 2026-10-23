@@ -9,6 +9,8 @@
 #include <print>
 
 constexpr float shift_speed{30.0f};
+constexpr float center_x{1000.0f};
+constexpr std::array<float, 3> home_x{400.0f, 900.0f, 1500.0f};
 
 choose_a_starter_t::choose_a_starter_t(st_ctx_t& ctx){
 	dialog.init({
@@ -59,12 +61,7 @@ void choose_a_starter_t::update(st_ctx_t& ctx){
 					PlaySound(ctx.assets.get_sfx(std::format("{}.wav", std::to_string(starters[i]))));
 					played_cry = true;
 				}
-				if (starter_positions[i] < 1000.0f){
-					starter_positions[i] += shift_speed;
-				}
-				if (starter_positions[i] > 1000.0f){
-					starter_positions[i] -= shift_speed;
-				}
+				starter_positions[i] += std::clamp(center_x - starter_positions[i], -shift_speed, shift_speed);
 			} else {
 				starter_colors[i].a = 200;
 				starter_colors[i].r = 45;

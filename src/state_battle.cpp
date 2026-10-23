@@ -75,6 +75,7 @@ void battle_state_t::set_phase(assets_t& assets, BATTLE_PHASE p){
 		case BATTLE_PHASE::MENU:
 			{
 				PlaySound(assets.get_sfx("SEQ_SE_OPEN2.wav"));
+				camera_pos = BATTLE_CAMERA_POS::ALLY;
 			}
 			break;
 		default: break;
@@ -292,7 +293,6 @@ void battle_state_t::update(st_ctx_t& ctx){
 									set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
 								} else {
 									set_phase(ctx.assets, BATTLE_PHASE::MENU);
-									camera_pos = BATTLE_CAMERA_POS::TRAINER;
 									menu_state = BATTLE_MENU_STATE::OPTIONS;
 									foe_about_to_send = false;
 								}
@@ -616,7 +616,11 @@ void battle_state_t::update(st_ctx_t& ctx){
 					const turn_action_t act = is_trainer ? battle.trainer_turn_action() : battle.foe_turn_action();
 					const auto* atk = std::get_if<attack_action_t>(&act);
 					const auto* itm = std::get_if<item_action_t>(&act);
-					if (!txted){
+					if (std::holds_alternative<switch_pokemon_action_t>(act)){
+						battle.execute_action(ctx.movedex, ctx.itemdex, ctx.assets);
+						txted = false;
+						turn_timer = 0;
+					} else if (!txted){
 						if (cur.hp() > 0){
 							if (atk){
 								camera_pos = is_trainer ? BATTLE_CAMERA_POS::FOE : BATTLE_CAMERA_POS::ALLY;
@@ -869,21 +873,22 @@ void battle_state_t::update(st_ctx_t& ctx){
 						txted = true;
 					}
 					if (is_foe_trainer){
-						if (txted && writer.finished && unique_txt_entry == UNIQUE_TXT_ENTRY::NONE){
-							unique_txt_timer++;
-						}
-						if (unique_txt_entry != UNIQUE_TXT_ENTRY::FOE_DEFEAT_MSG && unique_txt_timer > 50){
-							current_line = ctx.formatter.format(ctx.bt_info.defeat_msg);
-							writer.set_text(current_line);
-							unique_txt_entry = UNIQUE_TXT_ENTRY::FOE_DEFEAT_MSG;
-						} else {
-							if (++unique_txt_timer > 150){
+						if (unique_txt_entry != UNIQUE_TXT_ENTRY::FOE_DEFEAT_MSG){
+							if (txted && writer.finished && ++unique_txt_timer > 50){
+								current_line = ctx.formatter.format(ctx.bt_info.defeat_msg);
+								writer.set_text(current_line);
+								unique_txt_entry = UNIQUE_TXT_ENTRY::FOE_DEFEAT_MSG;
+								unique_txt_timer = 0;
+							}
+						} else if (writer.finished){
+							if (++unique_txt_timer > 90 || (unique_txt_timer > 20 && IsKeyPressed(KEY_Z))){
 								ctx.switch_state(STATE::MAIN);
 								if (ctx.music_volume > 0.0f) ctx.music_volume -= 0.05f;
 								else StopMusicStream(ctx.current_music);
 								return;
-							} 
+							}
 						}
+
 					} else {
 						if (battle.last_item_result().kind == ITEM_RESULT::CAUGHT){
 							set_phase(ctx.assets, BATTLE_PHASE::MENU);
