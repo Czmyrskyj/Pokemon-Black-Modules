@@ -662,6 +662,24 @@ enum POKEDEX : u16{
 };
 
 #pragma pack(push, 1)
+struct pokedex_header_t{
+	POKEDEX id		= MISSINGNO;
+	u8 base_hp		= 0;
+	u8 base_attack		= 0;
+	u8 base_defense		= 0;
+	u8 base_speed		= 0;
+	u8 base_sp_att		= 0;
+	u8 base_sp_def		= 0;
+	TYPE type1		= TYPE::NONE;
+	TYPE type2		= TYPE::NONE;
+	u8 catch_rate		= 0;
+	u8 base_friendship	= 0;
+	ABILITY ability1	= ABILITY::NONE;
+	ABILITY ability2	= ABILITY::NONE;
+	ABILITY hidden_ability	= ABILITY::NONE;
+	i8 gender_rate		= -1;
+};
+#pragma pack(pop)
 struct pokedex_entry_t{
 	POKEDEX id		= MISSINGNO;
 	u8 base_hp		= 0;
@@ -677,9 +695,8 @@ struct pokedex_entry_t{
 	ABILITY ability1	= ABILITY::NONE;
 	ABILITY ability2	= ABILITY::NONE;
 	ABILITY hidden_ability	= ABILITY::NONE;
+	i8 gender_rate		= -1;
 };
-#pragma pack(pop)
-
 class pokedex_t{
 	std::vector<pokedex_entry_t> pokemon_registry;
 	public:

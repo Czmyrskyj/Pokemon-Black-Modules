@@ -41,6 +41,7 @@ class assets_t{
 	Font get_font(std::string_view);
 	Model get_model(std::string_view);
 	void unload_texture(std::string_view);
+	bool has_music(std::string_view path) const { return music_cache.contains(std::string(path)); }
 	void unload_track(std::string_view);
 	void unload_assets();
 };

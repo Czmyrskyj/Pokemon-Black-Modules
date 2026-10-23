@@ -101,6 +101,7 @@ int main(){
 		ctx.set_temp_data();
 
 		while (!WindowShouldClose()){
+			ctx.validate_music();
 			if (!ctx.halt_music && ctx.current_music.stream.buffer != nullptr){
 				bool playing = IsMusicStreamPlaying(ctx.current_music);
 				if (!playing && !ctx.music_started){

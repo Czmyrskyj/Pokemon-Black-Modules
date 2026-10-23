@@ -1036,7 +1036,9 @@ void battle_state_t::render(st_ctx_t& ctx){
 			auto [ptr, ec] = std::to_chars(lvl_buf, lvl_buf + sizeof(lvl_buf), foep.lvl());
 			std::string_view lvl_str(lvl_buf, ptr - lvl_buf);
 			draw_pokename(ctx.assets, lvl_buf, foe_hud_x + 450, 295.0f);
-			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {foe_hud_x + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			if (foep.sex() != SEX::NONE){
+				DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(foep.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {foe_hud_x + 385.0f, 295.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			}
 		}
 		if (!finished_drawing_back){
 			const auto& ln_tx = ctx.assets.get_tx("line-under-foe-pokeballs.png");
@@ -1067,7 +1069,9 @@ void battle_state_t::render(st_ctx_t& ctx){
 			auto [max_hp_ptr, _] = std::to_chars(max_hp_buf, max_hp_buf + sizeof(max_hp_buf), ally.max_hp());
 			ally.calculate_exp_cap();
 			draw_pokename(ctx.assets, {lvl_buf, lvl_ptr}, ally_hud_x + 450, 535.0f);
-			DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(ally.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {ally_hud_x + 365.0f, 535.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			if (ally.sex() != SEX::NONE){
+				DrawTexturePro(ctx.assets.get_tx("sex-sign.png"), {static_cast<float>(ally.sex()) * 7.0f, 0.0f, 7.0f, 10.0f}, {ally_hud_x + 365.0f, 535.0f, 28.0f, 40.0f}, {0, 0}, 0, WHITE);
+			}
 			draw_pokename(ctx.assets, {hp_buf, hp_ptr}, ally_hud_x + 330, 600.0f);
 			draw_pokename(ctx.assets, {max_hp_buf, max_hp_ptr}, ally_hud_x + 420, 600.0f);
 			DrawRectangle(ally_hud_x + 160, 655.0f, (static_cast<float>(ally.exp()) / ally.exp_cap()) * 400.0f, 5, {0, 153, 148, 255});

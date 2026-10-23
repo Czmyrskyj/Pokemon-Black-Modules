@@ -142,6 +142,13 @@ struct st_ctx_t{
 		}
 		transition_alpha = static_cast<unsigned char>(current_alpha);
 	}
+	void validate_music(){
+		if (!music_name.empty() && !assets.has_music(music_name)){
+			current_music = {};
+			music_name.clear();
+			music_started = false;
+		}
+	}
 	void set_music(std::string_view mus){
 		if (music_name == mus) return;
 		StopMusicStream(current_music);
@@ -151,9 +158,9 @@ struct st_ctx_t{
 	}
 	// WARN: only for debugging!
 	void set_temp_data(){
-		current_state = STATE::CHOOSE_STARTER;
+		current_state = STATE::MAIN;
 		region = REGION::ROUTE_1;
-		state_data.emplace<choose_a_starter_t>(*this);
+		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
 		pokemon_t players{

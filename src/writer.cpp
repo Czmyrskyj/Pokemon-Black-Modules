@@ -57,8 +57,9 @@ void writer_t::update(const Sound* char_sfx, const Sound* begin_sfx){
 	}
 	bool is_waiting = (target[current_idx] == '\x02');
 	float step_speed = is_waiting ? (speed * 10.0f) : speed;
-	if (begin_sfx && current_idx == 0){
+	if (begin_sfx && current_idx == 0 && !begin_played){
 		PlaySound(*begin_sfx);
+		begin_played = true;
 	}
 	timer += GetFrameTime();
 	if (timer >= step_speed){

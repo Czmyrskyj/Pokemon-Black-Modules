@@ -1,5 +1,6 @@
 #include "battle_info.hpp"
 #include "random.hpp"
+#include "gender_rate.hpp"
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
@@ -158,7 +159,7 @@ battle_entry_t battle_info_t::get_battle_info(REGION region, usz index, pokedex_
 					pokeentry,
 					"",
 					rnd::get_val<NATURE>(NATURE::BASHFUL, NATURE::TIMID),
-					rnd::get_val<SEX>(SEX::MALE, SEX::FEMALE),
+					roll_sex(pokeentry),
 					key.lvl,
 					key.moves,
 					move_count,

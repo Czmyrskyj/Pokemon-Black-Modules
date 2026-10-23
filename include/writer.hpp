@@ -11,7 +11,8 @@ struct writer_t{
 	float timer = 0.0f;
 	float speed = 0.0f;
 	bool finished = false;
-	
+	bool begin_played = false;
+
 	void set_text(std::string_view txt, float char_speed = 0.01f);
 	void update(const Sound* char_sfx = nullptr, const Sound* begin_sfx = nullptr);
 };
