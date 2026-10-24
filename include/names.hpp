@@ -1,7 +1,8 @@
 #pragma once
 #include "common.hpp"
-
+namespace{
 constexpr usz count = 650;
+};
 constexpr std::array<std::string_view, count> names{
 	"MISSINGNO",
 		"BULBASAUR",

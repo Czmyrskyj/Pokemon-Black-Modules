@@ -30,7 +30,4 @@ struct dialog_t{
 	void draw_speaker(assets_t& assets);
 	bool update(assets_t& assets, writer_t& writer);
 	void change_music_if_char(st_ctx_t& ctx);
-	std::string get_identifier() {
-		return lines[current_line];
-	}
 };
