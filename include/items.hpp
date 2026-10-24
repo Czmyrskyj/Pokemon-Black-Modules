@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include <expected>
+#include <cassert>
 
 enum class ITEM_TARGET : u8{
 	NONE,
@@ -51,5 +52,11 @@ class itemdex_t{
 		item_registry.reserve(711);
 	}
 	std::expected<void, std::string_view> load_itemdex();
-	const item_t& get_item(u16 ID) const { return item_registry[ID]; }
+	const item_t& get_item(u16 ID) const {
+		if (ID >= item_registry.size()){
+			assert(false && "get_item: bad id");
+			return item_registry[0];
+		}
+		return item_registry[ID];
+	}
 };

@@ -1,6 +1,7 @@
 #include "assets.hpp"
 #include <fstream>
 #include <filesystem>
+#include <format>
 #include <print>
 
 #pragma GCC diagnostic push
@@ -22,6 +23,9 @@ std::expected<void, std::string_view> assets_t::load_assets(){
 	}
 	u32 assets_count;
 	in.read(reinterpret_cast<char*>(&assets_count), sizeof(u32));
+	if (assets_count > 100'000){
+		return std::unexpected("bad asset count");
+	}
 	asset_registry.clear();
 	asset_registry.reserve(assets_count);
 	for (usz i = 0; i < assets_count; i++){

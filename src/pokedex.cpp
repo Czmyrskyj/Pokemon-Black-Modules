@@ -35,7 +35,3 @@ std::expected<void, std::string_view> pokedex_t::load_pokedex(){
     }
     return {};
 }
-
-pokedex_entry_t pokedex_t::get_pokedex_entry(POKEDEX id){
-	return pokemon_registry[id];
-}

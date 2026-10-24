@@ -338,6 +338,12 @@ struct battle_state_t{
 	u8 bag_animation_frame_timer = 0;
 	u8 opt2 = 0;
 	u8 opt3 = 0;
+	Sound absent;
+	Sound present;
+	Sound sel_sfx;
+	Sound dec_sfx;
+	Sound dead;
+	Sound foe_cry; 
 	std::array<std::string_view, 5> bag_labels = {
 		"ITEMS",
 		"KEY_ITEMS",

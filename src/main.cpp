@@ -16,6 +16,12 @@
 
 constexpr u16 sample_rate{44100};
 
+inline int cleanup_and_fail(){
+	CloseAudioDevice();
+	CloseWindow();
+	return -1;
+}
+
 int main(){
 	SetTraceLogLevel(LOG_WARNING);
 	InitWindow(wnd_w, wnd_h, "Pokemon Black Modules");
@@ -28,9 +34,7 @@ int main(){
 		auto assets_load_res = assets.load_assets();
 		if (!assets_load_res.has_value()){
 			std::println(stderr, "error: {}", assets_load_res.error());
-			CloseAudioDevice();
-			CloseWindow();
-			return -1;
+			return cleanup_and_fail();
 		}
 		
 		SetTextureFilter(assets.get_font("main.otf").texture, TEXTURE_FILTER_POINT);
@@ -38,48 +42,48 @@ int main(){
 		auto locale_load_res = locale.load_locale_files();
 		if (!locale_load_res.has_value()){
 			std::println(stderr, "error: {}", locale_load_res.error());
-			return -1;
+			return cleanup_and_fail();
 		}
 		pokedex_t pokedex;
 		auto pokedex_load_res = pokedex.load_pokedex();
 		if (!pokedex_load_res.has_value()){
 			std::println(stderr, "error: {}", pokedex_load_res.error());
-			return -1;
+			return cleanup_and_fail();
 		}
 		Time::time_t time;
 		battle_info_t battle_info;
 		auto battle_info_load_res = battle_info.load_battle_info();
 		if (!battle_info_load_res.has_value()){
 			std::println(stderr, "error: {}", battle_info_load_res.error());
-			return -1;
+			return cleanup_and_fail();
 		}
 		formatter_t formatter;
 		music_offset_t music_offset;
 		auto music_offset_load_res = music_offset.load();
 		if (!music_offset_load_res.has_value()){
 			std::println(stderr, "error: {}", music_offset_load_res.error());
-			return -1;
+			return cleanup_and_fail();
 		}
 
 		spritedex_t spritedex;
 		auto spritedex_load_res = spritedex.load_spritedex();
 		if (!spritedex_load_res.has_value()){
 			std::println(stderr, "error: {}", spritedex_load_res.error());
-			return -1;
+			return cleanup_and_fail();
 		}
 
 		movedex_t movedex;
 		auto movedex_load_res = movedex.load_movedex();
 		if (!movedex_load_res.has_value()){
 			std::println(stderr, "error: {}", movedex_load_res.error());
-			return -1;
+			return cleanup_and_fail();
 		}
 
 		itemdex_t itemdex;
 		auto itemdex_load_res = itemdex.load_itemdex();
 		if (!itemdex_load_res.has_value()){
 			std::println(stderr, "error: {}", itemdex_load_res.error());
-			return -1;
+			return cleanup_and_fail();
 		}
 
 		camera_t camera;

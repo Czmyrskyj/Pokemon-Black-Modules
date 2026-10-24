@@ -59,6 +59,11 @@ enum class BAG : u8{
 
 using inventory_t = std::array<std::vector<item_t>, static_cast<u8>(BAG::COUNT)>;
 
+constexpr std::string_view trainer_prefix(TRAINER_TYPE t){
+	const usz i = static_cast<usz>(t);
+	return i < trainer_type_prefixes.size() ? trainer_type_prefixes[i] : std::string_view{};
+}
+
 class trainer_t{
 	std::string m_name = "nodata";
 	TRAINER_TYPE m_trainer_type = TRAINER_TYPE::NONE;
@@ -74,7 +79,7 @@ class trainer_t{
 		return m_name;
 	}
 	std::string_view get_prefix() const{
-		return trainer_type_prefixes[static_cast<u8>(m_trainer_type)];
+		return trainer_prefix(m_trainer_type);
 	}
 	void set_sex(SEX s){
 		m_sex = s;
@@ -139,7 +144,16 @@ struct anim_trainer_render_t{
 	float hand_framerate{2.0f};
 	float hand_rotation{0.0f};
 	float x_shift_timer{0.0f};
-	bool draw(assets_t& assets, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE, bool allow_animated = true);
-	void draw_vs(assets_t& assets, std::string_view trainer, Vector2 pos, Color tint = WHITE);
-	bool draw_back(assets_t& assets, std::string_view trainer, Vector3 pos, const Camera3D& camera, Color tint = WHITE);
+	
+	void update(std::string_view trainer, bool allow_animated = true);
+	void update_back();
+
+	void draw(assets_t& assets, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE) const;
+	void draw_vs(assets_t& assets, std::string_view trainer, Vector2 pos, Color tint = WHITE) const;
+	void draw_back(assets_t& assets, std::string_view trainer, Vector3 pos, const Camera3D& camera, Color tint = WHITE) const;
+
+	bool done(std::string_view speaker) const;
+	bool back_done() const { return hand_frame >= 3; }
 };
+
+bool has_anim(std::string_view speaker);

@@ -58,14 +58,34 @@ void draw_shadow(Texture2D texture, Rectangle src, Vector3 pos, Color tint, floa
 	rlEnableDepthMask();
 }
 
-bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vector3 pos, const Camera3D* camera, Color tint, bool allow_animated){
-	Texture2D speaker_tx = assets.get_tx("Animated Trainers.png");
-	Vector2 src_offset{0.0f, 0.0f};
-	std::vector<u8> frameorder{};
+struct speaker_anim_t{
+	u8 row;
+	std::span<const u8> order;
+};
+
+static constexpr std::array<u8, 3> cheren_order{0, 1, 2};
+static constexpr std::array<u8, 8> bianca_order{1, 2, 1, 2, 1, 2, 0, 0};
+static constexpr std::array<u8, 3> n_order{0, 1, 2};
+
+static const speaker_anim_t* find_anim(std::string_view speaker){
+	static constexpr speaker_anim_t cheren{1, cheren_order};
+	static constexpr speaker_anim_t bianca{0, bianca_order};
+	static constexpr speaker_anim_t n{2, n_order};
+	if (speaker == "Cheren") return &cheren;
+	if (speaker == "Bianca") return &bianca;
+	if (speaker == "N") return &n;
+	return nullptr;
+}
+
+bool has_anim(std::string_view speaker){
+	return find_anim(speaker) != nullptr;
+}
+
+void anim_trainer_render_t::update(std::string_view speaker, bool allow_animated){
+	const auto* a = find_anim(speaker);
+	if (!a) return;
 	if (speaker == "Cheren"){
-		src_offset = {0, 1};
-		frameorder = {0, 1, 2};
-		switch (frameorder[frame]){
+		switch (a->order[frame]){
 			case 0: 
 				framerate = 2.0f; 
 				x_shift = 0.0f; break;
@@ -83,9 +103,7 @@ bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 				break;
 		}
 	} else if (speaker == "Bianca"){
-		src_offset = {0, 0};
-		frameorder = {1, 2, 1, 2, 1, 2, 0, 0};
-		switch (frameorder[frame]){
+		switch (a->order[frame]){
 			case 0: 
 				framerate = 5.0f;
 				if (x_shift < 40.0f){
@@ -109,9 +127,7 @@ bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 				break;
 		}
 	} else if (speaker == "N"){
-		src_offset = {0, 2};
-		frameorder = {0, 1, 2};
-		switch (frameorder[frame]){
+		switch (a->order[frame]){
 			case 0: 
 				framerate = 1.0f; 
 				break;
@@ -129,7 +145,7 @@ bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 				break;
 		}
 	}
-	if (allow_animated && frame < frameorder.size() - 1){
+	if (allow_animated && frame < a->order.size() - 1){
 		frametimer += GetFrameTime()*framerate;
 		if (frametimer > 1.0f){
 			frame++;
@@ -141,14 +157,50 @@ bool anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vec
 			y_shift = 0.0f;
 		}
 	}
-	src_offset.x = frameorder[frame];
+}
+
+void anim_trainer_render_t::draw(assets_t& assets, std::string_view speaker, Vector3 pos, const Camera3D* camera, Color tint) const{
+	const auto* a = find_anim(speaker);
+	if (!a) return;
+	const auto& speaker_tx = assets.get_tx("Animated Trainers.png");
+	const Rectangle src{a->order[frame] * 84.0f, a->row * 78.0f, 84, 78};
 	if (!camera){
-		DrawTexturePro(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift, pos.y - y_shift, 204, 190}, {0, 0}, 0, tint);
+		DrawTexturePro(speaker_tx, src, {pos.x + x_shift, pos.y - y_shift, 204, 190}, {0, 0}, 0, tint);
 	} else {
-		draw_shadow(speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, 0.03f, pos.z + y_shift / 78.0f}, {0, 0, 0, std::min(static_cast<u8>(180), tint.a)});
-		DrawBillboardPro(*camera, speaker_tx, {src_offset.x * 84, src_offset.y * 78, 84, 78}, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale}, {0, 0}, 0, tint);
+		draw_shadow(speaker_tx, src, {pos.x + x_shift / 84.0f, 0.03f, pos.z + y_shift / 78.0f}, {0, 0, 0, std::min(static_cast<u8>(180), tint.a)});
+		DrawBillboardPro(*camera, speaker_tx, src, {pos.x + x_shift / 84.0f, pos.y + y_shift / 78.0f, pos.z}, {0, 1, 0}, {trainer_scale, trainer_scale}, {0, 0}, 0, tint);
 	}
-	return frame >= frameorder.size() - 1;
+}
+
+void anim_trainer_render_t::update_back(){
+	static constexpr std::array<float, 3> framerates = {0.3f, 7.0f, 0.0f};
+	static constexpr std::array<float, 4> hand_framerates = {0.3f, 7.0f, 3.0f, 0.0f};
+	static constexpr std::array<float, 4> hand_rotations = {0.0f, 0.0f, 5.0f, -0.5f};
+	framerate = framerates[frame];
+	frametimer += GetFrameTime()*framerate;
+	if (frame < 2 && frametimer > 1.0f){
+		frame++;
+		frametimer = 0.0f;
+	}
+	if (hand_framerate < hand_framerates[hand_frame]) hand_framerate += 0.1f;
+	if (hand_framerate > hand_framerates[hand_frame]) hand_framerate -= 0.1f;
+	hand_rotation = hand_rotations[hand_frame];
+	hand_frametimer += GetFrameTime()*hand_framerate;
+	if (hand_frame < 3 && hand_frametimer > 1.0f){
+		hand_frame++;
+		hand_frametimer = 0.0f;
+	}
+	if (hand_frame >= 1 && hand_frame <= 2){
+		x_shift -= 0.005f;
+	} else if (hand_frame > 2 && x_shift_timer < 10.0f){
+		x_shift += 0.02f;
+		x_shift_timer += 1.0f;
+	}
+}
+
+bool anim_trainer_render_t::done(std::string_view speaker) const{
+	const auto* a = find_anim(speaker);
+	return !a || frame >= a->order.size() - 1;
 }
 
 constexpr int get_vs_idx(std::string_view name){
@@ -177,7 +229,7 @@ constexpr int get_vs_idx(std::string_view name){
 	return 0;
 }
 
-void anim_trainer_render_t::draw_vs(assets_t& assets, std::string_view trainer, Vector2 pos, Color tint){
+void anim_trainer_render_t::draw_vs(assets_t& assets, std::string_view trainer, Vector2 pos, Color tint) const{
 	auto tx = assets.get_tx("vs faces.png");
 	int idx = get_vs_idx(trainer);
 	float ren_x = (idx % 6) * 128.0f;
@@ -280,16 +332,10 @@ void draw_trainer(assets_t& assets, TRAINER_TYPE tt, std::string_view name, Vect
 	}
 }
 
-bool anim_trainer_render_t::draw_back(assets_t& assets, std::string_view name, Vector3 pos, const Camera3D& camera, Color tint){
-	static constexpr std::array<float, 3> framerates = {0.3f, 7.0f, 0.0f};
-	framerate = framerates[frame];
-	frametimer += GetFrameTime()*framerate;
-	if (frametimer > 1.0f){
-		frame++;
-		frametimer = 0.0f;
-	}
-	std::array<float, 4> hand_framerates = {0.3f, 7.0f, 3.0f, 0.0f};
-	static constexpr std::array<float, 4> hand_rotations = {0.0f, 0.0f, 5.0f, -0.5f};
+void anim_trainer_render_t::draw_back(assets_t& assets, std::string_view name, Vector3 pos, const Camera3D& camera, Color tint) const{
+	const auto& back_tx = assets.get_tx(std::format("{}-back.png", name));
+	const auto& hand_tx = assets.get_tx(std::format("{}-back-hands.png", name));
+	float tx_third_w = back_tx.width / 3.0f;
 	std::array<Vector2, 4> hand_offsets = {
 		{
 			{0, 0},
@@ -298,24 +344,6 @@ bool anim_trainer_render_t::draw_back(assets_t& assets, std::string_view name, V
 			{-0.09f, -0.03f},
 		}
 	};
-	if (hand_framerate < hand_framerates[hand_frame]) hand_framerate += 0.1f;
-	if (hand_framerate > hand_framerates[hand_frame]) hand_framerate -= 0.1f;
-	hand_rotation = hand_rotations[hand_frame];
-	hand_frametimer += GetFrameTime()*hand_framerate;
-	if (hand_frametimer > 1.0f){
-		hand_frame++;
-		hand_frametimer = 0.0f;
-	}
-	const auto& back_tx = assets.get_tx(std::format("{}-back.png", name));
-	const auto& hand_tx = assets.get_tx(std::format("{}-back-hands.png", name));
-	float tx_third_w = back_tx.width / 3.0f;
-	if (hand_frame >= 1 && hand_frame <= 2){
-		x_shift -= 0.005f;
-	} else if (hand_frame > 2 && x_shift_timer < 10.0f){
-		x_shift += 0.02f;
-		x_shift_timer += 1.0f;
-	}
 	DrawBillboardPro(camera, back_tx, {frame * tx_third_w, 0.0f, tx_third_w, static_cast<float>(back_tx.height)}, {(pos.x / tx_third_w) + x_shift, pos.y / back_tx.height + 0.1f, pos.z}, {0, 1, 0}, {0.3f, 0.5f}, {0, 0}, 0, tint);
 	DrawBillboardPro(camera, hand_tx, {hand_frame * 46.0f, 0.0f, 46.0f, static_cast<float>(hand_tx.height)}, {(pos.x / 46.0f + 0.06f + hand_offsets[hand_frame].x) + x_shift + ((name == "hilda") ? 0.06f : 0.0f), pos.y / hand_tx.height + 0.1f + hand_offsets[hand_frame].y, pos.z + 0.02f}, {0, 1, 0}, {0.2f, 0.3f}, {0, 0}, hand_rotation, tint);
-	return hand_frame == 3;
 }

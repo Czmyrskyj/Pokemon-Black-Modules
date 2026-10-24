@@ -125,6 +125,13 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 	foe_pokeball_x.fill(0.0f);
 	trainer_pokeball_x.fill(wnd_w);
 	writer.set_text(current_line);
+
+	absent = ctx.assets.get_sfx("SEQ_SE_TB_KARA.wav");
+	present = ctx.assets.get_sfx("SEQ_SE_TB_KON.wav");
+	sel_sfx = ctx.assets.get_sfx("SEQ_SE_SELECT1.wav");
+	dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
+	dead = ctx.assets.get_sfx("SEQ_SE_DEAD.wav");
+	foe_cry = ctx.assets.get_cry(ctx.bt_info.party[battle.current_foe_pokemon_idx()].get_pokedex().id); 
 }
 
 void battle_state_t::update(st_ctx_t& ctx){
@@ -167,11 +174,6 @@ void battle_state_t::update(st_ctx_t& ctx){
 		(ctx.bt_info.name == "Cheren") ? ctx.cheren.get_party() :
 		ctx.bianca.get_party();
 
-	Sound absent = ctx.assets.get_sfx("SEQ_SE_TB_KARA.wav");
-	Sound present = ctx.assets.get_sfx("SEQ_SE_TB_KON.wav");
-
-	Sound sel_sfx = ctx.assets.get_sfx("SEQ_SE_SELECT1.wav");
-	Sound dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
 
 	bg_rotation = std::sinf(GetTime()) * 15.0f;
 
@@ -225,6 +227,22 @@ void battle_state_t::update(st_ctx_t& ctx){
 	}
 	SetMusicVolume(ctx.current_music, ctx.music_volume);
 
+	if (is_foe_trainer){
+		if (has_anim(ctx.bt_info.name)){
+			anim_trainer_render.update(ctx.bt_info.name, foe_accent_color == 255);
+			animation_done = anim_trainer_render.done(ctx.bt_info.name);
+		} else if (++animation_timer > 125){
+			animation_done = true;
+		}
+	} else {
+		animation_done = true;
+	}
+	
+	if (phase >= BATTLE_PHASE::FOE_SEND_OUT){
+		player_back.update_back();
+		if (player_back.back_done()) finished_drawing_back = true;
+	}
+
 	switch (phase){
 		case BATTLE_PHASE::INTRO:
 			{
@@ -246,7 +264,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 					} else {
 						set_phase(ctx.assets, BATTLE_PHASE::ALLY_SEND_OUT);
 						camera_pos = BATTLE_CAMERA_POS::TRAINER;
-						if (auto foe_cry = ctx.assets.get_cry(ctx.bt_info.party[battle.current_foe_pokemon_idx()].get_pokedex().id); !IsSoundPlaying(foe_cry)){
+						if (!IsSoundPlaying(foe_cry)){
 							PlaySound(foe_cry);
 						}
 						txted = false;
@@ -681,8 +699,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 									}
 								}
 								if (poke_y > -1.0f){
-									Sound dead = ctx.assets.get_sfx("SEQ_SE_DEAD.wav");
-									if (foe_pokemon_y >= 0.0f && !IsSoundPlaying(dead)){
+									if (poke_y >= 0.0f && !IsSoundPlaying(dead)){
 										PlaySound(dead);
 									}
 									poke_y = -0.02f;
@@ -806,7 +823,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 					trainer_thrown_pokeball_renderer.frame = 10;
 					trainer_thrown_pokeball_renderer.frame_timer = 0;
 					trainer_thrown_pokeball_renderer.spinned = 0;
-					foe_pokemon_scale -= 0.1f;
+					foe_pokemon_scale = std::max(0.0f, foe_pokemon_scale - 0.1f);
 				} else {
 					if (trainer_thrown_pokeball_y > 0.01f) trainer_thrown_pokeball_y-=0.01f;
 					if (catch_shakes < battle.last_item_result().shakes){
@@ -845,7 +862,7 @@ void battle_state_t::update(st_ctx_t& ctx){
 								sel_opt = -1;
 							}
 						} else {
-							if (foe_pokemon_scale < 1.0f) foe_pokemon_scale+=0.1f;
+							if (foe_pokemon_scale < 1.0f) foe_pokemon_scale = std::min(1.0f, foe_pokemon_scale + 0.1f);
 							else set_phase(ctx.assets, BATTLE_PHASE::FIGHT);
 						}
 					}
@@ -971,26 +988,22 @@ void battle_state_t::render(st_ctx_t& ctx){
 	auto& p_party = ctx.player.get_party();
 	Texture2D optb = ctx.assets.get_tx("opt.png");
 	if (is_foe_trainer){
-		if (std::ranges::contains(std::array{"Cheren", "Bianca", "N"}, ctx.bt_info.name)){
-			animation_done = anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha}, foe_accent_color == 255);
+		const Color foe_tint{foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha};
+		if (has_anim(ctx.bt_info.name)){
+			anim_trainer_render.draw(ctx.assets, ctx.bt_info.name, {0.7f, 0.08f, foe_z}, &ctx.camera.camera, foe_tint);
 		} else {
-			draw_trainer(ctx.assets, ctx.bt_info.trainer_type, ctx.bt_info.name, {0.5f, 0.08f, foe_z}, &ctx.camera.camera, {foe_accent_color, foe_accent_color, foe_accent_color, foe_alpha});
-			animation_timer ++;
-			if (animation_timer > 125){
-				animation_done = true;
-			}
+			draw_trainer(ctx.assets, ctx.bt_info.trainer_type, ctx.bt_info.name, {0.5f, 0.08f, foe_z}, &ctx.camera.camera, foe_tint);
 		}
-	} else {
-		animation_done = true;
 	}
 	auto& ally = p_party[battle.current_trainer_pokemon_idx()];
 	if (phase >= BATTLE_PHASE::FOE_SEND_OUT){
 		foep.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::FRONT, {0.6f, foe_pokemon_y, -0.3f}, {foe_pokemon_scale, foe_pokemon_scale * foe_height}, &ctx.camera.camera);
-		if (player_back.draw_back(ctx.assets, (ctx.player.sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, trainer_alpha})) finished_drawing_back = true;
+		player_back.draw_back(ctx.assets, (ctx.player.sex() == SEX::MALE) ? "hilbert" : "hilda", {-6.0f, -1.0f, 3.5f}, ctx.camera.camera, {255, 255, 255, trainer_alpha});
 		if (is_foe_trainer && foe_thrown_pokeball_renderer.spinned < 3){
 			foe_thrown_pokeball_renderer.draw(ctx.assets.get_tx("pokeballs.png"), POKEBALL::POKE_BALL, {0.7f, 0.5f, -0.5f}, ctx.camera.camera);
 		}
-	}
+	}	
+
 	if (phase >= BATTLE_PHASE::ALLY_SEND_OUT || foe_about_to_send){
 		ally.render(ctx.assets, ctx.spritedex, POKEMON_RENDER_TYPE::BACK, {-0.4f, ally_pokemon_y, 2.0f}, {ally_pokemon_scale, ally_pokemon_scale * ally_height}, &ctx.camera.camera);
 	}

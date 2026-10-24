@@ -6,6 +6,7 @@
 #include <string_view>
 #include <vector>
 #include <expected>
+#include <cassert>
 
 enum POKEDEX : u16{
 	MISSINGNO,
@@ -704,7 +705,13 @@ class pokedex_t{
 		pokemon_registry.reserve(PK_COUNT);
 	}
 	std::expected<void, std::string_view> load_pokedex();
-	pokedex_entry_t get_pokedex_entry(POKEDEX ID);
+	pokedex_entry_t get_pokedex_entry(POKEDEX ID){
+		if (ID >= pokemon_registry.size()){
+			assert(false && "get_pokedex_entry: bad id");
+			return pokemon_registry[0];
+		}
+		return pokemon_registry[ID];
+	}
 };
 
 

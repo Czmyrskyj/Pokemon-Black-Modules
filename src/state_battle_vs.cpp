@@ -3,6 +3,7 @@
 #include "random.hpp"
 #include "music_name.hpp"
 #include <format>
+#include <algorithm>
 
 
 battle_vs_t::battle_vs_t(st_ctx_t& ctx){

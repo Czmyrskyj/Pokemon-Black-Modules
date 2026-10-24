@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.hpp"
+#include <cassert>
 #include <expected>
 
 enum class CATEGORY : u8{
@@ -42,5 +43,11 @@ class movedex_t{
 		move_registry.reserve(559);
 	}
 	std::expected<void, std::string_view> load_movedex();
-	const move_t& get_move(u16 ID) const { return move_registry[ID]; }
+	const move_t& get_move(u16 ID) const { 
+		if (ID >= move_registry.size()){
+			assert(false && "get_move: bad id");
+			return move_registry[0];
+		}
+		return move_registry[ID]; 
+	}
 };

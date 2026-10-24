@@ -13,7 +13,12 @@ namespace Time{
 	};
 
 	class time_t{
+		const chrono::time_zone* tz = nullptr;
 		public:
+			time_t(){
+				try { tz = chrono::current_zone(); }
+				catch (const std::exception&) { tz = nullptr; }
+			}
 			SEASON get_season();
 			chrono::hh_mm_ss<chrono::seconds> get_time();
 	};

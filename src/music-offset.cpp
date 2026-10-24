@@ -18,6 +18,9 @@ std::expected<void, std::string_view> music_offset_t::load(){
 	
 	u32 offsets_count;
 	in.read(reinterpret_cast<char*>(&offsets_count), sizeof(u32));
+	if (offsets_count > 100'000){
+		return std::unexpected("bad offset count");
+	}	
 	offsets.reserve(offsets_count);
 
 	for (usz i = 0; i < offsets_count; i++){

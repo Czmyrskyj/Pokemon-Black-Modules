@@ -30,7 +30,10 @@ namespace Locale{
 		ui_locale.read(reinterpret_cast<char*>(ui_locale_contents.data()), static_cast<std::streamsize>(ui_locale_contents.size()));
 
 		u32 ui_locale_entries_amount = *reinterpret_cast<u32*>(ui_locale_contents.data());
-		
+		if (ui_locale_entries_amount > 100'000){
+			return std::unexpected("bad locale count");
+		}
+
 		ui_cache.reserve(ui_locale_entries_amount);
 		locale_entry_t* entry_table = reinterpret_cast<locale_entry_t*>(ui_locale_contents.data() + 4);
 

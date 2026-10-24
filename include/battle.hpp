@@ -8,7 +8,6 @@
 #include "item_effects.hpp"
 #include <variant>
 #include <format>
-#include <algorithm>
 #include <optional>
 #include <print>
 
@@ -55,7 +54,7 @@ using turn_action_t = std::variant<none_action_t, attack_action_t, item_action_t
 
 class battle_t{
 	trainer_t& player;
-	foe_t foe;
+	foe_t& foe;
 	party_t* foe_party;
 	u8 m_txtbox_alpha = 0;
 	u8 m_txtbox_peak_alpha_timer = 0;
@@ -63,6 +62,7 @@ class battle_t{
 	u8 m_current_trainer_pokemon_idx = 0;
 	u8 m_turn_count = 0;
 	u8 m_wild_pokemon_idx = 0;
+	u8 m_foe_used_item_idx = 0;
 	turn_action_t m_foe_turn_action = none_action_t{};
 	turn_action_t m_trainer_turn_action = none_action_t{};
 	item_result_t m_last_item_result = {};
@@ -127,46 +127,19 @@ class battle_t{
 		}();
 
 	}
+	static bool ai_uses_items(TRAINER_TYPE T){
+		using enum TRAINER_TYPE;
+		return (T == PKMN_TRAINER || T == ACE_TRAINER || T == DOCTOR || T == NURSE || T == VETERAN || T == GYM_LEADER || T == ELITE_FOUR || T == BOSS);
+	}
 	void set_ai_action(std::span<const u16> items){
-		if (std::holds_alternative<trainer_t>(foe)){
-			auto& t = std::get<trainer_t>(foe);
-			auto& cur_pokemon = (*foe_party)[m_current_foe_pokemon_idx];
-			if (std::ranges::contains(std::array{TRAINER_TYPE::PKMN_TRAINER, 
-						TRAINER_TYPE::ACE_TRAINER, 
-						TRAINER_TYPE::DOCTOR, 
-						TRAINER_TYPE::NURSE, 
-						TRAINER_TYPE::VETERAN, 
-						TRAINER_TYPE::GYM_LEADER, 
-						TRAINER_TYPE::ELITE_FOUR, 
-						TRAINER_TYPE::BOSS}, t.trainer_type())){
-
-
-				float hp_ratio = cur_pokemon.hp() / cur_pokemon.max_hp();
-				if (hp_ratio > 0.2f){
-					set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, rnd::get_val<u8>(0, cur_pokemon.move_count() - 1), 0);
-				} else {
-					set_action(TURN_ACTION::ITEM, BATTLE_TURN::FOE, items[0], 0);
-				}
-
-			} else {
-
-				/*  WARN:
-				 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
-				 */
-				const u8 mc = cur_pokemon.move_count();
-				set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, mc > 0 ? rnd::get_val<u8>(0, mc - 1) : 0, 0);
-			}
-		} else {
-
-			/*  INFO:
-			 *  THIS IS POKEMON AI, IT ALWAYS ATTACKS;
-			 *  WARN:
-			 *  RIGHT NOW, TARGET IS HARDCODED TO 0, SHOULD BE DYNAMIC IN FUTURE;
-			 */
-			const auto& p = (*foe_party)[m_current_foe_pokemon_idx];
-			const u8 mc = p.move_count();
-			set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, mc > 0 ? rnd::get_val<u8>(0, mc - 1) : 0, 0);
+		const auto& cur = (*foe_party)[m_current_foe_pokemon_idx];
+		if (const auto* t = std::get_if<trainer_t>(&foe); t && ai_uses_items(t->trainer_type()) &&
+		    m_foe_used_item_idx < items.size() && static_cast<float>(cur.hp()) / static_cast<float>(cur.max_hp()) <= 0.2f){
+			set_action(TURN_ACTION::ITEM, BATTLE_TURN::FOE, items[m_foe_used_item_idx], m_current_foe_pokemon_idx);
+			return;
 		}
+		u8 mc = cur.move_count();
+		set_action(TURN_ACTION::ATTACK, BATTLE_TURN::FOE, mc > 0 ? rnd::get_val<u8>(0, mc - 1) : 0, 0);
 	}
 	i8 action_priority(const turn_action_t& a, const pokemon_t& user, const movedex_t& movedex){
 		return std::visit([&](auto&& act) -> i8 {
@@ -239,10 +212,14 @@ class battle_t{
 
 
 		if (m_last_item_result.consumed()){
-			actor_trainer.consume_item(ia.item_id);
+			if (is_trainer){
+				actor_trainer.consume_item(ia.item_id);
+			} else {
+				m_foe_used_item_idx++;
+			}
 		}
 		if (m_last_item_result.kind == ITEM_RESULT::REVIVED && was_fainted){
-			actor_trainer.set_conscious_count(player.conscious_count() + 1);
+			actor_trainer.set_conscious_count(actor_trainer.conscious_count() + 1);
 		}
 		if (m_last_item_result.kind == ITEM_RESULT::CAUGHT && is_trainer){
 			m_winner = BATTLE_FIGURE::TRAINER;

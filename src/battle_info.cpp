@@ -18,6 +18,9 @@ std::expected<void, std::string_view> battle_info_t::load_battle_info(){
 	}
 	u32 entries_amount = 0;
 	in.read(reinterpret_cast<char*>(&entries_amount), sizeof(u32));
+	if (entries_amount > 100'000){
+		return std::unexpected("bad entry amount");
+	}
 	table.resize(entries_amount);
 	in.read(reinterpret_cast<char*>(table.data()), entries_amount * sizeof(lookup_t));
 	return {};
