@@ -9,6 +9,7 @@
 #include "camera.hpp"
 #include "spritedex.hpp"
 #include "items.hpp"
+#include "modules.hpp"
 
 struct st_ctx_t;
 
@@ -25,6 +26,7 @@ struct st_ctx_t{
 	spritedex_t& spritedex;
 	movedex_t& movedex;
 	itemdex_t& itemdex;
+	moduledex_t& moduledex;
 	Time::time_t& time;
 	battle_info_t& battle_info;
 	formatter_t& formatter;
@@ -44,7 +46,7 @@ struct st_ctx_t{
 	bool music_started{false};
 	float music_volume = 1.0f;
 	// WARN: [!!] AFTER DEBUGGING, SET TO 0
-	usz index = 1;
+	usz index = 5;
 	bool predialog_finished = false;
 	bool postdialog_finished = false;
 	bool show_encounter_info = false;

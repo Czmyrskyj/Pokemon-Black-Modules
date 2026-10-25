@@ -11,6 +11,7 @@
 #include "music-offset.hpp"
 #include "moves.hpp"
 #include "items.hpp"
+#include "modules.hpp"
 
 #include <print>
 
@@ -85,6 +86,13 @@ int main(){
 			std::println(stderr, "error: {}", itemdex_load_res.error());
 			return cleanup_and_fail();
 		}
+		
+		moduledex_t moduledex;
+		auto moduledex_load_res = moduledex.load_moduledex();
+		if (!moduledex_load_res.has_value()){
+			std::println(stderr, "error: {}", moduledex_load_res.error());
+			return cleanup_and_fail();
+		}
 
 		camera_t camera;
 
@@ -95,6 +103,7 @@ int main(){
 			.spritedex = spritedex,
 			.movedex = movedex,
 			.itemdex = itemdex,
+			.moduledex = moduledex,
 			.time = time,
 			.battle_info = battle_info,
 			.formatter = formatter,
