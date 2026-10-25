@@ -132,6 +132,8 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 	dec_sfx = ctx.assets.get_sfx("SEQ_SE_DECIDE1.wav");
 	dead = ctx.assets.get_sfx("SEQ_SE_DEAD.wav");
 	foe_cry = ctx.assets.get_cry(ctx.bt_info.party[battle.current_foe_pokemon_idx()].get_pokedex().id); 
+
+	ctx.player.push_module(ctx.moduledex, 0);
 }
 
 void battle_state_t::update(st_ctx_t& ctx){
@@ -1093,6 +1095,9 @@ void battle_state_t::render(st_ctx_t& ctx){
 	if (phase == BATTLE_PHASE::MENU){
 		if (!switch_necessary && menu_state != BATTLE_MENU_STATE::NONE){
 			DrawTextureEx(ctx.assets.get_tx("battle-menu.png"), {0, battle_menu_y}, 0, 3, WHITE);
+			for (usz i = 0; i < ctx.player.module_deck().size(); i++){
+				ctx.player.module_deck()[i].render(ctx.assets, {50 + (i % 6) * 160.0f, static_cast<usz>((i / 6)) * 160.0f + battle_menu_y + 150.0f, 150, 150});
+			}
 		}
 		switch (menu_state){
 			case BATTLE_MENU_STATE::OPTIONS:

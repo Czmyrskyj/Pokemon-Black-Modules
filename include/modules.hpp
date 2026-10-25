@@ -52,12 +52,16 @@ struct module_effect_t{
 	MOD_EFF::TARGET target;
 };
 
+struct assets_t;
+
 struct module_t{
 	std::string name;
 	std::string description;
 	MODULE_RARITY rarity;
 	u16 cost;
 	std::vector<module_effect_t> effects;
+	u16 idx;
+	void render(assets_t& assets, Rectangle dest) const;
 };
 
 class moduledex_t{

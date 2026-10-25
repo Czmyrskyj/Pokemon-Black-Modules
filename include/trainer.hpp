@@ -5,6 +5,7 @@
 #include "sex.hpp"
 #include "trainer_type_prefixes.hpp"
 #include "items.hpp"
+#include "modules.hpp"
 #include <string>
 #include <cassert>
 #include <span>
@@ -72,6 +73,8 @@ class trainer_t{
 	std::vector <pokemon_t> pc_party{};
 	u8 m_conscious_count = 0;
 	inventory_t m_inventory{};
+	std::array<module_t, 12> m_module_deck{};
+	u8 m_module_count = 0;
 	public:
 	trainer_t() = default;
 	trainer_t(std::string n, TRAINER_TYPE t) : m_name(std::move(n)), m_trainer_type(t) {}
@@ -130,6 +133,20 @@ class trainer_t{
 			}
 		}
 		return false;
+	}
+	std::span<const module_t> module_deck(){
+		return m_module_deck;
+	}
+	void push_module(moduledex_t& moduledex, u16 id){
+		if (m_module_count >= 11) return;
+		m_module_deck[m_module_count++] = moduledex.get_module(id);
+	}
+	void pop_module(u8 idx){
+		if (m_module_count <= 0 || idx > m_module_count) return;
+		if (idx < m_module_count - 1){
+			m_module_deck[idx] = std::move(m_module_deck[m_module_count - 1]);
+		}
+		m_module_count--;
 	}
 };
 void draw_trainer(assets_t& assets, TRAINER_TYPE trainer_type, std::string_view trainer, Vector3 pos, const Camera3D* camera = nullptr, Color tint = WHITE);
