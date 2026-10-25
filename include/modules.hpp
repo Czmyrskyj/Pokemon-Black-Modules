@@ -61,7 +61,9 @@ struct module_t{
 	u16 cost;
 	std::vector<module_effect_t> effects;
 	u16 idx;
+	double rotation;
 	void render(assets_t& assets, Rectangle dest) const;
+	void rotate();
 };
 
 class moduledex_t{

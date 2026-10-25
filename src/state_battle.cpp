@@ -134,6 +134,7 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 	foe_cry = ctx.assets.get_cry(ctx.bt_info.party[battle.current_foe_pokemon_idx()].get_pokedex().id); 
 
 	ctx.player.push_module(ctx.moduledex, 0);
+	ctx.player.push_module(ctx.moduledex, 1);
 }
 
 void battle_state_t::update(st_ctx_t& ctx){
@@ -399,6 +400,9 @@ void battle_state_t::update(st_ctx_t& ctx){
 				if (foe_hud_x < 0.0f) foe_hud_x += 20.0f;
 				if (battle_menu_y > wnd_h - 174.0f * 3.0f){
 					battle_menu_y -= 29.0f;
+				}
+				for (usz i = 0; i < ctx.player.module_deck().size(); i++){
+					ctx.player.module_deck()[i].rotate();
 				}
 				switch (menu_state){
 					case BATTLE_MENU_STATE::OPTIONS:
@@ -1096,7 +1100,7 @@ void battle_state_t::render(st_ctx_t& ctx){
 		if (!switch_necessary && menu_state != BATTLE_MENU_STATE::NONE){
 			DrawTextureEx(ctx.assets.get_tx("battle-menu.png"), {0, battle_menu_y}, 0, 3, WHITE);
 			for (usz i = 0; i < ctx.player.module_deck().size(); i++){
-				ctx.player.module_deck()[i].render(ctx.assets, {50 + (i % 6) * 160.0f, static_cast<usz>((i / 6)) * 160.0f + battle_menu_y + 150.0f, 150, 150});
+				ctx.player.module_deck()[i].render(ctx.assets, {100 + (i % 6) * 160.0f, static_cast<usz>((i / 6)) * 160.0f + battle_menu_y + 230.0f, 150, 150});
 			}
 		}
 		switch (menu_state){

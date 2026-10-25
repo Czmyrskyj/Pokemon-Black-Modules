@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <raylib.h>
+#include <cmath>
 namespace fs = std::filesystem;
 
 std::expected<void, std::string_view> moduledex_t::load_moduledex(){
@@ -56,6 +57,7 @@ std::expected<void, std::string_view> moduledex_t::load_moduledex(){
 			.cost = module_h.cost,
 			.effects = std::move(effects),
 			.idx = next_slot[module_h.rarity]++,
+			.rotation = 0.0f,
 		});
 	}
 
@@ -79,5 +81,10 @@ void module_t::render(assets_t& assets, Rectangle dest) const{
 		return "";
 	}();
 	const Rectangle src{static_cast<usz>((idx % row_count)) * mod_w, static_cast<usz>((idx / row_count)) * mod_h, mod_w, mod_h};
-	DrawTexturePro(assets.get_tx(spritesheet), src, dest, {0, 0}, 0, WHITE);
+	DrawTexturePro(assets.get_tx(spritesheet), src, dest, {dest.width / 2.0f, dest.height / 2.0f}, rotation, WHITE);
+}
+
+
+void module_t::rotate(){
+	rotation = std::sin(GetTime() + idx) * 2.0;
 }

@@ -134,7 +134,10 @@ class trainer_t{
 		}
 		return false;
 	}
-	std::span<const module_t> module_deck(){
+	std::span<module_t> module_deck() {
+		return m_module_deck;
+	}
+	std::span<const module_t> module_deck() const{
 		return m_module_deck;
 	}
 	void push_module(moduledex_t& moduledex, u16 id){
