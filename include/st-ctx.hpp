@@ -46,7 +46,7 @@ struct st_ctx_t{
 	bool music_started{false};
 	float music_volume = 1.0f;
 	// WARN: [!!] AFTER DEBUGGING, SET TO 0
-	usz index = 5;
+	usz index = 0;
 	bool predialog_finished = false;
 	bool postdialog_finished = false;
 	bool show_encounter_info = false;
@@ -162,7 +162,7 @@ struct st_ctx_t{
 	// WARN: only for debugging!
 	void set_temp_data(){
 		current_state = STATE::MAIN;
-		region = REGION::ROUTE_1;
+		region = REGION::NUVEMA;
 		state_data.emplace<main_state_t>(*this);
 		player.set_name("Dvoriak");
 		player.set_sex(SEX::MALE);
@@ -246,5 +246,8 @@ struct st_ctx_t{
 		player.push_item(itemdex, 126);
 		player.push_item(itemdex, 305);
 		player.push_item(itemdex, 17);
+
+		player.push_module(moduledex, 0);
+		player.push_module(moduledex, 1);
 	}
 };

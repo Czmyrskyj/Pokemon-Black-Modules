@@ -10,6 +10,7 @@
 #include <cassert>
 #include <span>
 
+
 static constexpr usz MAX_FOE_PARTY{12};
 
 class party_t{
@@ -46,7 +47,6 @@ class party_t{
 	}
 };
 
-class assets_t;
 struct Vector2;
 
 enum class BAG : u8{
@@ -135,17 +135,23 @@ class trainer_t{
 		return false;
 	}
 	std::span<module_t> module_deck() {
-		return m_module_deck;
+		return std::span<module_t>(m_module_deck.data(), m_module_count);
 	}
 	std::span<const module_t> module_deck() const{
-		return m_module_deck;
+		return std::span<const module_t>(m_module_deck.data(), m_module_count);
 	}
 	void push_module(moduledex_t& moduledex, u16 id){
-		if (m_module_count >= 11) return;
-		m_module_deck[m_module_count++] = moduledex.get_module(id);
+		if (m_module_count >= 12) return;
+		module_t mod = moduledex.get_module(id);
+		for (u8 i = 0; i < m_module_count; i++){
+			if (m_module_deck[i].idx == mod.idx){
+				return;
+			}
+		}
+		m_module_deck[m_module_count++] = std::move(mod);
 	}
 	void pop_module(u8 idx){
-		if (m_module_count <= 0 || idx > m_module_count) return;
+		if (idx >= m_module_count) return;
 		if (idx < m_module_count - 1){
 			m_module_deck[idx] = std::move(m_module_deck[m_module_count - 1]);
 		}

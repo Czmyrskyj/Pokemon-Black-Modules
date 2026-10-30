@@ -133,8 +133,6 @@ battle_state_t::battle_state_t(st_ctx_t& ctx) : battle(ctx.player, ctx.bt_info.f
 	dead = ctx.assets.get_sfx("SEQ_SE_DEAD.wav");
 	foe_cry = ctx.assets.get_cry(ctx.bt_info.party[battle.current_foe_pokemon_idx()].get_pokedex().id); 
 
-	ctx.player.push_module(ctx.moduledex, 0);
-	ctx.player.push_module(ctx.moduledex, 1);
 }
 
 void battle_state_t::update(st_ctx_t& ctx){

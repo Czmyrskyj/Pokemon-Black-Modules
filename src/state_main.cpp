@@ -168,6 +168,7 @@ void main_state_t::update(st_ctx_t& ctx){
 			ctx.initialized_encounter_info = true;
 		}
 		if (is_foe_trainer){
+			anim_trainer_render.update(ctx.bt_info.name);
 			ctx.set_music(
 					std::format(
 						"{}.ogg",
@@ -240,7 +241,6 @@ void main_state_t::render(st_ctx_t& ctx){
 	for (usz i = 0; i < encounters_count[static_cast<u8>(ctx.region)]; i++){
 		DrawTextureEx(ctx.assets.get_tx("level-point.png"), {100 + i * 400.0f, 600.0f}, 0.0f, 2.0f, (i == ctx.index) ? WHITE : DARKGRAY);
 	}
-	DrawTextureEx(ctx.assets.get_tx("level-point-outline.png"), {100 + ctx.index * 400.0f - 15.0f, 585.0f}, 0.0f, 3.0f, WHITE);
 	if (!predialog.finished || !predialog.hid_txtbox()){
 		draw_text_seq(ctx.assets, writer, predialog.txtbox_x, predialog.txtbox_y, 50, WHITE, 1);
 		predialog.draw_speaker(ctx.assets);
