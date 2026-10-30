@@ -212,7 +212,7 @@ void main_state_t::update(st_ctx_t& ctx){
 			current_line = ctx.formatter.format(postdialog.step(ctx.assets, writer, ctx.locale));
 			writer.set_text(current_line);
 		}
-		if (writer.finished){
+		if (postdialog.finished && writer.finished){
 			ctx.postdialog_finished = true;
 			if (ctx.index < encounters_count[static_cast<usz>(ctx.region)]) ctx.index++;
 		}
