@@ -111,7 +111,7 @@ int main(){
 		};
 
 		// WARN: delete after testing!
-		ctx.set_temp_data();
+		// ctx.set_temp_data();
 
 		while (!WindowShouldClose()){
 			ctx.validate_music();
